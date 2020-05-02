@@ -79,7 +79,7 @@ string.
 Additionally, this template variable can be accessed as a zero-indexed array to
 get the name of an individual input file.  Example: `\<<input-files[0]>>`.
 +
-NOTE: The expected number of files will depend on the script itself and it's
+NOTE: The expected number of files will depend on the script itself and its
       expectations.
 
 `\<<cwd>>`:: The path to the working directory for the request.

@@ -9,13 +9,11 @@ import (
 	"strings"
 )
 
-var inputFileInjectorTarget = regexp.MustCompile(`"?<<input-files(?:\[(\d*)])?>>"?`)
+var inputFileInjectorTarget = regexp.MustCompile(`"?<<input-files(?:\[([^]]*)])?>>"?`)
 
 const (
-	simpleInputFileTarget     = "<<input-files>>"
-	allInputFileTarget        = "<<input-files[]>>"
-	wrappedInputFileTarget    = `"<<input-files>>"`
-	wrappedAllInputFileTarget = `"<<input-files[]>>"`
+	simpleInputFileTarget  = "<<input-files>>"
+	wrappedInputFileTarget = `"<<input-files>>"`
 )
 
 func NewInputFileInjector(details *process.Details) VariableInjector {
@@ -40,11 +38,11 @@ func (t *inputFileInjector) Inject(target []string) ([]string, error) {
 		// TODO: Need to replace the token
 		for _, match := range matches {
 			switch tgt[match[0]:match[1]] {
-			case simpleInputFileTarget, allInputFileTarget:
+			case simpleInputFileTarget:
 				out = t.simpleAll(out, tgt, match)
 				continue
 
-			case wrappedInputFileTarget, wrappedAllInputFileTarget:
+			case wrappedInputFileTarget:
 				out = t.wrappedAll(out, tgt, match)
 				continue
 			}
@@ -100,6 +98,11 @@ func (t *inputFileInjector) targetFile(out []string, target string, match []int)
 		// TODO: improve this error
 		return nil, fmt.Errorf("invalid input file index %d, array size is %d",
 			index, len(t.state.InputFiles))
+	}
+
+	if target[match[0]] == '"' && target[match[1]-1] == '"' {
+		return append(out, target[:match[0]+1]+t.state.InputFiles[index]+
+			target[match[1]-1:]), nil
 	}
 
 	return append(out, target[:match[0]]+t.state.InputFiles[index]+

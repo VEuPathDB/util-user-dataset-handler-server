@@ -9,7 +9,7 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/process"
 )
 
-var outputFileInjectorTarget = regexp.MustCompile(`"?<<output-files(?:\[(\d*)](?:\[(\d*)])?)?>>"?`)
+var outputFileInjectorTarget = regexp.MustCompile(`"?<<output-files(?:\[([^]]*)](?:\[([^]]*)])?)?>>"?`)
 
 const (
 	simpleOutFileTarget  = "<<output-files>>"
@@ -77,7 +77,7 @@ func (t *outputFileInjector) simpleAll(out []string, target string, match []int)
 		out = append(out, target[:match[0]])
 	}
 
-	for _, file := range t.state.InputFiles {
+	for _, file := range t.state.OutputFiles[len(t.state.OutputFiles)-1] {
 		out = append(out, file)
 	}
 
@@ -90,7 +90,7 @@ func (t *outputFileInjector) simpleAll(out []string, target string, match []int)
 
 func (t *outputFileInjector) wrappedAll(out []string, target string, match []int) []string {
 	return append(out, target[:match[0]+1]+
-		strings.Join(t.state.InputFiles, " ")+
+		strings.Join(t.state.OutputFiles[len(t.state.OutputFiles)-1], " ")+
 		target[match[1]-1:])
 }
 
@@ -121,13 +121,13 @@ func (t *outputFileInjector) handle2dArray(
 	}
 
 	// if wrapped
-	if target[match[0]] == '"' && target[match[1]] == '"' {
+	if target[match[0]] == '"' && target[match[1]-1] == '"' {
 		return append(out, target[:match[0]+1]+t.state.OutputFiles[x][y]+
 			target[match[1]-1:]), nil
 	}
 
 	// if unwrapped
-	return append(out, target[:match[0]], t.state.OutputFiles[x][y],
+	return append(out, target[:match[0]]+t.state.OutputFiles[x][y]+
 		target[match[1]:]), nil
 }
 
@@ -145,9 +145,9 @@ func (t *outputFileInjector) handle1dArray(out []string, target string, match []
 			x, len(t.state.OutputFiles))
 	}
 
-	if target[match[0]] == '"' && target[match[1]] == '"' {
+	if target[match[0]] == '"' && target[match[1]-1] == '"' {
 		return append(out, target[:match[0]+1]+
-			strings.Join(t.state.OutputFiles[x], " ")+target[:match[1]-1]), nil
+			strings.Join(t.state.OutputFiles[x], " ")+target[match[1]-1:]), nil
 	}
 
 	if match[0] > 0 {
