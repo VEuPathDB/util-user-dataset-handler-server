@@ -27,6 +27,22 @@
 #
 #   <<project>>
 #     the name of the project this request originated from
+#
+#   <<output-files>>
+#     The files created by the previous command run as a space separated list.
+#
+#     Additionally this variable may be used as either a 1 dimensional or 2
+#     dimensional array with the following behavior: (note all array access uses
+#     a zero based index)
+#
+#     <<output-files[x]>>
+#       This will return only the file at the integer index "x" from the
+#       previous command's output files.
+#
+#     <<output-files[x][y]>>
+#       This will return only the file at the integer index "y" from the output
+#       of command "x", where "x" is the integer index of the command as defined
+#       in the configuration command list.
 
 # Example Configuration
 commands:

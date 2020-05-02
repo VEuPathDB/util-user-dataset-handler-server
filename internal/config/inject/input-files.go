@@ -19,7 +19,7 @@ const (
 )
 
 func NewInputFileInjector(details *process.Details) VariableInjector {
-	return &timeInjector{details}
+	return &inputFileInjector{details}
 }
 
 type inputFileInjector struct {
@@ -62,6 +62,8 @@ func (t *inputFileInjector) Inject(target []string) ([]string, error) {
 			}
 		}
 	}
+
+	return out, nil
 }
 
 func (t *inputFileInjector) simpleAll(out []string, target string, match []int) []string {
@@ -81,8 +83,8 @@ func (t *inputFileInjector) simpleAll(out []string, target string, match []int) 
 }
 
 func (t *inputFileInjector) wrappedAll(out []string, target string, match []int) []string {
-	return append(out, target[:match[0]+1] +
-		strings.Join(t.state.InputFiles, " ") +
+	return append(out, target[:match[0]+1]+
+		strings.Join(t.state.InputFiles, " ")+
 		target[match[1]-1:])
 }
 
@@ -100,6 +102,6 @@ func (t *inputFileInjector) targetFile(out []string, target string, match []int)
 			index, len(t.state.InputFiles))
 	}
 
-	return append(out, target[:match[0]] + t.state.InputFiles[index] +
+	return append(out, target[:match[0]]+t.state.InputFiles[index]+
 		target[match[1]:]), nil
 }

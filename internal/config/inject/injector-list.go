@@ -6,9 +6,12 @@ type InjectorProvider func(*process.Details) VariableInjector
 
 func InjectorList() []InjectorProvider {
 	return []InjectorProvider{
+		NewCwdInjector,
 		NewDateInjector,
-		NewTimeInjector,
 		NewDateTimeInjector,
+		NewInputFileInjector,
+		NewOutputFileInjector,
+		NewTimeInjector,
 		NewTimestampInjector,
 	}
 }
