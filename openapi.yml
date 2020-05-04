@@ -1,0 +1,411 @@
+openapi: "3.0.2"
+
+info:
+  title: Dataset validation/transformer service
+  version: __VERSION__ # version filled by build script
+  description: |
+    A validation/transformation suite for User Datasets exposed over HTTP.
+
+tags:
+  - name: Meta
+    description: |
+      Endpoints for data about the service itself.
+  - name: Dataset
+    description: |
+      Endpoints for dealing with the processing of User Datasets.
+
+paths:
+
+  /:
+    get:
+      description: API documentation.
+      tags:
+        - Meta
+      responses:
+        200:
+          description: API docs
+          content:
+            text/html:
+              schema:
+                description: "HTML Page"
+
+  /health:
+    get:
+      tags:
+        - Meta
+      description: Current status/stats about the the HTTP service.
+      responses:
+        200:
+          description: Successful server status lookup.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/health-response'
+        500:
+          $ref: '#/components/responses/server-error'
+
+  /process/metadata:
+    post:
+      tags:
+        - Dataset
+      description: |
+        Validates the metadata and prepares the service for handling a User
+        Dataset matching the given metadata values.
+
+        Post body size is capped at a max of 1Mb.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/metadata-post'
+
+      responses:
+        200:
+          description: |
+            Metadata passed validation and was accepted.  Service is ready for
+            User Dataset upload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status-success'
+        400:
+          description: |
+            Request failed due to invalid user input.  One of the following
+            checks was failed:
+
+            1. No Content-Type header
+            2. Non JSON Content-Type
+            3. No Content-Length header
+            4. Content too large
+            5. Payload could not be parsed as JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status-bad-request'
+        422:
+          description: |
+            Passed metadata was syntactically valid JSON but failed validation
+            for the reasons detailed in the response body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status-bad-input'
+        500:
+          $ref: '#/components/responses/server-error'
+
+  /process/dataset/{token}:
+    post:
+      tags:
+        - Dataset
+      description: Post a User Dataset for processing.
+      parameters:
+        - $ref: '#/components/parameters/dataset-token'
+      requestBody:
+        description: |
+          User Dataset payload as a zip or tar file up to 500Mb in size.
+        content:
+          application/binary:
+            examples:
+              tar-file:
+                value: "dataset.tar.gz"
+              zip-file:
+                value: "dataset.zip"
+            schema:
+              description: "compressed dataset payload"
+      responses:
+        200:
+          description: |
+            User Dataset processing completed successfully.  Returns the output
+            from the internal script suite as a packaged tar file ready for
+            upload to iRODS.
+          content:
+            application/binary:
+              example:
+                "dataset.tgz"
+        400:
+          description: |
+            Invalid request input.  Possible causes are:
+
+            1. No Content-Type header
+            2. No Content-Length header
+            3. Unsupported Content-Type
+            4. Payload too large
+            5. Incorrect payload format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status-bad-request'
+        404:
+          $ref: '#/components/responses/bad-token'
+        500:
+          $ref: '#/components/responses/server-error'
+
+  /process/dataset/{token}/status:
+    get:
+      tags:
+        - Dataset
+      description: |
+        Fetch the current status of the User Dataset processing.
+      parameters:
+        - $ref: '#/components/parameters/dataset-token'
+      responses:
+        200:
+          description: User Dataset processing status data.
+        404:
+          $ref: '#/components/responses/bad-token'
+        500:
+          $ref: '#/components/responses/server-error'
+
+components:
+
+  parameters:
+
+    dataset-token:
+      in: path
+      name: token
+      schema:
+        type: string
+        format: uuid
+      required: true
+      description: |
+        Unique token assigned to this User Dataset validation / transform
+        process.  Must have been sent to the server once already using the
+        /process/metadata endpoint.
+
+  responses:
+
+    bad-token:
+      description: |
+        Unrecognized token value.  Either token was not previously sent to the
+        service or the process finished and the server is no longer storing
+        metadata about the process.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/status-not-found'
+
+    server-error:
+      description: |
+        An unexpected internal server error occurred while attempting to process
+        the request.  The response message will contain more details.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/status-server-error'
+
+  schemas:
+
+    health-response:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ "healthy", "unhealthy" ]
+        version:
+          type: string
+          example:
+            "v1.0.0"
+        stats:
+          type: object
+          properties:
+            byStatus:
+              description: |
+                Request count by HTTP response status.
+              type: object
+              additionalProperties:
+                type: integer
+                minimum: 0
+            avgSize:
+              description: |
+                Average User Dataset payload size.
+              type: integer
+              minimum: 0
+            avgDuration:
+              description: |
+                Average User Dataset processing time.
+              type: string
+            largest:
+              description: |
+                Historical largest User Dataset processed size in
+                bytes.
+              type: integer
+              minimum: 0
+            longest:
+              description: |
+                Historical longest run encountered for processing a
+                User Dataset.
+              type: string
+          required:
+            - byStatus
+            - avgSize
+            - avgDuration
+            - largest
+            - longest
+
+    metadata-post:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/metadata-type'
+        token:
+          description: |
+            Unique token for this User Dataset.  Assigned by the calling service
+            and used in subsequent requests starting or fetching info about the
+            processing of this User Dataset.
+          type: string
+          format: uuid
+        projects:
+          description: |
+            Projects in which this User Dataset should be available for install
+            after processing.
+          type: array
+          items:
+            $ref: '#/components/schemas/project-enum'
+          minItems: 1
+          uniqueItems: true
+        owner:
+          description: |
+            WDK User ID of the user submitting this User Dataset for processing.
+          type: integer
+          minimum: 0
+        dependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/dependency'
+          minItems: 1
+      required:
+        - type
+        - token
+        - projects
+        - owner
+
+    metadata-type:
+      type: object
+      properties:
+        version:
+          type: string
+          example:
+            "1.0"
+        name:
+          type: string
+          example:
+            "Some Dataset Name"
+      required:
+        - version
+        - name
+
+    project-enum:
+      type: string
+      enum:
+        - AmoebaDB
+        - ClinepiDB
+        - CryptoDB
+        - FungiDB
+        - GiardiaDB
+        - HostDB
+        - MicrobiomeDB
+        - MicrosporidiaDB
+        - Orthomcl
+        - PiroplasmaDB
+        - PlasmoDB
+        - SchistoDB
+        - ToxoDB
+        - TrichDB
+        - TritrypDB
+        - Vectorbase
+        - VeupathDB
+
+    dependency:
+      type: object
+      properties:
+        resourceDisplayName:
+          type: string
+        resourceVersion:
+          type: string
+        resourceIdentifier:
+          type: string
+      required:
+        - resourceDisplayName
+        - resourceVersion
+        - resourceIdentifier
+
+    #
+    # Generic Status Responses
+    #
+
+    status-success:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ "ok" ]
+        message:
+          type: string
+      required:
+        - status
+
+    status-not-found:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ "not-found" ]
+        message:
+          type: string
+      required:
+        - status
+        - message
+
+    status-bad-request:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ "bad-request" ]
+        message:
+          type: string
+      required:
+        - status
+        - message
+
+    status-bad-input:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ "invalid-input" ]
+        message:
+          description: |
+            An optional overall message about the validation failure.
+          type: string
+        reasons:
+          description: |
+            A map of metadata input properties and a list of 1 or more reasons
+            they did not pass validation.
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+            minItems: 1
+          minProperties: 1
+          example:
+            token:
+              - Token was not a valid UUID string
+            type:
+              - Type was missing a version number
+      required:
+        - status
+        - reasons
+
+    status-server-error:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ "server-error" ]
+        message:
+          type: string
+      required:
+        - status
+        - message

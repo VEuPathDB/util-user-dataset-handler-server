@@ -1,10 +1,27 @@
 package stats
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
 	"sync"
 	"time"
 )
+
+type ServerStats interface {
+	RecordTime(duration time.Duration)
+	RecordSize(bytes uint)
+	ToPublic() interface{}
+}
+
+func GetServerStatus() ServerStats {
+	return &status
+}
+
+var status stats
+
+func init() {
+	status = stats{
+		byStatus: make(map[int]uint),
+	}
+}
 
 type stats struct {
 	lock sync.RWMutex
@@ -12,17 +29,27 @@ type stats struct {
 	byStatus map[int]uint
 	times    []time.Duration
 	sizes    []uint
-	longest  *requestDetails
-	largest  *requestDetails
+	longest  time.Duration
+	largest  uint
 }
 
-func (s *stats) RecordTime(dur time.Duration, details *process.StorableDetails) {
+func (s *stats) RecordTime(dur time.Duration) {
 	s.lock.Lock()
-
+	s.times = append(s.times, dur)
+	if s.longest < dur {
+		s.longest = dur
+	}
 	s.lock.Unlock()
 }
 
-func (s *stats) recDetails()
+func (s *stats) RecordSize(bytes uint) {
+	s.lock.Lock()
+	s.sizes = append(s.sizes, bytes)
+	if bytes > s.largest {
+		s.largest = bytes
+	}
+	s.lock.Unlock()
+}
 
 func (s *stats) averageSize() uint {
 	total := uint64(0)
@@ -44,21 +71,17 @@ func (s *stats) ToPublic() interface{} {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 
-	tmpLong := *s.longest
-	tmpLarge := *s.largest
 	status := make(map[int]uint, len(s.byStatus))
 
 	for k, v := range s.byStatus {
 		status[k] = v
 	}
 
-	return container{
-		Requests: requests{
-			Longest:     &tmpLong,
-			Largest:     &tmpLarge,
-			AvgDuration: s.averageTime(),
-			AvgSize:     s.averageSize(),
-			ByStatus:    status,
-		},
+	return requests{
+		Longest:     s.longest,
+		Largest:     s.largest,
+		AvgDuration: s.averageTime(),
+		AvgSize:     s.averageSize(),
+		ByStatus:    status,
 	}
 }

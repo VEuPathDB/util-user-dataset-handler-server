@@ -9,6 +9,10 @@ type StorableDetails struct {
 	// request.
 	Started time.Time `json:"started"`
 
+	// Duration is the length of time the request took
+	// overall.
+	Duration time.Duration `json:"duration"`
+
 	// UserID is the WDK user ID for the user initiating the
 	// request.
 	UserID uint `json:"userId"`
@@ -20,5 +24,7 @@ type StorableDetails struct {
 	// Status is the execution status for the current request.
 	Status Status `json:"status"`
 
+	// Size contains the unpackaged size of the dataset
+	// payload.
 	Size uint `json:"size"`
 }
