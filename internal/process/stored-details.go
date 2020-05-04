@@ -19,4 +19,6 @@ type StorableDetails struct {
 
 	// Status is the execution status for the current request.
 	Status Status `json:"status"`
+
+	Size uint `json:"size"`
 }
