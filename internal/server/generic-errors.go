@@ -1,9 +1,11 @@
 package server
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/server/xio"
-	"gopkg.in/foxcapades/go-midl.v1/pkg/midl"
 	"net/http"
+
+	"github.com/Foxcapades/go-midl/v2/pkg/midl"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/server/xio"
 )
 
 const (

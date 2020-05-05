@@ -3,7 +3,7 @@ package middle
 import (
 	"time"
 
-	"gopkg.in/foxcapades/go-midl.v1/pkg/midl"
+	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 
 	"github.com/VEuPathDB/util-exporter-server/internal/stats"
 )

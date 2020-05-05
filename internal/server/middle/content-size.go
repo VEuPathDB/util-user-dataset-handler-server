@@ -2,11 +2,13 @@ package middle
 
 import (
 	"fmt"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/xio"
-	"github.com/VEuPathDB/util-exporter-server/internal/xhttp"
-	"gopkg.in/foxcapades/go-midl.v1/pkg/midl"
 	"net/http"
 	"strconv"
+
+	"github.com/Foxcapades/go-midl/v2/pkg/midl"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/server/xio"
+	"github.com/VEuPathDB/util-exporter-server/internal/xhttp"
 )
 
 const (

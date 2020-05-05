@@ -1,16 +1,16 @@
 package main
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"net/http"
 	"time"
 
+	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/gorilla/mux"
 	"github.com/patrickmn/go-cache"
-	"gopkg.in/foxcapades/go-midl.v1/pkg/midl"
 
 	"github.com/VEuPathDB/util-exporter-server/internal/server"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
+	"github.com/VEuPathDB/util-exporter-server/internal/util"
 )
 
 var version = "untagged dev build"

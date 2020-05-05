@@ -3,11 +3,13 @@ package middle
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
-	"github.com/VEuPathDB/util-exporter-server/internal/xhttp"
-	"gopkg.in/foxcapades/go-midl.v1/pkg/midl"
 	"io"
 	"net/http"
+
+	"github.com/Foxcapades/go-midl/v2/pkg/midl"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/util"
+	"github.com/VEuPathDB/util-exporter-server/internal/xhttp"
 )
 
 func NewBinaryAdaptor() midl.Adapter {
