@@ -1,6 +1,6 @@
-package xio
+package health
 
-type HealthData struct {
+type Data struct {
 	Status  string      `json:"status"`
 	Version string      `json:"version"`
 	Details interface{} `json:"stats"`

@@ -1,13 +1,23 @@
 package main
 
 import (
+	"github.com/VEuPathDB/util-exporter-server/internal/server/health"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/metadata"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/options"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
+
+	// Std lib
 	"net/http"
 	"time"
 
+	// External
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/gorilla/mux"
 	"github.com/patrickmn/go-cache"
+	"github.com/sirupsen/logrus"
 
+	// Internal
+	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/server"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 	"github.com/VEuPathDB/util-exporter-server/internal/util"
@@ -16,37 +26,50 @@ import (
 var version = "untagged dev build"
 
 func main() {
-	statusCache := cache.New(72*time.Hour, time.Hour)
-	uploadCache := cache.New(4*time.Hour, time.Hour)
+	options := new(config.Options)
+	options.Version = version
+	config.ParseCli(options)
+	config.ParseOptions(options)
+
+	prepareLogger(options)
 
 	r := mux.NewRouter()
 
-	// Custom 404 handler for uniform responses
-	r.NotFoundHandler = midl.JSONAdapter(server.New404Handler())
+	registerRoutes(r, options)
 
-	// Custom 405 handler for uniform responses
-	r.MethodNotAllowedHandler = midl.JSONAdapter(server.New405Handler())
+	http.Handle("/", r)
+	util.Logger().Fatal(http.ListenAndServe(options.GetUsablePort(), nil))
+}
+
+func prepareLogger(opts *config.Options) {
+	logrus.SetFormatter(new(logrus.TextFormatter))
+	util.SetLogger(logrus.StandardLogger().
+		WithField("service", opts.ServiceName))
+}
+
+func registerRoutes(r *mux.Router, o *config.Options) {
+	statusCache := cache.New(72*time.Hour, time.Hour)
+	uploadCache := cache.New(4*time.Hour, time.Hour)
+
+	// Custom 404 & 405 handlers
+	svc.RegisterGenericHandlers(r)
 
 	// Serve API docs
 	r.Get("/").Handler(http.FileServer(http.Dir("./static-content")))
 
 	// Health Endpoint
-	r.Get("/health").
-		Handler(midl.JSONAdapter(server.NewHealthEndpoint(version)))
+	health.Register(r, o)
 
-	r.Path("/process/metadata").
-		Methods(http.MethodPost).
-		Handler(midl.JSONAdapter(
-			middle.NewJsonContentFilter(),
-			middle.NewContentLengthFilter(util.SizeMebibyte),
-			middle.NewTimer(
-				server.NewMetadataWrapper(server.NewMetadataEndpoint(statusCache)))))
+	// Options Endpoint
+	options.Register(r, o)
+
+	// Metadata recording endpoint
+	metadata.Register(r, o, statusCache)
 
 	r.Path("/process/dataset/{token}").
 		Methods(http.MethodPost).
 		Handler()
 
-	r.Get("/status/{token}").Handler(server.NewStatusEndpoint(statusCache))
-
-	http.Handle("/", r)
+	r.Get(server.StatusEndpointPath).
+		Handler(server.NewStatusEndpoint(statusCache))
 }

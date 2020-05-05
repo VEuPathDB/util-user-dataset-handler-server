@@ -13,7 +13,7 @@ import (
 )
 
 func NewBinaryAdaptor() midl.Adapter {
-
+	return &binaryAdaptor{}
 }
 
 type binaryAdaptor struct {
@@ -77,27 +77,27 @@ func (b binaryAdaptor) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 }
 
 func (b binaryAdaptor) EmptyHandler(handler midl.EmptyHandler) midl.Adapter {
-	panic("implement me")
+	panic("unused")
 }
 
 func (b binaryAdaptor) ContentType(s string) midl.Adapter {
-	panic("do not call this method")
+	panic("unused")
 }
 
 func (b binaryAdaptor) ErrorSerializer(serializer midl.ErrorSerializer) midl.Adapter {
-	panic("implement me")
+	panic("unused")
 }
 
 func (b binaryAdaptor) Serializer(serializer midl.Serializer) midl.Adapter {
-	panic("implement me")
+	panic("unused")
 }
 
-func (b binaryAdaptor) AddHandlers(middleware ...midl.Middleware) midl.Adapter {
-	panic("implement me")
+func (b *binaryAdaptor) AddHandlers(middleware ...midl.Middleware) midl.Adapter {
+	b.handlers = append(b.handlers, middleware...)
 }
 
 func (b binaryAdaptor) SetHandlers(middleware ...midl.Middleware) midl.Adapter {
-	panic("implement me")
+	panic("unused")
 }
 
 const simpleErrFmt = `{"status": "server-error", "message": "%s"}`

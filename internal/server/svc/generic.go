@@ -1,4 +1,9 @@
-package xio
+package svc
+
+import (
+	"github.com/Foxcapades/go-midl/v2/pkg/midl"
+	"net/http"
+)
 
 type ResponseStatus string
 
@@ -13,7 +18,28 @@ const (
 
 type HappyResponse struct {
 	Status  ResponseStatus `json:"status"`
-	Message string         `json:"message,omitempty"`
+	Message *string         `json:"message,omitempty"`
+}
+
+func NotFound(msg string) midl.Response {
+	return midl.MakeResponse(http.StatusNotFound, &SadResponse{
+		Status:  StatusNotFound,
+		Message: msg,
+	})
+}
+
+func BadRequest(msg string) midl.Response {
+	return midl.MakeResponse(http.StatusBadRequest, &SadResponse{
+		Status:  StatusBadRequest,
+		Message: msg,
+	})
+}
+
+func ServerError(msg string) midl.Response {
+	return midl.MakeResponse(http.StatusInternalServerError, &SadResponse{
+		Status:  StatusServerErr,
+		Message: msg,
+	})
 }
 
 type SadResponse struct {

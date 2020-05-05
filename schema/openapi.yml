@@ -2,7 +2,7 @@ openapi: "3.0.2"
 
 info:
   title: Dataset validation/transformer service
-  version: __VERSION__ # version filled by build script
+  version: 1.0.0
   description: |
     A validation/transformation suite for User Datasets exposed over HTTP.
 
@@ -15,10 +15,9 @@ tags:
       Endpoints for dealing with the processing of User Datasets.
 
 paths:
-
   /:
+    description: API documentation printout
     get:
-      description: API documentation.
       tags:
         - Meta
       responses:
@@ -27,7 +26,7 @@ paths:
           content:
             text/html:
               schema:
-                description: "HTML Page"
+                type: string
 
   /health:
     get:
@@ -40,66 +39,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/health-response'
-        500:
-          $ref: '#/components/responses/server-error'
-
-  /options:
-    get:
-      tags:
-        - Meta
-      description: Prints out the current server configuration.
-      responses:
-        200:
-          description: Success full options printout
-          content:
-            application/json:
-              schema:
                 type: object
                 properties:
-                  serviceName:
-                    description: Configured name of the service
+                  status:
                     type: string
-                  port:
-                    description: HTTP port the server is listening on
-                    type: integer
-                    minimum: 80
-                    maximum: 65535
-                  configPath:
-                    description: |
-                      Path to the server configuration file on the host
-                      filesystem
+                    enum: [ "healthy", "unhealthy" ]
+                  version:
                     type: string
-                  commands:
-                    description: List of configured commands
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        command:
-                          description: The shell command the server will call
-                          type: string
-                        arguments:
-                          description: |
-                            Arguments the server will pass to the configured
-                            command.
-                          type: array
-                          items:
-                            description: |
-                              Optionally templated input argument the server
-                              will pass to the configured command.
-                            type: string
-                            minItems: 1
-                      required:
-                        - command
-                        - arguments
-                required:
-                  - serviceName
-                  - port
-                  - configPath
-                  - commands
+                    example:
+                      "v1.0.0"
+                  stats:
+                    type: object
+                    # TODO:
 
-
+        500:
+          $ref: '#/components/responses/server-error'
 
   /process/metadata:
     post:
@@ -108,8 +62,6 @@ paths:
       description: |
         Validates the metadata and prepares the service for handling a User
         Dataset matching the given metadata values.
-
-        Post body size is capped at a max of 1Mb.
       requestBody:
         content:
           application/json:
@@ -127,22 +79,14 @@ paths:
                 $ref: '#/components/schemas/status-success'
         400:
           description: |
-            Request failed due to invalid user input.  One of the following
-            checks was failed:
-
-            1. No Content-Type header
-            2. Non JSON Content-Type
-            3. No Content-Length header
-            4. Content too large
-            5. Payload could not be parsed as JSON
+            Passed metadata was missing or was not able to be parsed as JSON.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/status-bad-request'
         422:
           description: |
-            Passed metadata was syntactically valid JSON but failed validation
-            for the reasons detailed in the response body.
+            Passed metadata contained invalid or unexpected entries.
           content:
             application/json:
               schema:
@@ -158,40 +102,17 @@ paths:
       parameters:
         - $ref: '#/components/parameters/dataset-token'
       requestBody:
-        description: |
-          User Dataset payload as a zip or tar file up to 500Mb in size.
+        description: User Dataset payload as a zip or tar file
         content:
           application/binary:
-            examples:
-              tar-file:
-                value: "dataset.tar.gz"
-              zip-file:
-                value: "dataset.zip"
             schema:
-              description: "compressed dataset payload"
+              example:
+                "dataset.tar.gz"
       responses:
         200:
-          description: |
-            User Dataset processing completed successfully.  Returns the output
-            from the internal script suite as a packaged tar file ready for
-            upload to iRODS.
-          content:
-            application/binary:
-              example:
-                "dataset.tgz"
+          description: User Dataset processing completed successfully.
         400:
-          description: |
-            Invalid request input.  Possible causes are:
-
-            1. No Content-Type header
-            2. No Content-Length header
-            3. Unsupported Content-Type
-            4. Payload too large
-            5. Incorrect payload format
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/status-bad-request'
+          description: Bad request
         404:
           $ref: '#/components/responses/bad-token'
         500:
@@ -213,10 +134,10 @@ paths:
         500:
           $ref: '#/components/responses/server-error'
 
+
+
 components:
-
   parameters:
-
     dataset-token:
       in: path
       name: token
@@ -230,7 +151,6 @@ components:
         /process/metadata endpoint.
 
   responses:
-
     bad-token:
       description: |
         Unrecognized token value.  Either token was not previously sent to the
@@ -239,7 +159,16 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/status-not-found'
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [ "not-found" ]
+              message:
+                type: string
+            required:
+              - status
+              - message
 
     server-error:
       description: |
@@ -248,57 +177,17 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/status-server-error'
-
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [ "server-error" ]
+              message:
+                type: string
+            required:
+              - status
+              - message
   schemas:
-
-    health-response:
-      type: object
-      properties:
-        status:
-          type: string
-          enum: [ "healthy", "unhealthy" ]
-        version:
-          type: string
-          example:
-            "v1.0.0"
-        stats:
-          type: object
-          properties:
-            byStatus:
-              description: |
-                Request count by HTTP response status.
-              type: object
-              additionalProperties:
-                type: integer
-                minimum: 0
-            avgSize:
-              description: |
-                Average User Dataset payload size.
-              type: integer
-              minimum: 0
-            avgDuration:
-              description: |
-                Average User Dataset processing time.
-              type: string
-            largest:
-              description: |
-                Historical largest User Dataset processed size in
-                bytes.
-              type: integer
-              minimum: 0
-            longest:
-              description: |
-                Historical longest run encountered for processing a
-                User Dataset.
-              type: string
-          required:
-            - byStatus
-            - avgSize
-            - avgDuration
-            - largest
-            - longest
-
     metadata-post:
       type: object
       properties:
@@ -335,7 +224,6 @@ components:
         - token
         - projects
         - owner
-
     metadata-type:
       type: object
       properties:
@@ -350,7 +238,6 @@ components:
       required:
         - version
         - name
-
     project-enum:
       type: string
       enum:
@@ -371,7 +258,6 @@ components:
         - TritrypDB
         - Vectorbase
         - VeupathDB
-
     dependency:
       type: object
       properties:
@@ -385,11 +271,6 @@ components:
         - resourceDisplayName
         - resourceVersion
         - resourceIdentifier
-
-    #
-    # Generic Status Responses
-    #
-
     status-success:
       type: object
       properties:
@@ -400,19 +281,6 @@ components:
           type: string
       required:
         - status
-
-    status-not-found:
-      type: object
-      properties:
-        status:
-          type: string
-          enum: [ "not-found" ]
-        message:
-          type: string
-      required:
-        - status
-        - message
-
     status-bad-request:
       type: object
       properties:
@@ -424,7 +292,6 @@ components:
       required:
         - status
         - message
-
     status-bad-input:
       type: object
       properties:
@@ -454,7 +321,6 @@ components:
       required:
         - status
         - reasons
-
     status-server-error:
       type: object
       properties:

@@ -1,6 +1,9 @@
 package process
 
-import "time"
+import (
+	"github.com/VEuPathDB/util-exporter-server/internal/wdk/site"
+	"time"
+)
 
 // StorableDetails is the subset of process details that
 // will be kept in memory for up to 3 days.
@@ -23,6 +26,9 @@ type StorableDetails struct {
 
 	// Status is the execution status for the current request.
 	Status Status `json:"status"`
+
+	// Projects holds the target projects for the request.
+	Projects []site.WdkSite `json:"projects"`
 
 	// Size contains the unpackaged size of the dataset
 	// payload.
