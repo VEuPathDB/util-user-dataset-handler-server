@@ -39,53 +39,67 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    enum: [ "healthy", "unhealthy" ]
-                  version:
-                    type: string
-                    example:
-                      "v1.0.0"
-                  stats:
-                    type: object
-                    properties:
-                      longest:
-                        description: |
-                          Longest running request this service has handled.
-                        type: integer
-                        minimum: 0
-                      largest:
-                        description: |
-                          Largest payload this service has handled in bytes.
-                        type: integer
-                        minimum: 0
-                      avgDuration:
-                        description: Average dataset processing run time.
-                        type: string
-                      avgSize:
-                        description: |
-                          Average dataset size handled by this service in bytes.
-                        type: integer
-                        minimum: 0
-                      byStatus:
-                        description: |
-                          A mapping of response code to number of requests that
-                          have returned that code.
-                        type: object
-                        additionalProperties:
-                          type: integer
-                          minimum: 0
-                    required:
-                      - longest
-                      - largest
-                      - avgDuration
-                      - avgSize
-                      - byStatus
-
+                $ref: '#/components/schemas/health-response'
         500:
           $ref: '#/components/responses/server-error'
+
+  /options:
+    get:
+      tags:
+        - Meta
+      description: Current service configuration
+      responses:
+        200:
+          description: Successful config printout
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - serviceName
+                  - port
+                  - configPath
+                  - commands
+                  - workspace
+                properties:
+                  serviceName:
+                    description: Configured name of the service
+                    type: string
+                  port:
+                    description: |
+                      The port the service is configured to listen on.
+                    type: integer
+                    minimum: 0
+                    maximum: 65535
+                  configPath:
+                    description: |
+                      Path on the host file system to the configuration file.
+                    type: string
+                  commands:
+                    description: List of the commands configured on this server.
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - command
+                        - arguments
+                      properties:
+                        command:
+                          description: Command name
+                          type: string
+                        arguments:
+                          type: array
+                          items:
+                            type: string
+                          minItems: 1
+                  workspace:
+                    description: |
+                      Path to the workspace directory this server uses to
+                      process datasets.
+                    type: string
+        500:
+          $ref: '#/components/responses/server-error'
+
 
   /process/metadata:
     post:
@@ -143,8 +157,17 @@ paths:
       responses:
         200:
           description: User Dataset processing completed successfully.
+          content:
+            application/binary:
+              example: "dataset.tgz"
         400:
-          description: Bad request
+          description: |
+            Request was found to be invalid for reasons detailed in the response
+            message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/status-bad-request'
         404:
           $ref: '#/components/responses/bad-token'
         500:
@@ -166,10 +189,10 @@ paths:
         500:
           $ref: '#/components/responses/server-error'
 
-
-
 components:
+
   parameters:
+
     dataset-token:
       in: path
       name: token
@@ -183,6 +206,7 @@ components:
         /process/metadata endpoint.
 
   responses:
+
     bad-token:
       description: |
         Unrecognized token value.  Either token was not previously sent to the
@@ -191,16 +215,7 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: string
-                enum: [ "not-found" ]
-              message:
-                type: string
-            required:
-              - status
-              - message
+            $ref: '#/components/schemas/status-not-found'
 
     server-error:
       description: |
@@ -209,17 +224,21 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              status:
-                type: string
-                enum: [ "server-error" ]
-              message:
-                type: string
-            required:
-              - status
-              - message
+            $ref: '#/components/schemas/status-server-error'
+
+    not-found:
+      description: The requested resource was not found in this service.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/status-not-found'
+
+
   schemas:
+
+    #
+    # Metadata endpoint types
+    #
     metadata-post:
       type: object
       properties:
@@ -266,6 +285,7 @@ components:
         - projects
         - owner
         - name
+
     metadata-type:
       type: object
       properties:
@@ -280,26 +300,7 @@ components:
       required:
         - version
         - name
-    project-enum:
-      type: string
-      enum:
-        - AmoebaDB
-        - ClinepiDB
-        - CryptoDB
-        - FungiDB
-        - GiardiaDB
-        - HostDB
-        - MicrobiomeDB
-        - MicrosporidiaDB
-        - Orthomcl
-        - PiroplasmaDB
-        - PlasmoDB
-        - SchistoDB
-        - ToxoDB
-        - TrichDB
-        - TritrypDB
-        - Vectorbase
-        - VeupathDB
+
     dependency:
       type: object
       properties:
@@ -313,6 +314,62 @@ components:
         - resourceDisplayName
         - resourceVersion
         - resourceIdentifier
+
+    #
+    # Health Endpoint Types
+    #
+    health-response:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ "healthy", "unhealthy" ]
+        version:
+          type: string
+          example:
+            "v1.0.0"
+        stats:
+          $ref: '#/components/schemas/health-stats'
+
+    health-stats:
+      type: object
+      properties:
+        longest:
+          description: |
+            Longest running request this service has handled.
+          type: integer
+          minimum: 0
+        largest:
+          description: |
+            Largest payload this service has handled in bytes.
+          type: integer
+          minimum: 0
+        avgDuration:
+          description: Average dataset processing run time.
+          type: string
+        avgSize:
+          description: |
+            Average dataset size handled by this service in bytes.
+          type: integer
+          minimum: 0
+        byStatus:
+          description: |
+            A mapping of response code to number of requests that
+            have returned that code.
+          type: object
+          additionalProperties:
+            type: integer
+            minimum: 0
+      required:
+        - longest
+        - largest
+        - avgDuration
+        - avgSize
+        - byStatus
+
+    #
+    # Response Status Structures
+    #
     status-success:
       type: object
       properties:
@@ -323,7 +380,8 @@ components:
           type: string
       required:
         - status
-    status-bad-request:
+
+    status-not-found:
       type: object
       properties:
         status:
@@ -334,6 +392,21 @@ components:
       required:
         - status
         - message
+
+    status-bad-request:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ "not-found" ]
+        message:
+          description: |
+            Additional information about why the resource could not be found.
+          type: string
+      required:
+        - status
+        - message
+
     status-bad-input:
       type: object
       properties:
@@ -363,6 +436,7 @@ components:
       required:
         - status
         - reasons
+
     status-server-error:
       type: object
       properties:
@@ -374,3 +448,27 @@ components:
       required:
         - status
         - message
+
+    #
+    # Misc / Common Types
+    #
+    project-enum:
+      type: string
+      enum:
+        - AmoebaDB
+        - ClinepiDB
+        - CryptoDB
+        - FungiDB
+        - GiardiaDB
+        - HostDB
+        - MicrobiomeDB
+        - MicrosporidiaDB
+        - Orthomcl
+        - PiroplasmaDB
+        - PlasmoDB
+        - SchistoDB
+        - ToxoDB
+        - TrichDB
+        - TritrypDB
+        - Vectorbase
+        - VeupathDB
