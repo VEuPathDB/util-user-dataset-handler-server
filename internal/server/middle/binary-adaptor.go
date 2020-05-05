@@ -76,27 +76,28 @@ func (b binaryAdaptor) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	}
 }
 
-func (b binaryAdaptor) EmptyHandler(handler midl.EmptyHandler) midl.Adapter {
+func (b binaryAdaptor) EmptyHandler(midl.EmptyHandler) midl.Adapter {
 	panic("unused")
 }
 
-func (b binaryAdaptor) ContentType(s string) midl.Adapter {
+func (b binaryAdaptor) ContentType(string) midl.Adapter {
 	panic("unused")
 }
 
-func (b binaryAdaptor) ErrorSerializer(serializer midl.ErrorSerializer) midl.Adapter {
+func (b binaryAdaptor) ErrorSerializer(midl.ErrorSerializer) midl.Adapter {
 	panic("unused")
 }
 
-func (b binaryAdaptor) Serializer(serializer midl.Serializer) midl.Adapter {
+func (b binaryAdaptor) Serializer(midl.Serializer) midl.Adapter {
 	panic("unused")
 }
 
 func (b *binaryAdaptor) AddHandlers(middleware ...midl.Middleware) midl.Adapter {
 	b.handlers = append(b.handlers, middleware...)
+	return b
 }
 
-func (b binaryAdaptor) SetHandlers(middleware ...midl.Middleware) midl.Adapter {
+func (b binaryAdaptor) SetHandlers(...midl.Middleware) midl.Adapter {
 	panic("unused")
 }
 

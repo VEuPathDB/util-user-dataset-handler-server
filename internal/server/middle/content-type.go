@@ -6,7 +6,7 @@ import (
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 
-	"github.com/VEuPathDB/util-exporter-server/internal/server/xio"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 )
 
 const (
@@ -22,14 +22,14 @@ func NewJsonContentFilter() midl.MiddlewareFunc {
 	return func(req midl.Request) midl.Response {
 		if val, ok := req.Header("Content-Type"); ok {
 			if val != "application/json" {
-				return midl.MakeResponse(http.StatusBadRequest, &xio.SadResponse{
-					Status:  xio.StatusBadRequest,
+				return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
+					Status:  svc.StatusBadRequest,
 					Message: fmt.Sprintf(errBadContentType, val),
 				})
 			}
 		} else {
-			return midl.MakeResponse(http.StatusBadRequest, &xio.SadResponse{
-				Status:  xio.StatusBadRequest,
+			return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
+				Status:  svc.StatusBadRequest,
 				Message: errNoContentType,
 			})
 		}

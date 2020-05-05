@@ -4,7 +4,8 @@ import (
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/VEuPathDB/util-exporter-server/internal/command"
 	"github.com/VEuPathDB/util-exporter-server/internal/process"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/metadata"
+	"github.com/VEuPathDB/util-exporter-server/internal/server"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/metadata"
 	"github.com/gorilla/mux"
 	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
@@ -27,7 +28,7 @@ const (
 	errNoMeta = "Invalid state, missing metadata"
 )
 
-func NewUploadEndpoint(o *config.Options, meta, upload *cache.Cache) svc.Endpoint {
+func NewUploadEndpoint(o *config.Options, meta, upload *cache.Cache) server.Endpoint {
 	return &endpoint{
 		opt:    o,
 		meta:   meta,
@@ -46,12 +47,13 @@ func (e *endpoint) Register(r *mux.Router) {
 	r.Path(urlPath).Handler(middle.NewBinaryAdaptor().
 		AddHandlers(
 			middle.NewContentLengthFilter(500 * util.SizeMebibyte),
-			middle.NewLogProvider(NewTokenFilter(e.meta)),
-			middle.NewLogProvider(middle.NewTimer(
+			middle.NewLogProvider(middle.NewTimer(middle.NewTokenValidator(
+				tokenKey,
+				e.meta,
 				func(logger *logrus.Entry) midl.Middleware {
 					e.log = logger
 					return e
-				}))))
+				})))))
 }
 
 // Handle the request.

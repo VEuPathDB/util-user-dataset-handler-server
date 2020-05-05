@@ -7,7 +7,7 @@ import (
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 
-	"github.com/VEuPathDB/util-exporter-server/internal/server/xio"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 	"github.com/VEuPathDB/util-exporter-server/internal/xhttp"
 )
 
@@ -25,20 +25,20 @@ func NewContentLengthFilter(bytes uint64) midl.MiddlewareFunc {
 		if val, ok := req.Header(xhttp.HeaderContentLength); ok {
 			size, err := strconv.ParseUint(val, 10, 64)
 			if err != nil {
-				return midl.MakeResponse(http.StatusBadRequest, &xio.SadResponse{
-					Status:  xio.StatusBadRequest,
+				return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
+					Status:  svc.StatusBadRequest,
 					Message: errBadLengthVal,
 				})
 			}
 			if size > bytes {
-				return midl.MakeResponse(http.StatusBadRequest, &xio.SadResponse{
-					Status:  xio.StatusBadRequest,
+				return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
+					Status:  svc.StatusBadRequest,
 					Message: fmt.Sprintf(errTooBig, size, bytes),
 				})
 			}
 		} else {
-			return midl.MakeResponse(http.StatusBadRequest, &xio.SadResponse{
-				Status:  xio.StatusBadRequest,
+			return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
+				Status:  svc.StatusBadRequest,
 				Message: errNoLengthVal,
 			})
 		}

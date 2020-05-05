@@ -2,7 +2,7 @@ package upload
 
 import (
 	"github.com/VEuPathDB/util-exporter-server/internal/process"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/metadata"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/metadata"
 	"github.com/patrickmn/go-cache"
 	"time"
 )

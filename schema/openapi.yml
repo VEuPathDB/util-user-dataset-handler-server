@@ -16,8 +16,8 @@ tags:
 
 paths:
   /:
-    description: API documentation printout
     get:
+      description: API documentation printout
       tags:
         - Meta
       responses:
@@ -50,7 +50,39 @@ paths:
                       "v1.0.0"
                   stats:
                     type: object
-                    # TODO:
+                    properties:
+                      longest:
+                        description: |
+                          Longest running request this service has handled.
+                        type: integer
+                        minimum: 0
+                      largest:
+                        description: |
+                          Largest payload this service has handled in bytes.
+                        type: integer
+                        minimum: 0
+                      avgDuration:
+                        description: Average dataset processing run time.
+                        type: string
+                      avgSize:
+                        description: |
+                          Average dataset size handled by this service in bytes.
+                        type: integer
+                        minimum: 0
+                      byStatus:
+                        description: |
+                          A mapping of response code to number of requests that
+                          have returned that code.
+                        type: object
+                        additionalProperties:
+                          type: integer
+                          minimum: 0
+                    required:
+                      - longest
+                      - largest
+                      - avgDuration
+                      - avgSize
+                      - byStatus
 
         500:
           $ref: '#/components/responses/server-error'
@@ -200,6 +232,15 @@ components:
             processing of this User Dataset.
           type: string
           format: uuid
+        name:
+          description: Name for this dataset
+          type: string
+        description:
+          description: Optional description for this dataset.
+          type: string
+        summary:
+          description: Optional summary for this dataset.
+          type: string
         projects:
           description: |
             Projects in which this User Dataset should be available for install
@@ -224,6 +265,7 @@ components:
         - token
         - projects
         - owner
+        - name
     metadata-type:
       type: object
       properties:

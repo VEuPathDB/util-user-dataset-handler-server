@@ -1,4 +1,4 @@
-package svc
+package server
 
 import "github.com/gorilla/mux"
 

@@ -3,7 +3,7 @@ package command
 import (
 	// Std lib
 	"fmt"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/metadata"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/metadata"
 	"github.com/sirupsen/logrus"
 	"io"
 	"strings"

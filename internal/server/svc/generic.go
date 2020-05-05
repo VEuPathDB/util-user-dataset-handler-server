@@ -1,8 +1,9 @@
 package svc
 
 import (
-	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"net/http"
+
+	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 )
 
 type ResponseStatus string

@@ -10,4 +10,5 @@ const (
 	StatusSending    Status = "downloading processed files"
 	StatusCompleted  Status = "job completed"
 	StatusFailed     Status = "job failed"
+	StatusNotStarted Status = "awaiting upload"
 )
