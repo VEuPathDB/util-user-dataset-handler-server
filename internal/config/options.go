@@ -1,6 +1,14 @@
 package config
 
-import "strconv"
+import (
+	"github.com/VEuPathDB/util-exporter-server/internal/log"
+	"strconv"
+)
+
+const (
+	OptKeyServiceNameYaml = "service-name"
+	OptKeyCommandsYaml    = "commands"
+)
 
 type Options struct {
 	ServiceName string    `yaml:"service-name" json:"serviceName"`
@@ -15,7 +23,28 @@ func (O *Options) GetUsablePort() string {
 	return ":" + strconv.FormatUint(uint64(O.Port), 10)
 }
 
-type Command struct {
-	Command string   `yaml:"command" json:"command"`
-	Args    []string `yaml:"args" json:"arguments"`
+func (O *Options) Validate() {
+	L := log.ConfigureLogger("service", "booting")
+	errored := false
+	if len(O.ServiceName) == 0 {
+		L.Error("Config: serviceName is required.")
+		errored = true
+	}
+
+	if len(O.Commands) == 0 {
+		L.Error("Config: at least one command must be configured.")
+		errored = true
+	}
+
+	for i := range O.Commands {
+		err := O.Commands[i].Validate()
+		if err != nil {
+			L.Errorf("Config: Command %d: %s", i, err.Error())
+			errored = true
+		}
+	}
+
+	if errored {
+		L.Fatal("Shutting down due to configuration errors.")
+	}
 }

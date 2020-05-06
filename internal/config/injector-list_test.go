@@ -23,7 +23,7 @@ func TestInjectorList(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		pkg, err := build.Import(
-			"github.com/VEuPathDB/util-exporter-server/internal/options/inject",
+			"github.com/VEuPathDB/util-exporter-server/internal/config/inject",
 			cwd, build.IgnoreVendor)
 		So(err, ShouldBeNil)
 

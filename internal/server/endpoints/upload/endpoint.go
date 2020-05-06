@@ -4,8 +4,8 @@ import (
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/VEuPathDB/util-exporter-server/internal/command"
 	"github.com/VEuPathDB/util-exporter-server/internal/process"
-	"github.com/VEuPathDB/util-exporter-server/internal/server"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/metadata"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
 	"github.com/gorilla/mux"
 	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
@@ -28,7 +28,7 @@ const (
 	errNoMeta = "Invalid state, missing metadata"
 )
 
-func NewUploadEndpoint(o *config.Options, meta, upload *cache.Cache) server.Endpoint {
+func NewUploadEndpoint(o *config.Options, meta, upload *cache.Cache) types.Endpoint {
 	return &endpoint{
 		opt:    o,
 		meta:   meta,

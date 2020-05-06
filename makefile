@@ -15,3 +15,20 @@ bin/static-content/index.html: openapi.yml
 	@mkdir -p bin/static-content
 	@mv redoc-static.html bin/static-content/index.html
 	@rm openapi_tmp.yml
+
+
+# Git push prep tasks
+git-push:
+	@go test -v ./...
+
+git-pre-commit: extras/docs/api.html extras/docs/index.html extras/docs/config.html extras/docs/commands.html
+	@git add extras/docs/api.html extras/docs/index.html extras/docs/config.html extras/docs/commands.html
+
+extras/docs/api.html: openapi.yml
+	@redoc-cli bundle openapi.yml --output extras/docs/api.html
+extras/docs/index.html: readme.adoc
+	@asciidoctor -b html5 -D extras/docs/ -o index.html -r pygments.rb readme.adoc
+extras/docs/config.html:
+	@asciidoctor -b html5 -D extras/docs/ -o config.html -r pygments.rb extras/readme/config-file.adoc
+extras/docs/commands.html:
+	@asciidoctor -b html5 -D extras/docs/ -o commands.html -r pygments.rb extras/readme/commands.adoc

@@ -1,6 +1,7 @@
 package status
 
 import (
+	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
 	// Std lib
 	"net/http"
 
@@ -13,7 +14,6 @@ import (
 	// Internal
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/process"
-	"github.com/VEuPathDB/util-exporter-server/internal/server"
 	. "github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 )
@@ -26,7 +26,7 @@ const (
 		"process"
 )
 
-func NewStatusEndpoint(o *config.Options, meta, upload *cache.Cache) server.Endpoint {
+func NewStatusEndpoint(o *config.Options, meta, upload *cache.Cache) types.Endpoint {
 	return &statusEndpoint{
 		opts:   o,
 		meta:   meta,
@@ -42,7 +42,9 @@ type statusEndpoint struct {
 }
 
 func (s *statusEndpoint) Register(r *mux.Router) {
-	r.Get(urlPath).Handler(JSONAdapter(NewLogProvider(NewTimer(
+	r.Path(urlPath).
+		Methods(http.MethodGet).
+		Handler(JSONAdapter(NewLogProvider(NewTimer(
 		NewTokenValidator(tknKey, s.meta, s.LogWrapper)))))
 }
 

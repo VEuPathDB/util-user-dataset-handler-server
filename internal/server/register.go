@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
+	"github.com/VEuPathDB/util-exporter-server/internal/log"
 	"github.com/sirupsen/logrus"
 	// Std Lib
 	"net/http"
@@ -27,7 +27,7 @@ type Server interface {
 }
 
 func NewServer(o *config.Options) Server {
-	return &server{mux.NewRouter(), o, util.Logger()}
+	return &server{mux.NewRouter(), o, log.Logger()}
 }
 
 type server struct {
@@ -49,7 +49,9 @@ func (s *server) RegisterEndpoints() {
 	middle.RegisterGenericHandlers(s.r)
 
 	// Serve API docs
-	s.r.Get("/").Handler(http.FileServer(http.Dir("./static-content")))
+	s.r.Path("/").
+		Methods(http.MethodGet).
+		Handler(http.FileServer(http.Dir("./static-content")))
 
 	// Health Endpoint
 	health.Register(s.r, s.o)

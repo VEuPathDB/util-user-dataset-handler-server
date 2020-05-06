@@ -17,11 +17,13 @@ import (
 const path = "/options"
 
 func Register(r *mux.Router, o *config.Options) {
-	r.Get(path).Handler(midl.JSONAdapter(middle.NewLogProvider(middle.NewTimer(
-		func(log *logrus.Entry) midl.Middleware {
-			return midl.MiddlewareFunc(func(request midl.Request) midl.Response {
-				return midl.MakeResponse(http.StatusOK, o)
-			})
-		},
-	))))
+	r.Path(path).
+		Methods(http.MethodGet).
+		Handler(midl.JSONAdapter(middle.NewLogProvider(middle.NewTimer(
+			func(log *logrus.Entry) midl.Middleware {
+				return midl.MiddlewareFunc(func(request midl.Request) midl.Response {
+					return midl.MakeResponse(http.StatusOK, o)
+				})
+			},
+		))))
 }

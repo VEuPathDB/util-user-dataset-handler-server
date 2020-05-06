@@ -76,7 +76,7 @@ func (r *runner) getFileSize(files []string) ([]uint64, error) {
 	for _, file := range files {
 		stat, err := os.Stat(path.Join(r.details.WorkingDir, file))
 		if err != nil {
-			return 0, fmt.Errorf(errStatFileFail, file, err.Error())
+			return nil, fmt.Errorf(errStatFileFail, file, err.Error())
 		}
 		total = append(total, uint64(stat.Size()))
 	}

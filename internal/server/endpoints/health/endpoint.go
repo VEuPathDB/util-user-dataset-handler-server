@@ -20,7 +20,8 @@ const (
 )
 
 func Register(r *mux.Router, o *config.Options) {
-	r.Get(path).
+	r.Path(path).
+		Methods(http.MethodGet).
 		Handler(midl.JSONAdapter(middle.NewLogProvider(middle.NewTimer(
 			func(log *logrus.Entry) midl.Middleware {
 				return &healthEndpoint{o.Version, log}

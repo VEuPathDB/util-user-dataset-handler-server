@@ -1,12 +1,10 @@
 package svc
 
 import (
-	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 )
 
 const (

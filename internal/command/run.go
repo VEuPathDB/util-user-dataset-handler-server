@@ -1,11 +1,14 @@
 package command
 
 import (
+	"errors"
 	// Std lib
 	"fmt"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/metadata"
 	"github.com/sirupsen/logrus"
 	"io"
+	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -88,6 +91,13 @@ func (r *runner) Run() (io.ReadCloser, error) {
 	r.updateStatus(process.StatusPacking)
 	err = r.packArchive(pack)
 
+	file, err :=  os.OpenFile(path.Join(r.details.WorkingDir, "dataset.tgz"),
+		os.O_RDONLY, dsFilePerm)
+	if err != nil {
+		return r.fail(
+			errors.New("Failed to open packaged tar for reading: " + err.Error()))
+	}
+	return file, nil
 }
 
 func (r *runner) getDetails() {
