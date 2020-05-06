@@ -22,13 +22,13 @@ git-push:
 	@go test -v ./...
 
 git-pre-commit: docs docs docs docs
-	@git add docs/api.html extras/docs/index.html docs/config.html docs/commands.html
+	@git add docs/api.html docs/index.html docs/config.html docs/commands.html
 
 docs/api.html: openapi.yml
 	@redoc-cli bundle openapi.yml --output docs/api.html
 docs/index.html: readme.adoc
 	@asciidoctor -b html5 -D docs/ -o index.html -r pygments.rb readme.adoc
-docs/config.html:
+docs/config.html: extras/readme/config-file.adoc
 	@asciidoctor -b html5 -D docs/ -o config.html -r pygments.rb extras/readme/config-file.adoc
-docs/commands.html:
+docs/commands.html: extras/readme/commands.adoc
 	@asciidoctor -b html5 -D docs/ -o commands.html -r pygments.rb extras/readme/commands.adoc
