@@ -286,11 +286,22 @@ components:
           items:
             $ref: '#/components/schemas/dependency'
           minItems: 1
+        name:
+          description: Name of the dataset.
+          type: string
+          minLength: 3
+        description:
+          description: Optional description of the dataset.
+          type: string
+        summary:
+          description: Optional dataset summary.
+          type: string
       required:
         - type
         - token
         - projects
         - owner
+        - name
 
     metadata-type:
       type: object
