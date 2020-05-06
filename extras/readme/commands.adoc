@@ -15,7 +15,9 @@ ifdef::env-github[]
 :important-caption: :heavy_exclamation_mark:
 :caution-caption: :fire:
 :warning-caption: :warning:
-:file-config-readme:
+:file-config-readme: {repo-file-base}/extras/readme/config.adoc
 endif::[]
 Elizabeth Paige Harper <epharper@upenn.edu>
 v1.0.0
+
+{file-base-readme}[Index] | {file-config-readme}[Configuration]

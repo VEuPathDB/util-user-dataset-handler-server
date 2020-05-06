@@ -1,54 +1,8 @@
-# Injectable Variables:
-#   <<date>>
-#     The execution UTC date formatted as "2020-05-01"
+# Config Template
 #
-#   <<time>>
-#     the execution UTC time as "16:17:34"
-#
-#   <<timestamp>>
-#     the execution UTC timestamp as seconds from the Unix Epoch
-#
-#   <<date-time>>
-#     the execution UTC date & time as "2020-05-01T16:37:34Z"
-#
-#   <<input-files>>
-#     A space separated list of all the files in a payload, sorted by name
-#     ascending.
-#
-#     This variable allows array style access using square brackets `[]` from
-#     a zero index.  For example `<<input-files[0]>>` would cause the first file
-#     in the list to be injected.
-#
-#   <<cwd>>
-#     The working directory containing all of the input files.
-#
-#   <<user-id>>
-#     The WDK user ID of the user that initiated the request.
-#
-#   <<project>>
-#     the name of the project this request originated from
-#
-#   <<output-files>>
-#     The files created by the previous command run as a space separated list.
-#
-#     Additionally this variable may be used as either a 1 dimensional or 2
-#     dimensional array with the following behavior: (note all array access uses
-#     a zero based index)
-#
-#     <<output-files[x]>>
-#       This will return only the file at the integer index "x" from the
-#       previous command's output files.
-#
-#     <<output-files[x][y]>>
-#       This will return only the file at the integer index "y" from the output
-#       of command "x", where "x" is the integer index of the command as defined
-#       in the configuration command list.
-
-# Example Configuration
+# Please edit the variables below and rename this file.
+service-name: my service
 commands:
-  - command: fizz-command
-    args: [
-      "--time=<<time>>",
-      "-u", "<<user-d>>",
-      '--files="<<input-files>>"'
-    ]
+  - command: my-command
+    args:
+      - <<input-files>>

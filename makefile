@@ -21,14 +21,14 @@ bin/static-content/index.html: openapi.yml
 git-push:
 	@go test -v ./...
 
-git-pre-commit: extras/docs/api.html extras/docs/index.html extras/docs/config.html extras/docs/commands.html
-	@git add extras/docs/api.html extras/docs/index.html extras/docs/config.html extras/docs/commands.html
+git-pre-commit: docs docs docs docs
+	@git add docs/api.html extras/docs/index.html docs/config.html docs/commands.html
 
-extras/docs/api.html: openapi.yml
-	@redoc-cli bundle openapi.yml --output extras/docs/api.html
-extras/docs/index.html: readme.adoc
-	@asciidoctor -b html5 -D extras/docs/ -o index.html -r pygments.rb readme.adoc
-extras/docs/config.html:
-	@asciidoctor -b html5 -D extras/docs/ -o config.html -r pygments.rb extras/readme/config-file.adoc
-extras/docs/commands.html:
-	@asciidoctor -b html5 -D extras/docs/ -o commands.html -r pygments.rb extras/readme/commands.adoc
+docs/api.html: openapi.yml
+	@redoc-cli bundle openapi.yml --output docs/api.html
+docs/index.html: readme.adoc
+	@asciidoctor -b html5 -D docs/ -o index.html -r pygments.rb readme.adoc
+docs/config.html:
+	@asciidoctor -b html5 -D docs/ -o config.html -r pygments.rb extras/readme/config-file.adoc
+docs/commands.html:
+	@asciidoctor -b html5 -D docs/ -o commands.html -r pygments.rb extras/readme/commands.adoc
