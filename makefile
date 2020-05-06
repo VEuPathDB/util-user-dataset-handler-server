@@ -19,7 +19,7 @@ bin/static-content/index.html: openapi.yml
 
 # Git push prep tasks
 git-push:
-	@go test -v ./...
+	@go test ./...
 
 git-pre-commit: docs docs docs docs
 	@git add docs/api.html docs/index.html docs/config.html docs/commands.html
