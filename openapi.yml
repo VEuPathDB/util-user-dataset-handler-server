@@ -2,7 +2,7 @@ openapi: "3.0.2"
 
 info:
   title: Dataset validation/transformer service
-  version: __VERSION__ # version filled by build script
+  version: v1.0.0 # version filled by build script
   description: |
     A validation/transformation suite for User Datasets exposed over HTTP.
 

@@ -461,6 +461,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_output_file">Output File</a></li>
 </ul>
 </li>
+<li><a href="#_server_expectations">Server Expectations</a>
+<ul class="sectlevel2">
+<li><a href="#_building_a_valid_archive">Building a valid archive</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -526,31 +531,201 @@ server will assume 500.</p>
 <p>The output of each script run should be a file in the workspace directory named
 <code>process-results.json</code>.</p>
 </div>
-<div class="exampleblock">
-<div class="title">Example 1. Output File JSON Schema</div>
-<div class="content">
 <div class="listingblock">
+<div class="title">Output File JSON Schema</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="json"><span></span><span class="tok-p">{}</span></code></pre>
-</div>
-</div>
+<pre class="pygments highlight"><code data-lang="json"><span></span><span class="tok-p">{</span>
+  <span class="tok-nt">&quot;$schema&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;http://json-schema.org/draft-07/schema#&quot;</span><span class="tok-p">,</span>
+  <span class="tok-nt">&quot;oneOf&quot;</span><span class="tok-p">:</span> <span class="tok-p">[</span>
+    <span class="tok-p">{</span>
+      <span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;object&quot;</span><span class="tok-p">,</span>
+      <span class="tok-nt">&quot;properties&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+        <span class="tok-nt">&quot;status&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+          <span class="tok-nt">&quot;description&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;Process completion status.&quot;</span><span class="tok-p">,</span>
+          <span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;string&quot;</span><span class="tok-p">,</span>
+          <span class="tok-nt">&quot;enum&quot;</span><span class="tok-p">:</span> <span class="tok-p">[</span>
+            <span class="tok-s2">&quot;error&quot;</span><span class="tok-p">,</span>
+            <span class="tok-s2">&quot;user-error&quot;</span>
+          <span class="tok-p">]</span>
+        <span class="tok-p">},</span>
+        <span class="tok-nt">&quot;message&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+          <span class="tok-nt">&quot;description&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;Optional message describing &quot;</span><span class="tok-p">,</span>
+          <span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;string&quot;</span>
+        <span class="tok-p">}</span>
+      <span class="tok-p">},</span>
+      <span class="tok-nt">&quot;required&quot;</span><span class="tok-p">:</span> <span class="tok-p">[</span>
+        <span class="tok-s2">&quot;status&quot;</span><span class="tok-p">,</span>
+        <span class="tok-s2">&quot;message&quot;</span>
+      <span class="tok-p">]</span>
+    <span class="tok-p">},</span> <span class="tok-p">{</span>
+      <span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;object&quot;</span><span class="tok-p">,</span>
+      <span class="tok-nt">&quot;properties&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+        <span class="tok-nt">&quot;status&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+          <span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;string&quot;</span><span class="tok-p">,</span>
+          <span class="tok-nt">&quot;enum&quot;</span><span class="tok-p">:</span> <span class="tok-p">[</span>  <span class="tok-s2">&quot;success&quot;</span> <span class="tok-p">]</span>
+        <span class="tok-p">},</span>
+        <span class="tok-nt">&quot;outputFiles&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+          <span class="tok-nt">&quot;description&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;List of generated files relative to the working directory&quot;</span><span class="tok-p">,</span>
+          <span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;array&quot;</span><span class="tok-p">,</span>
+          <span class="tok-nt">&quot;items&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+            <span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;string&quot;</span>
+          <span class="tok-p">},</span>
+          <span class="tok-nt">&quot;examples&quot;</span><span class="tok-p">:</span> <span class="tok-p">[</span>
+            <span class="tok-p">[</span><span class="tok-s2">&quot;file1.txt&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;file2.bw&quot;</span><span class="tok-p">]</span>
+          <span class="tok-p">]</span>
+        <span class="tok-p">},</span>
+        <span class="tok-nt">&quot;packFiles&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+          <span class="tok-nt">&quot;description&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;List of files that are considered &#39;complete&#39; and should be packaged in the output archive&quot;</span><span class="tok-p">,</span>
+          <span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;array&quot;</span><span class="tok-p">,</span>
+          <span class="tok-nt">&quot;items&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+            <span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;string&quot;</span>
+          <span class="tok-p">}</span>
+        <span class="tok-p">},</span>
+        <span class="tok-nt">&quot;environment&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+          <span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;object&quot;</span><span class="tok-p">,</span>
+          <span class="tok-nt">&quot;additionalProperties&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+            <span class="tok-nt">&quot;type&quot;</span><span class="tok-p">:</span> <span class="tok-p">[</span> <span class="tok-s2">&quot;string&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;null&quot;</span> <span class="tok-p">]</span>
+          <span class="tok-p">}</span>
+        <span class="tok-p">}</span>
+      <span class="tok-p">},</span>
+      <span class="tok-nt">&quot;required&quot;</span><span class="tok-p">:</span> <span class="tok-p">[</span>
+        <span class="tok-s2">&quot;status&quot;</span><span class="tok-p">,</span>
+        <span class="tok-s2">&quot;outputFiles&quot;</span>
+      <span class="tok-p">]</span>
+    <span class="tok-p">}</span>
+  <span class="tok-p">]</span>
+<span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_exit_status">Exit Status</h4>
-
+<div class="paragraph">
+<p>The exit <code>status</code> describes the completion state for the process, this will
+inform the server whether it is safe to proceed to the next command in the
+config.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the <code>status</code> value equals <code>success</code>, the server will expect at least a list
+of output files.  If the <code>outputFiles</code> property is not set, the server will end
+execution and return a <code>500</code>.</p>
+</li>
+<li>
+<p>If the <code>status</code> value does not equal <code>success</code> the server will expect a message
+describing the issue.  If the message is not present, the server will return
+a <code>500</code> error.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The statuses will result in behavior according to the following:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>success</code></dt>
+<dd>
+<p>The server will either run the next script in the config, or package
+the aggregated list of <code>packFiles</code> entries and return the completed archive
+with a <code>200</code> status code.</p>
+</dd>
+<dt class="hdlist1"><code>user-error</code></dt>
+<dd>
+<p>The server will end execution of the scripts and return a <code>400</code>
+error with the message provided in the <code>process-results.json</code> file.</p>
+</dd>
+<dt class="hdlist1"><code>error</code></dt>
+<dd>
+<p>The server will end execution of the scripts and return a <code>500</code> error
+with the message provided in the <code>process-results.json</code> file.</p>
+</dd>
+</dl>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_generated_files">Generated Files</h4>
-
+<div class="paragraph">
+<p>The generated files list (<code>outputFiles</code>) should contain all files created or
+modified by the previous script.  The files in this list will be available to
+the next script through the <code>&lt;&lt;output-files&gt;&gt;</code> config template variable in the
+order they appear in this list.</p>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_completed_files">Completed Files</h4>
-
+<div class="paragraph">
+<p>The completed files list <code>packFiles</code> are files that are considered "done" and
+will be packaged in the output archive under the <code>datafiles</code> directory.</p>
+</div>
+<div class="paragraph">
+<p>These files may be reported by any script and the server will aggregate the
+lists from all the commands and archive all the files reported in <code>packFiles</code>
+by all commands.</p>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_environment_modification">Environment Modification</h4>
-
+<div class="paragraph">
+<p>If a script wants to set one or more environment variables to be read by the
+following scripts, it may provide a map of variable to value using the
+<code>environment</code> object.</p>
+</div>
+<div class="listingblock">
+<div class="title">Setting an environment variable</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="json"><span></span><span class="tok-p">{</span>
+  <span class="tok-nt">&quot;environment&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+    <span class="tok-nt">&quot;SOME_VAR&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;some value&quot;</span>
+  <span class="tok-p">}</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These values will be added to the environment for all following scripts.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, environment variables can be removed from the environment of
+following scripts by setting the value of that variable to null in the
+<code>environment</code> object.</p>
+</div>
+<div class="listingblock">
+<div class="title">Deleting an environment variable</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="json"><span></span><span class="tok-p">{</span>
+  <span class="tok-nt">&quot;environment&quot;</span><span class="tok-p">:</span> <span class="tok-p">{</span>
+    <span class="tok-nt">&quot;SOME_VAR&quot;</span><span class="tok-p">:</span> <span class="tok-kc">null</span>
+  <span class="tok-p">}</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_server_expectations">Server Expectations</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_building_a_valid_archive">Building a valid archive</h3>
+<div class="paragraph">
+<p>The server will handle:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Generating the <code>dataset.json</code> file</p>
+</li>
+<li>
+<p>Generating the <code>meta.json</code> file</p>
+</li>
+<li>
+<p>Packaging the reported <code>packFiles</code> in the <code>datafiles</code> directory</p>
+</li>
+<li>
+<p>Packing the completed dataset files in a tar archive suitable for pushing to
+iRODS.</p>
+</li>
+</ol>
 </div>
 </div>
 </div>
@@ -559,7 +734,7 @@ server will assume 500.</p>
 <div id="footer">
 <div id="footer-text">
 Version 1.0.0<br>
-Last updated 2020-05-06 14:37:57 -0400
+Last updated 2020-05-06 15:40:29 -0400
 </div>
 </div>
 <style>
