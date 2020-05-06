@@ -16,11 +16,11 @@ bin/static-content/index.html: openapi.yml
 	@mv redoc-static.html bin/static-content/index.html
 	@rm openapi_tmp.yml
 
-
 # Git push prep tasks
 git-push:
 	@go test ./...
 
+# Git precommit compile docs
 git-pre-commit: docs/api.html docs/index.html docs/config.html docs/commands.html
 	@git add docs/api.html docs/index.html docs/config.html docs/commands.html
 

@@ -1,0 +1,6 @@
+// Overrides for HTML docs
+
+:file-base-readme: {site-url}
+:file-config-readme: {site-url}/config.html
+:file-command-readme: {site-url}/commands.html
+:file-api-readme: {site-url}/api.html
