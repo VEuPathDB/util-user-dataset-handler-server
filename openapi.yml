@@ -44,7 +44,7 @@ paths:
         500:
           $ref: '#/components/responses/server-error'
 
-  /options:
+  /config:
     get:
       tags:
         - Meta
@@ -55,51 +55,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  serviceName:
-                    description: Configured name of the service
-                    type: string
-                  port:
-                    description: HTTP port the server is listening on
-                    type: integer
-                    minimum: 80
-                    maximum: 65535
-                  configPath:
-                    description: |
-                      Path to the server configuration file on the host
-                      filesystem
-                    type: string
-                  commands:
-                    description: List of configured commands
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        command:
-                          description: The shell command the server will call
-                          type: string
-                        arguments:
-                          description: |
-                            Arguments the server will pass to the configured
-                            command.
-                          type: array
-                          items:
-                            description: |
-                              Optionally templated input argument the server
-                              will pass to the configured command.
-                            type: string
-                            minItems: 1
-                      required:
-                        - command
-                        - arguments
-                required:
-                  - serviceName
-                  - port
-                  - configPath
-                  - commands
-
-
+                $ref: '#/components/schemas/options-response'
 
   /process/metadata:
     post:
@@ -385,6 +341,55 @@ components:
         - resourceDisplayName
         - resourceVersion
         - resourceIdentifier
+
+    #
+    # Options Endpoint Response
+    #
+    options-response:
+      type: object
+      properties:
+        serviceName:
+          description: Configured name of the service
+          type: string
+        port:
+          description: HTTP port the server is listening on
+          type: integer
+          minimum: 80
+          maximum: 65535
+        configPath:
+          description: |
+            Path to the server configuration file on the host
+            filesystem
+          type: string
+        commands:
+          description: List of configured commands
+          type: array
+          items:
+            type: object
+            properties:
+              command:
+                description: The shell command the server will call
+                type: string
+              arguments:
+                description: |
+                  Arguments the server will pass to the configured
+                  command.
+                type: array
+                items:
+                  description: |
+                    Optionally templated input argument the server
+                    will pass to the configured command.
+                  type: string
+                  minItems: 1
+            required:
+              - command
+              - arguments
+      required:
+        - serviceName
+        - port
+        - configPath
+        - commands
+
 
     #
     # Generic Status Responses

@@ -14,7 +14,7 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 )
 
-const path = "/options"
+const path = "/config"
 
 func Register(r *mux.Router, o *config.Options) {
 	r.Path(path).
