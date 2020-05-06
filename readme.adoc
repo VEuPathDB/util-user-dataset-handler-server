@@ -5,8 +5,10 @@
 :icons: font
 // Custom vars
 :repo-url: https://github.com/VEuPathDB/util-exporter-server
+:site-url: https://veupathdb.github.io/util-exporter-server
 :repo-file-base: {repo-url}/blob/master
-:file-config-readme: {repo-file-base}/extras/readme/config.adoc
+:file-config-readme: {site-url}/config.html
+:file-base-readme: {repo-url}
 // Github specifics
 ifdef::env-github[]
 :tip-caption: :bulb:
@@ -14,8 +16,9 @@ ifdef::env-github[]
 :important-caption: :heavy_exclamation_mark:
 :caution-caption: :fire:
 :warning-caption: :warning:
-:file-config-readme: {repo-file-base}/extras/readme/config.adoc
+:file-config-readme: {repo-file-base}/extras/readme/config-file.adoc
 endif::[]
+// Custom vars
 Elizabeth Paige Harper <epharper@upenn.edu>
 v1.0.0
 
