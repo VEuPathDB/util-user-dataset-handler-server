@@ -23,7 +23,7 @@ v1.0.0
 :file-base-readme: {repo-url}
 :file-config-readme: {repo-file-base}/extras/readme/config-file.adoc
 :file-command-readme: {repo-file-base}/extras/readme/commands.adoc
-:file-api-readme: {repo-file-base}/openapi.yml
+:file-api-readme: {repo-file-base}/api.raml
 ifndef::env-github[]
 include::extras/readme/include/site-config.adoc[]
 endif::[]
