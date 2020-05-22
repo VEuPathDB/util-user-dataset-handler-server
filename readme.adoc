@@ -15,8 +15,8 @@ Elizabeth Paige Harper <epharper@upenn.edu>
 v1.0.0
 
 // Custom Config
-:repo-url: https://github.com/VEuPathDB/util-exporter-server
-:site-url: https://veupathdb.github.io/util-exporter-server
+:repo-url: https://github.com/VEuPathDB/util-user-dataset-handler-server
+:site-url: https://veupathdb.github.io/util-user-dataset-handler-server
 :repo-file-base: {repo-url}/blob/master
 
 // File paths
