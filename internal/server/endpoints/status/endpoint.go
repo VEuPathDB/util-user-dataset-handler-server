@@ -13,7 +13,7 @@ import (
 
 	// Internal
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	. "github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 )
@@ -44,30 +44,33 @@ type statusEndpoint struct {
 func (s *statusEndpoint) Register(r *mux.Router) {
 	r.Path(urlPath).
 		Methods(http.MethodGet).
-		Handler(JSONAdapter(NewLogProvider(NewTimer(
-		NewTokenValidator(tknKey, s.meta, s.LogWrapper)))))
-}
-
-func (s *statusEndpoint) LogWrapper(log *logrus.Entry) Middleware {
-	s.log = log
-	return s
+		Handler(JSONAdapter(
+			RequestIdProvider(),
+			LogProvider(),
+			NewTimer(NewTokenValidator(tknKey, s.meta, s))))
 }
 
 func (s *statusEndpoint) Handle(req Request) Response {
 	token := mux.Vars(req.RawRequest())[tknKey]
 	unkwn, ok := s.upload.Get(token)
+
 	if !ok {
-		return MakeResponse(http.StatusOK, process.StorableDetails{
-			Token:    token,
-			Status:   process.StatusNotStarted,
+		return MakeResponse(http.StatusOK, job.StorableDetails{
+			Token:  token,
+			Status: job.StatusNotStarted,
 		})
 	}
-	if det, ok := unkwn.(process.Details); ok {
+
+	if det, ok := unkwn.(job.Details); ok {
 		return MakeResponse(http.StatusOK, det.StorableDetails)
 	}
-	if det, ok := unkwn.(process.StorableDetails); ok {
+
+	if det, ok := unkwn.(job.StorableDetails); ok {
 		return MakeResponse(http.StatusOK, det)
 	}
+
+	GetCtxLogger(req).WithField("status", http.StatusInternalServerError).
+		Error(errInvalidState)
 	return svc.ServerError(errInvalidState)
 }
 

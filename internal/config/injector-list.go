@@ -2,10 +2,10 @@ package config
 
 import (
 	"github.com/VEuPathDB/util-exporter-server/internal/config/inject"
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
-type InjectorProvider func(*process.Details) inject.VariableInjector
+type InjectorProvider func(*job.Details) inject.VariableInjector
 
 func InjectorList() []InjectorProvider {
 	return []InjectorProvider{

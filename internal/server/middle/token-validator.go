@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/patrickmn/go-cache"
-	"github.com/sirupsen/logrus"
+	"net/http"
 )
 
 const (
@@ -18,20 +18,25 @@ const (
 func NewTokenValidator(
 	tknKey string,
 	meta *cache.Cache,
-	next LoggedMiddlewareFn,
-) LoggedMiddlewareFn {
-	return func(log *logrus.Entry) Middleware {
-		return MiddlewareFunc(func(req Request) Response {
-			token := mux.Vars(req.RawRequest())[tknKey]
-			if _, err := uuid.Parse(token); err != nil {
-				return svc.BadRequest(errBadToken)
-			}
+	next Middleware,
+) MiddlewareFunc {
+	return func(req Request) Response {
+		log := GetCtxLogger(req)
+		log.Debug("Validating job id")
+		token := mux.Vars(req.RawRequest())[tknKey]
 
-			if _, ok := meta.Get(token); !ok {
-				return svc.NotFound(errTknNotFound)
-			}
+		if _, err := uuid.Parse(token); err != nil {
+			log.WithField("status", http.StatusBadRequest).
+				Info(errBadToken)
+			return svc.BadRequest(errBadToken)
+		}
 
-			return next(log).Handle(req)
-		})
+		if _, ok := meta.Get(token); !ok {
+			log.WithField("status", http.StatusNotFound).
+				Info(errTknNotFound)
+			return svc.NotFound(errTknNotFound)
+		}
+
+		return next.Handle(req)
 	}
 }

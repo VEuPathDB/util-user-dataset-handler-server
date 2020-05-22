@@ -2,7 +2,7 @@ package inject_test
 
 import (
 	"github.com/VEuPathDB/util-exporter-server/internal/config/inject"
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -11,7 +11,7 @@ import (
 func TestCwdInjector_Inject(t *testing.T) {
 	Convey("Cwd Injector", t, func() {
 		testPath := "/test/path"
-		details := process.Details{
+		details := job.Details{
 			WorkingDir: "/test/path",
 		}
 		tests := [][2][]string{

@@ -1,4 +1,5 @@
-VERSION=$(shell git describe --tags || "untagged")
+VERSION = $(shell git describe --tags 2>/dev/null || echo "untagged")
+FILES   = $(shell find . -name '*.go')
 
 build: bin/config.yml bin/server bin/static-content/index.html
 
@@ -6,15 +7,12 @@ bin/config.yml:
 	@mkdir -p bin
 	@cp config.yml bin/config.yml
 
-bin/server:
-	@go build -o bin/server --ldflags="-X 'main.version=${VERSION}'" cmd/server.go
+bin/server: $(FILES)
+	@go build -o bin/server --ldflags="-X 'main.version=${VERSION}'" cmd/service.go
 
-bin/static-content/index.html: openapi.yml
-	@sed "s/__VERSION__/${VERSION}" > openapi_tmp.yml
-	@redoc-cli bundle openapi_tmp.yml
+bin/static-content/index.html: docs/api.html
 	@mkdir -p bin/static-content
-	@mv redoc-static.html bin/static-content/index.html
-	@rm openapi_tmp.yml
+	@cp docs/api.html bin/static-content/index.html
 
 # Git push prep tasks
 git-push:
@@ -24,8 +22,8 @@ git-push:
 git-pre-commit: docs/api.html docs/index.html docs/config.html docs/commands.html
 	@git add docs/api.html docs/index.html docs/config.html docs/commands.html
 
-docs/api.html: openapi.yml
-	@redoc-cli bundle openapi.yml --output docs/api.html
+docs/api.html: api.raml
+	@raml2html --theme raml2html-modern-theme api.raml > docs/api.html
 docs/index.html: readme.adoc
 	@asciidoctor -b html5 -D docs/ -o index.html -r pygments.rb readme.adoc
 docs/config.html: extras/readme/config-file.adoc

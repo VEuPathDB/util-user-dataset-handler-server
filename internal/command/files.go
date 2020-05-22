@@ -9,7 +9,7 @@ import (
 	"path"
 	"sort"
 
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 const (
@@ -43,7 +43,7 @@ func (r *runner) getWorkspaceFiles() ([]string, error) {
 
 // getStatusFile reads the status file created by the
 // previous command output.
-func (r *runner) getStatusFile() (out process.StatusFile, err error) {
+func (r *runner) getStatusFile() (out job.StatusFile, err error) {
 	file := path.Join(r.details.WorkingDir, "command-status.json")
 
 	stat, err := os.Stat(file)

@@ -14,10 +14,9 @@ import (
 	// Internal
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/health"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/metadata"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/job"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/options"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/status"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/upload"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 )
 
@@ -49,7 +48,7 @@ func (s *server) RegisterEndpoints() {
 	middle.RegisterGenericHandlers(s.r)
 
 	// Serve API docs
-	s.r.Path("/").
+	s.r.Path("/api").
 		Methods(http.MethodGet).
 		Handler(http.FileServer(http.Dir("./static-content")))
 
@@ -59,9 +58,8 @@ func (s *server) RegisterEndpoints() {
 	// Options Endpoint
 	options.Register(s.r, s.o)
 
-	// Metadata recording endpoint
-	metadata.Register(s.r, s.o, metaCache)
+	job.NewJobCreateEndpoint(metaCache).Register(s.r)
+	job.NewUploadEndpoint(s.o, metaCache, uploadCache).Register(s.r)
 
-	upload.NewUploadEndpoint(s.o, metaCache, uploadCache).Register(s.r)
 	status.NewStatusEndpoint(s.o, metaCache, uploadCache).Register(s.r)
 }

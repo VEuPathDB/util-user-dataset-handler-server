@@ -10,14 +10,12 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/stats"
 )
 
-func NewTimer(next LoggedMiddlewareFn) LoggedMiddlewareFn {
-	return func(logger *logrus.Entry) midl.Middleware {
-		return midl.MiddlewareFunc(func(req midl.Request) midl.Response {
-			start := time.Now()
-			res := next(logger).Handle(req)
-			recordTime(start, logger, res)
-			return res
-		})
+func NewTimer(next midl.Middleware) midl.MiddlewareFunc {
+	return func(req midl.Request) midl.Response {
+		start := time.Now()
+		res   := next.Handle(req)
+		recordTime(start, GetCtxLogger(req), res)
+		return res
 	}
 }
 

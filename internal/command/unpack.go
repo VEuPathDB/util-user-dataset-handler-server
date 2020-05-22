@@ -5,7 +5,7 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"strings"
 
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 const (
@@ -13,7 +13,7 @@ const (
 	errUntar   = "Failed to extract uploaded tar archive: "
 )
 
-func (r *runner) unpack(d *process.Details) error {
+func (r *runner) unpack(d *job.Details) error {
 	if strings.HasSuffix(d.InTarName, ".zip") {
 		if err := r.unzip(d); err != nil {
 			return err
@@ -32,7 +32,7 @@ func (r *runner) unpack(d *process.Details) error {
 	return nil
 }
 
-func (r *runner) untar(d *process.Details) error {
+func (r *runner) untar(d *job.Details) error {
 	cmd := util.PrepCommand(r.log, "tar", "-xvf", d.InTarName)
 	cmd.Dir = d.WorkingDir
 
@@ -43,7 +43,7 @@ func (r *runner) untar(d *process.Details) error {
 	return err
 }
 
-func (r *runner) unzip(d *process.Details) error {
+func (r *runner) unzip(d *job.Details) error {
 	cmd := util.PrepCommand(r.log, "unzip", d.InTarName)
 	cmd.Dir = d.WorkingDir
 

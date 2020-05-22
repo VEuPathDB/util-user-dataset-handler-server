@@ -2,7 +2,7 @@ package inject_test
 
 import (
 	"github.com/VEuPathDB/util-exporter-server/internal/config/inject"
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"testing"
 	"time"
 
@@ -14,8 +14,8 @@ func TestDateTimeInjector_Inject(t *testing.T) {
 		tmp, _ := time.Parse(time.RFC3339, "1988-10-31T04:38:13Z")
 		testDate := "1988-10-31T04:38:13Z"
 
-		details := process.Details{
-			StorableDetails: process.StorableDetails{Started: tmp.UTC()},
+		details := job.Details{
+			StorableDetails: job.StorableDetails{Started: tmp.UTC()},
 		}
 
 		tests := [][2][]string{

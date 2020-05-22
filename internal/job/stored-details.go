@@ -1,4 +1,4 @@
-package process
+package job
 
 import (
 	"github.com/VEuPathDB/util-exporter-server/internal/wdk/site"

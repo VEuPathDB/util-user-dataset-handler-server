@@ -1,24 +1,26 @@
 package middle
 
 import (
-	// External
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/VEuPathDB/util-exporter-server/internal/log"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
-type LoggedMiddlewareFn func(logger *logrus.Entry) midl.Middleware
-
-func NewLogProvider(next LoggedMiddlewareFn) midl.MiddlewareFunc {
+func LogProvider() midl.MiddlewareFunc {
 	log.Logger().Trace("LoggedMiddlewareFn")
 	return func(req midl.Request) midl.Response {
-		id := uuid.New().String()
 		log := log.Logger().
-			WithField("request-id", id).
-			WithField("endpoint", req.RawRequest().URL.Path)
+			WithField("request-id", req.AdditionalContext()["request-id"]).
+			WithField("endpoint", req.RawRequest().URL.Path).
+			WithField("method", req.RawRequest().Method)
 
-		log.Trace("Prepared logger for request")
-		return next(log).Handle(req)
+		log.Debug("Prepared logger for request")
+		req.AdditionalContext()[KeyLogger] = log
+
+		return nil
 	}
+}
+
+func GetCtxLogger(req midl.Request) *logrus.Entry {
+	return req.AdditionalContext()[KeyLogger].(*logrus.Entry)
 }

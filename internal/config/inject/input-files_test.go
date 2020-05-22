@@ -2,7 +2,7 @@ package inject_test
 
 import (
 	"github.com/VEuPathDB/util-exporter-server/internal/config/inject"
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -13,7 +13,7 @@ func TestInputFileInjector_Inject(t *testing.T) {
 			input1 := "foo.txt"
 			input2 := "bar.txt"
 
-			details := process.Details{InputFiles: []string{input1, input2}}
+			details := job.Details{InputFiles: []string{input1, input2}}
 
 			tests := [][2][]string{
 				{{"foo", "<<input-files>>"}, {"foo", input1, input2}},
@@ -36,7 +36,7 @@ func TestInputFileInjector_Inject(t *testing.T) {
 			input1 := "foo.txt"
 			input2 := "bar.txt"
 
-			details := process.Details{InputFiles: []string{input1, input2}}
+			details := job.Details{InputFiles: []string{input1, input2}}
 
 			tests := [][]string{
 				{"--foo=<<input-files[2]>>"},

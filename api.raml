@@ -1,0 +1,312 @@
+#%RAML 1.0
+---
+title: Dataset Handler Service
+description: Validation/transformation service for user dataset uploads.
+version: 1.0.0
+mediaType: application/json
+
+/api:
+  displayName: API Documentation
+  get:
+    description: Get API documentation HTML document.
+    responses:
+      200:
+        body:
+          text/html:
+
+/config:
+  get:
+    description: Prints out the current server configuration.
+    responses:
+      200:
+        body:
+          description: Success full options printout
+          type: OptionsResponse
+
+/health:
+    get:
+      description: Current status/stats about the the HTTP service.
+      responses:
+        200:
+          body:
+            description: Successful server status lookup.
+            type: HealthResponse
+        500:
+          body: ServerError
+
+/job/{job-id}:
+  uriParameters:
+    job-id:
+      description: |
+        Unique identifier for the job being created.  Assigned by the calling
+        service.  This ID will be used to reference the created job for all
+        subsequent, job-specific requests.
+      type: string
+  put:
+    body:
+      application/json:
+        type: MetadatPutBody
+    responses:
+      204:
+        description: Job accepted
+      400:
+        body: BadRequestError
+      422:
+        body: InvalidInputError
+      500:
+        body: ServerError
+  post:
+    body:
+      application/binary:
+        description: Packaged dataset upload file.  Max 500Mb.
+        type: file
+        maxLength: 524288000
+        examples:
+          zip: dataset.zip
+          tar: dataset.tar.gz
+          tgz: dataset.tgz
+    responses:
+      200:
+        body:
+          application/binary:
+            description: |
+              User Dataset processing completed successfully.  Returns the output
+              from the internal script suite as a packaged tar file ready for
+              upload to iRODS.
+            type: file
+            example: dataset.tgz
+      400:
+        body:
+          description: |
+            Invalid request input.  Possible causes are:
+
+            1. No Content-Type header
+            2. No Content-Length header
+            3. Unsupported Content-Type
+            4. Payload too large
+            5. Incorrect payload format
+          type: BadRequestError
+      404:
+        body: NotFoundError
+      500:
+        body: ServerError
+
+  /status:
+    get:
+      description: |
+        Fetch the current status of the User Dataset processing.
+      responses:
+        200:
+          description: User Dataset processing status data.
+        404:
+          body: NotFoundError
+        500:
+          body: ServerError
+
+types:
+  ErrorResponse:
+    description: Generic error response
+    additionalProperties: false
+    discriminator: status
+    properties:
+      status: string
+      message: string
+
+  BadRequestError:
+    displayName: 400 Response
+    description: Unusable request error
+    type: ErrorResponse
+    discriminatorValue: bad-request
+    example:
+      status: bad-request
+      message: malformed JSON
+
+  NotFoundError:
+    displayName: 404 Response
+    description: Requested resource not found
+    type: ErrorResponse
+    discriminatorValue: not-found
+    example:
+      status: not-found
+      message: No job found with the given job-id
+
+  InvalidInputError:
+    type: ErrorResponse
+    displayName: 422 Response
+    description: Parsable but invalid request input.
+    discriminatorValue: invalid-input
+    properties:
+      errors:
+        additionalProperties: false
+        properties:
+          general:
+            type: array
+            items: string
+          byKey:
+            properties:
+              //:
+                type: string
+    example:
+      status: invalid-input
+      message: json validation failed
+      errors:
+        general: []
+        byKey:
+          datasetName: Dataset name is required
+
+  ServerError:
+    type: ErrorResponse
+    displayName: 500 Response
+    description: Internal server error.
+    discriminatorValue: server-error
+    properties:
+      requestId: string
+    example:
+      status: server-error
+      message: Dataset handler connection lost
+      requestId: b296c3d9-4032-41b1-906e-c97ccfc447e3
+
+  HealthResponse:
+    description: Details about the server's current status.
+    type: object
+    properties:
+      status:
+        type: string
+        enum: [ "healthy", "unhealthy" ]
+      version:
+        type: string
+        example:
+          "v1.0.0"
+      stats:
+        type: object
+        properties:
+          byStatus:
+            description: |
+              Request count by HTTP response status.
+            type: object
+            properties:
+              //:
+                type: integer
+                minimum: 0
+          avgSize:
+            description: |
+              Average User Dataset payload size.
+            type: integer
+            minimum: 0
+          avgDuration:
+            description: |
+              Average User Dataset processing time.
+            type: string
+          largest:
+            description: |
+              Historical largest User Dataset processed size in
+              bytes.
+            type: integer
+            minimum: 0
+          longest:
+            description: |
+              Historical longest run encountered for processing a
+              User Dataset.
+            type: string
+
+  OptionsResponse:
+    type: object
+    properties:
+      serviceName:
+        description: Configured name of the service
+        type: string
+      port:
+        description: HTTP port the server is listening on
+        type: integer
+        minimum: 80
+        maximum: 65535
+      configPath:
+        description: |
+          Path to the server configuration file on the host
+          filesystem
+        type: string
+      commands:
+        description: List of configured commands
+        type: array
+        items:
+          type: object
+          properties:
+            command:
+              description: The shell command the server will call
+              type: string
+            arguments:
+              description: |
+                Arguments the server will pass to the configured
+                command.
+              type: array
+              minItems: 1
+              items:
+                description: |
+                  Optionally templated input argument the server
+                  will pass to the configured command.
+                type: string
+
+  MetadatPutBody:
+    type: object
+    properties:
+      projects:
+        description: |
+          Projects in which this User Dataset should be available for install
+          after processing.
+        type: array
+        items: ProjectEnum
+        minItems: 1
+        uniqueItems: true
+      owner:
+        description: |
+          WDK User ID of the user submitting this User Dataset for processing.
+        type: integer
+        minimum: 0
+      dependencies:
+        type: array
+        items: Dependency
+        minItems: 1
+        required: false
+      name:
+        description: Name of the dataset.
+        type: string
+        minLength: 3
+      description:
+        description: Optional description of the dataset.
+        type: string
+        required: false
+      summary:
+        description: Optional dataset summary.
+        type: string
+        required: false
+
+  ProjectEnum:
+    type: string
+    enum:
+      - AmoebaDB
+      - ClinepiDB
+      - CryptoDB
+      - FungiDB
+      - GiardiaDB
+      - HostDB
+      - MicrobiomeDB
+      - MicrosporidiaDB
+      - Orthomcl
+      - PiroplasmaDB
+      - PlasmoDB
+      - SchistoDB
+      - ToxoDB
+      - TrichDB
+      - TritrypDB
+      - Vectorbase
+      - VeupathDB
+
+  Dependency:
+    type: object
+    properties:
+      resourceDisplayName:
+        type: string
+      resourceVersion:
+        type: string
+      resourceIdentifier:
+        type: string

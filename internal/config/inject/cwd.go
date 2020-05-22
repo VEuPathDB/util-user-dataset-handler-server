@@ -1,17 +1,17 @@
 package inject
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 const cwdInjectorTarget = "<<cwd>>"
 
-func NewCwdInjector(det *process.Details) VariableInjector {
+func NewCwdInjector(det *job.Details) VariableInjector {
 	return &cwdInjector{det}
 }
 
 type cwdInjector struct {
-	state *process.Details
+	state *job.Details
 }
 
 func (d *cwdInjector) Inject(target []string) ([]string, error) {

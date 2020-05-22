@@ -1,17 +1,17 @@
 package inject
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 const timeInjectorTarget = "<<time>>"
 
-func NewTimeInjector(details *process.Details) VariableInjector {
+func NewTimeInjector(details *job.Details) VariableInjector {
 	return &timeInjector{details}
 }
 
 type timeInjector struct {
-	state *process.Details
+	state *job.Details
 }
 
 func (t *timeInjector) Inject(target []string) ([]string, error) {

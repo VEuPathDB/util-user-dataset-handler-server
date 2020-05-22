@@ -17,32 +17,46 @@ const (
 	errTooBig       = "Content-Length %d is larger than the allowed size for this endpoint: %d"
 )
 
-// NewContentLengthFilter constructs a middleware filter
-// that enforces the incoming request has a Content-Length
-// header and that the value is below the given threshold.
-func NewContentLengthFilter(bytes uint64) midl.MiddlewareFunc {
-	return func(req midl.Request) midl.Response {
-		if val, ok := req.Header(xhttp.HeaderContentLength); ok {
-			size, err := strconv.ParseUint(val, 10, 64)
-			if err != nil {
-				return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
-					Status:  svc.StatusBadRequest,
-					Message: errBadLengthVal,
-				})
-			}
-			if size > bytes {
-				return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
-					Status:  svc.StatusBadRequest,
-					Message: fmt.Sprintf(errTooBig, size, bytes),
-				})
-			}
-		} else {
+// NewContentLengthFilter constructs a middleware filter that enforces the
+// incoming request has a Content-Length header and that the value is below the
+// given threshold.
+func NewContentLengthFilter(bytes uint64)  midl.Middleware {
+	return &contentLengthFilter{bytes: bytes}
+}
+
+type contentLengthFilter struct {
+	bytes  uint64
+}
+
+func (c *contentLengthFilter) Handle(req midl.Request) midl.Response {
+	log := GetCtxLogger(req).WithField("status", http.StatusBadRequest)
+
+	if val, ok := req.Header(xhttp.HeaderContentLength); ok {
+		size, err := strconv.ParseUint(val, 10, 64)
+
+		if err != nil {
+			log.Info(errBadLengthVal)
 			return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
 				Status:  svc.StatusBadRequest,
-				Message: errNoLengthVal,
+				Message: errBadLengthVal,
 			})
 		}
 
-		return nil
+		if size > c.bytes {
+			msg := fmt.Sprintf(errTooBig, size, c.bytes)
+			log.Info(msg)
+			return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
+				Status:  svc.StatusBadRequest,
+				Message: msg,
+			})
+		}
+	} else {
+		log.Info(errNoLengthVal)
+		return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
+			Status:  svc.StatusBadRequest,
+			Message: errNoLengthVal,
+		})
 	}
+
+	return nil
 }

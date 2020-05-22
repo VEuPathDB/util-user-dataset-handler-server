@@ -8,8 +8,8 @@ import (
 
 func RegisterGenericHandlers(r *mux.Router) {
 	r.MethodNotAllowedHandler = midl.JSONAdapter(
-		NewLogProvider(NewTimer(svc.New405Handler)))
+		RequestIdProvider(), LogProvider(), NewTimer(svc.New405Handler()))
 	r.NotFoundHandler = midl.JSONAdapter(
-		NewLogProvider(NewTimer(svc.New404Handler)))
+		RequestIdProvider(), LogProvider(), NewTimer(svc.New404Handler()))
 }
 

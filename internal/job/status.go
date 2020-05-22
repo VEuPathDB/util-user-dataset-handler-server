@@ -1,4 +1,4 @@
-package process
+package job
 
 type Status string
 

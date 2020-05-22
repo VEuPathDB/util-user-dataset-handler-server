@@ -1,18 +1,13 @@
-package metadata
+package job
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/dataset"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 	"github.com/google/uuid"
 )
 
 type Metadata struct {
-	dataset.BaseInfo
-
-	Name        string `json:"name"`
-	Summary     string `json:"summary"`
-	Description string `json:"description"`
-	Token       string `json:"token"`
+	job.Metadata
 }
 
 func (M *Metadata) Validate() (out svc.ValidationResult) {

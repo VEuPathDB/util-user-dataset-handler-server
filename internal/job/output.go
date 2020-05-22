@@ -1,4 +1,4 @@
-package process
+package job
 
 type StatusFile struct {
 	Status  string   `json:"status"`

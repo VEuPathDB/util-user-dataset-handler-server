@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 var outputFileInjectorTarget = regexp.MustCompile(`"?<<output-files(?:\[([^]]*)](?:\[([^]]*)])?)?>>"?`)
@@ -16,12 +16,12 @@ const (
 	wrappedOutFileTarget = `"<<output-files>>"`
 )
 
-func NewOutputFileInjector(details *process.Details) VariableInjector {
+func NewOutputFileInjector(details *job.Details) VariableInjector {
 	return &outputFileInjector{details}
 }
 
 type outputFileInjector struct {
-	state *process.Details
+	state *job.Details
 }
 
 func (t *outputFileInjector) Inject(targets []string) ([]string, error) {

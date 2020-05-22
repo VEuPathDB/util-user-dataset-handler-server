@@ -3,7 +3,7 @@ package inject
 import (
 	"errors"
 	"fmt"
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,12 +16,12 @@ const (
 	wrappedInputFileTarget = `"<<input-files>>"`
 )
 
-func NewInputFileInjector(details *process.Details) VariableInjector {
+func NewInputFileInjector(details *job.Details) VariableInjector {
 	return &inputFileInjector{details}
 }
 
 type inputFileInjector struct {
-	state *process.Details
+	state *job.Details
 }
 
 func (t *inputFileInjector) Inject(target []string) ([]string, error) {

@@ -1,31 +1,25 @@
-package upload
+package job
 
 import (
-	"github.com/Foxcapades/go-midl/v2/pkg/midl"
-	"github.com/VEuPathDB/util-exporter-server/internal/command"
-	"github.com/VEuPathDB/util-exporter-server/internal/process"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/metadata"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
-	"github.com/gorilla/mux"
-	"github.com/patrickmn/go-cache"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"path"
 
+	"github.com/Foxcapades/go-midl/v2/pkg/midl"
+	"github.com/gorilla/mux"
+	"github.com/patrickmn/go-cache"
+	"github.com/sirupsen/logrus"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/command"
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
 )
 
 const (
 	tokenKey = "token"
-	urlPath  = "/process/dataset/{" + tokenKey + "}"
-)
-
-const (
-	errNoMeta = "Invalid state, missing metadata"
 )
 
 func NewUploadEndpoint(o *config.Options, meta, upload *cache.Cache) types.Endpoint {
@@ -46,14 +40,9 @@ type endpoint struct {
 func (e *endpoint) Register(r *mux.Router) {
 	r.Path(urlPath).Handler(middle.NewBinaryAdaptor().
 		AddHandlers(
-			middle.NewContentLengthFilter(500 * util.SizeMebibyte),
-			middle.NewLogProvider(middle.NewTimer(middle.NewTokenValidator(
-				tokenKey,
-				e.meta,
-				func(logger *logrus.Entry) midl.Middleware {
-					e.log = logger
-					return e
-				})))))
+			middle.RequestIdProvider(),
+			middle.LogProvider(),
+			middle.NewTimer(middle.NewTokenValidator(tokenKey, e.meta, e))))
 }
 
 // Handle the request.
@@ -63,11 +52,16 @@ func (e *endpoint) Handle(req midl.Request) midl.Response {
 	token := mux.Vars(req.RawRequest())[tokenKey]
 	meta  := e.getMeta(token)
 	dets  := e.CreateDetails(&meta)
+	log   := middle.GetCtxLogger(req)
 
-	e.HandleUpload(req, dets)
+	if res := e.HandleUpload(req, dets); res != nil {
+		return res
+	}
 
-	stream, err := command.NewCommandRunner(token, e.opt, e.upload, e.meta).Run()
+	stream, err := command.NewCommandRunner(token, e.opt, e.upload, e.meta, log).
+		Run()
 	if err != nil {
+		log.WithField("status", http.StatusInternalServerError).Error(err)
 		return svc.ServerError(err.Error())
 	}
 
@@ -77,21 +71,22 @@ func (e *endpoint) Handle(req midl.Request) midl.Response {
 
 func (e *endpoint) HandleUpload(
 	request midl.Request,
-	details *process.Details,
+	details *job.Details,
 ) midl.Response {
+	log := middle.GetCtxLogger(request)
 
-	upload, head, res := GetFileHandle(request.RawRequest())
+	upload, head, res := GetFileHandle(request.RawRequest(), log)
 	if res != nil {
 		return e.FailJob(res, details)
 	}
 	defer upload.Close()
 
-	if err := ValidateFileSuffix(head.Filename); err != nil {
+	if err := ValidateFileSuffix(head.Filename, log); err != nil {
 		return e.FailJob(err, details)
 	}
 
 	dir := path.Join(e.opt.Workspace, details.Token)
-	if err := MakeWorkDir(dir); err != nil {
+	if err := MakeWorkDir(dir, log); err != nil {
 		return e.FailJob(err, details)
 	}
 
@@ -99,13 +94,13 @@ func (e *endpoint) HandleUpload(
 	e.StoreDetails(details)
 
 	filename := path.Join(dir, head.Filename)
-	out, err := MakeFileTarget(filename)
+	out, err := MakeFileTarget(filename, log)
 	if err != nil {
 		return e.FailJob(err, details)
 	}
 	defer out.Close()
 
-	if err := CopyFile(out, upload); err != nil {
+	if err := CopyFile(out, upload, log); err != nil {
 		return e.FailJob(err, details)
 	}
 
@@ -115,15 +110,15 @@ func (e *endpoint) HandleUpload(
 	return nil
 }
 
-func (e *endpoint) getMeta(token string) metadata.Metadata {
+func (e *endpoint) getMeta(token string) Metadata {
 	tmp, _ := e.meta.Get(token)
-	return tmp.(metadata.Metadata)
+	return tmp.(Metadata)
 }
 
 func (e *endpoint) cleanup(token string) func() {
 	return func() {
 		tmp, _ := e.upload.Get(token)
-		dets := tmp.(process.Details)
+		dets := tmp.(job.Details)
 
 		_ = os.RemoveAll(dets.WorkingDir)
 		e.upload.Set(token, dets.StorableDetails, cache.DefaultExpiration)

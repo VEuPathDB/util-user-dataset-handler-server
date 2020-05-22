@@ -1,4 +1,4 @@
-package process
+package job
 
 type Details struct {
 	StorableDetails
