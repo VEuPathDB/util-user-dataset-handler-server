@@ -13,8 +13,10 @@ var version = "untagged dev build"
 func main() {
 	options := new(config.Options)
 	options.Version = version
+
 	parse.Cli(options)
 	parse.ConfigFile(options)
+
 	options.Validate()
 
 	log.SetLogger(log.ConfigureLogger(options.ServiceName, "running"))

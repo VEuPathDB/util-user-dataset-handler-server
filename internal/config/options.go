@@ -11,12 +11,12 @@ const (
 )
 
 type Options struct {
-	ServiceName string    `yaml:"service-name" json:"serviceName"`
-	Port        uint16    `yaml:"-" json:"port"`
-	ConfigPath  string    `yaml:"-" json:"configPath"`
-	Commands    []Command `yaml:"commands" json:"commands"`
-	Version     string    `yaml:"-" json:"-"`
-	Workspace   string    `yaml:"-" json:"workspace"`
+	ServiceName string  `yaml:"service-name" json:"serviceName"`
+	Port        uint16  `yaml:"-" json:"port"`
+	ConfigPath  string  `yaml:"-" json:"configPath"`
+	Command     Command `yaml:"command" json:"command"`
+	Version     string  `yaml:"-" json:"-"`
+	Workspace   string  `yaml:"-" json:"workspace"`
 }
 
 func (O *Options) GetUsablePort() string {

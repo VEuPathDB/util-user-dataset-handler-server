@@ -9,6 +9,7 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 )
 
+// ConfigFile parses the config file set by the CLI options.
 func ConfigFile(opts *config.Options) {
 	raw, err := ioutil.ReadFile(opts.ConfigPath)
 	if err != nil {
@@ -16,11 +17,10 @@ func ConfigFile(opts *config.Options) {
 	}
 
 	tmp := new(config.Options)
-	err = yaml.Unmarshal(raw, tmp)
-	if err != nil {
+	if err = yaml.Unmarshal(raw, tmp); err != nil {
 		log.Logger().Fatal(err)
 	}
 
-	opts.Commands = tmp.Commands
+	opts.Command     = tmp.Command
 	opts.ServiceName = tmp.ServiceName
 }

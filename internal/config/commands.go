@@ -18,18 +18,17 @@ const (
 )
 
 type Command struct {
-	Command string   `yaml:"command" json:"command"`
-	Args    []string `yaml:"args" json:"arguments"`
+	Executable string   `yaml:"executable" json:"executable"`
+	Args       []string `yaml:"args" json:"arguments"`
 }
 
 func (C *Command) Validate() error {
-	if len(C.Command) == 0 {
+	if len(C.Executable) == 0 {
 		return errors.New(errNoCmd)
 	}
 
-	_, err := exec.LookPath(C.Command)
-	if err != nil {
-		return fmt.Errorf(errCmdNotAvail, C.Command, err)
+	if _, err := exec.LookPath(C.Executable); err != nil {
+		return fmt.Errorf(errCmdNotAvail, C.Executable, err)
 	}
 
 	return nil

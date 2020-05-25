@@ -3,7 +3,7 @@
 # Please edit the variables below and rename this file.
 
 service-name: my service
-commands:
-  - command: my-command
-    args:
-      - <<input-files>>
+command:
+  executable: my-command
+  args:
+    - <<input-files>>

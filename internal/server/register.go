@@ -30,14 +30,15 @@ func NewServer(o *config.Options) Server {
 }
 
 type server struct {
-	r *mux.Router
-	o *config.Options
-	l *logrus.Entry
+	router  *mux.Router
+	options *config.Options
+	logger  *logrus.Entry
 }
 
 func (s *server) Serve() error {
-	http.Handle("/", s.r)
-	return http.ListenAndServe(s.o.GetUsablePort(), nil)
+	http.Handle("/", s.router)
+	s.logger.Info("Server started.  Listening on port ", s.options.Port)
+	return http.ListenAndServe(s.options.GetUsablePort(), nil)
 }
 
 func (s *server) RegisterEndpoints() {
@@ -45,21 +46,21 @@ func (s *server) RegisterEndpoints() {
 	uploadCache := cache.New(4*time.Hour, time.Hour)
 
 	// Custom 404 & 405 handlers
-	middle.RegisterGenericHandlers(s.r)
+	middle.RegisterGenericHandlers(s.router)
 
 	// Serve API docs
-	s.r.Path("/api").
+	s.router.Path("/api").
 		Methods(http.MethodGet).
 		Handler(http.FileServer(http.Dir("./static-content")))
 
 	// Health Endpoint
-	health.Register(s.r, s.o)
+	health.Register(s.router, s.options)
 
 	// Options Endpoint
-	options.Register(s.r, s.o)
+	options.Register(s.router, s.options)
 
-	job.NewJobCreateEndpoint(metaCache).Register(s.r)
-	job.NewUploadEndpoint(s.o, metaCache, uploadCache).Register(s.r)
+	job.NewJobCreateEndpoint(metaCache).Register(s.router)
+	job.NewUploadEndpoint(s.options, metaCache, uploadCache).Register(s.router)
 
-	status.NewStatusEndpoint(s.o, metaCache, uploadCache).Register(s.r)
+	status.NewStatusEndpoint(s.options, metaCache, uploadCache).Register(s.router)
 }

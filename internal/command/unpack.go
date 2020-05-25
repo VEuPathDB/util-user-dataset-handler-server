@@ -13,6 +13,7 @@ const (
 	errUntar   = "Failed to extract uploaded tar archive: "
 )
 
+// Unpack the uploaded archive file into the working directory.
 func (r *runner) unpack(d *job.Details) error {
 	if strings.HasSuffix(d.InTarName, ".zip") {
 		if err := r.unzip(d); err != nil {

@@ -3,11 +3,9 @@ package command
 import (
 	// Std lib
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path"
-	"strings"
 	"time"
 
 	// External
@@ -17,10 +15,6 @@ import (
 	// Internal
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
-)
-
-const (
-	errComFail = `Command "%s" failed: %s`
 )
 
 func NewCommandRunner(
@@ -56,9 +50,7 @@ type runner struct {
 }
 
 func (r *runner) Run() (io.ReadCloser, error) {
-	var stat job.StatusFile
 	var err  error
-	var pack []string
 
 	r.getDetails()
 	r.updateStatus(job.StatusUnpacking)
@@ -68,36 +60,23 @@ func (r *runner) Run() (io.ReadCloser, error) {
 	}
 
 	r.updateStatus(job.StatusProcessing)
-	for i := range r.options.Commands {
-		if err = r.handleCommand(&r.options.Commands[i]); err != nil {
-			return r.fail(err)
-		}
-		if stat, err = r.getStatusFile(); err != nil {
-			return r.fail(err)
-		} else {
-			if strings.ToLower(stat.Status) != "ok" {
-				return r.fail(fmt.Errorf(errComFail, r.options.Commands[i].Command,
-					stat.Message))
-			}
-			r.details.OutputFiles = append(r.details.OutputFiles, stat.Files)
-			pack = append(pack, stat.Pack...)
-		}
-	}
 
-	pack, err = r.generateMetaFiles(pack)
-	if err != nil {
+	if err = r.handleCommand(&r.options.Command); err != nil {
 		return r.fail(err)
 	}
 
 	r.updateStatus(job.StatusPacking)
-	err = r.packArchive(pack)
 
-	file, err :=  os.OpenFile(path.Join(r.details.WorkingDir, "dataset.tgz"),
-		os.O_RDONLY, dsFilePerm)
+	if err = r.packArchive(); err != nil {
+		return r.fail(err)
+	}
+
+	file, err :=  os.Open(path.Join(r.details.WorkingDir, "dataset.tgz"))
 	if err != nil {
 		return r.fail(
 			errors.New("Failed to open packaged tar for reading: " + err.Error()))
 	}
+
 	return file, nil
 }
 

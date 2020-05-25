@@ -22,6 +22,8 @@ const (
 	tokenKey = "token"
 )
 
+// NewUploadEndpoint instantiates a new endpoint wrapper for the user dataset
+// upload handler.
 func NewUploadEndpoint(o *config.Options, meta, upload *cache.Cache) types.Endpoint {
 	return &endpoint{
 		opt:    o,
@@ -47,7 +49,8 @@ func (e *endpoint) Register(r *mux.Router) {
 
 // Handle the request.
 //
-// If we've made it this far we know that the
+// If we've made it this far we know that the token in the URL is valid and
+// points to an existing metadata entry in the store.
 func (e *endpoint) Handle(req midl.Request) midl.Response {
 	token := mux.Vars(req.RawRequest())[tokenKey]
 	meta  := e.getMeta(token)
@@ -110,11 +113,14 @@ func (e *endpoint) HandleUpload(
 	return nil
 }
 
+// retrieve metadata from the metadata store
 func (e *endpoint) getMeta(token string) Metadata {
 	tmp, _ := e.meta.Get(token)
 	return tmp.(Metadata)
 }
 
+// remove the working directory and convert the stored metadata to the long
+// store form.
 func (e *endpoint) cleanup(token string) func() {
 	return func() {
 		tmp, _ := e.upload.Get(token)

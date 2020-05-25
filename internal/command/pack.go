@@ -2,21 +2,25 @@ package command
 
 import (
 	"errors"
-
 	"github.com/VEuPathDB/util-exporter-server/internal/util"
 )
 
-const errPackFail = "Failed to package archive for download: "
+const errPackFail = "Failed to package archive for response: "
 
-func (r *runner) packArchive(files []string) error {
+var archiveFiles = []string{
+	"datafiles",
+	"dataset.json",
+	"meta.json",
+}
+
+func (r *runner) packArchive() error {
 	cmd := util.PrepCommand(r.log, "tar", "-cvzf", "dataset.tgz")
 	cmd.Dir = r.details.WorkingDir
-	cmd.Args = append(cmd.Args, files...)
+	cmd.Args = append(cmd.Args, archiveFiles...)
 
-	err := cmd.Run()
-	if err != nil {
-		err = errors.New(errPackFail + err.Error())
+	if err := cmd.Run(); err != nil {
+		return errors.New(errPackFail + err.Error())
 	}
 
-	return err
+	return nil
 }

@@ -1,21 +1,16 @@
 package command
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 	"sort"
-
-	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 const (
 	errDirReadFail = "Failed to read workspace directory: "
-	errStatReadFail = "Failed to read command status output: "
-	errStatFileOld = "Command status output not generated from command %s"
 	errStatFileFail = "Failed to stat output file %s: %s"
 )
 
@@ -39,36 +34,6 @@ func (r *runner) getWorkspaceFiles() ([]string, error) {
 	})
 
 	return out, nil
-}
-
-// getStatusFile reads the status file created by the
-// previous command output.
-func (r *runner) getStatusFile() (out job.StatusFile, err error) {
-	file := path.Join(r.details.WorkingDir, "command-status.json")
-
-	stat, err := os.Stat(file)
-	if err != nil {
-		return out, errors.New(errStatReadFail + err.Error())
-	}
-
-	// Verify that the file we are reading is newer than the
-	// last file we read.  This should prevent the case where
-	// a secondary command does not produce an output file.
-	if !stat.ModTime().After(r.lastStatus) {
-		return out, fmt.Errorf(errStatFileOld + r.lastCommand.Command)
-	}
-
-	bytes, err := ioutil.ReadFile(file)
-	if err == nil {
-		err = json.Unmarshal(bytes, &out)
-	}
-
-	if err != nil {
-		err = errors.New(errStatReadFail + err.Error())
-		return
-	}
-
-	return
 }
 
 func (r *runner) getFileSize(files []string) ([]uint64, error) {
