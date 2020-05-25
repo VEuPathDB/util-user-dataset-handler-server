@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -22,11 +21,9 @@ const (
 	errParseConfigFail = "Failed to parse config file as Yaml.  Process said:"
 	errConfSvcName     = `Key "` + config.OptKeyServiceNameYaml +
 		`" must exist and be a non-empty value.`
-	errConfNoComs = `Key "` + config.OptKeyCommandsYaml +
-		`" must exist and contain at least one valid command entry.`
-	errConfComNoPath = `Key "` + config.OptKeyCommandsYaml + `[%d].` +
+	errConfComNoPath = `Key "` + config.OptKeyCommandsYaml +
 		config.CmdKeyCommandYaml + `" must exist and be a non empty value.`
-	noteConfComNoArgs = `Key "` + config.OptKeyCommandsYaml + `[%d].` +
+	noteConfComNoArgs = `Key "` + config.OptKeyCommandsYaml +
 		config.CmdKeyArgsYaml + `" has no arguments.  It will receive no input ` +
 		`from the server at runtime.`
 	errBadConfig = "Config invalid."
@@ -61,15 +58,8 @@ func ValidateConfig(options *config.Options) {
 		ok = false
 	}
 
-	if len(opts.Commands) == 0 {
-		L.Error(errConfNoComs)
+	if !validateCommand(L, &opts.Command) {
 		ok = false
-	}
-
-	for i := range opts.Commands {
-		if !validateCommand(L, &opts.Commands[i], i) {
-			ok = false
-		}
 	}
 
 	if !ok {
@@ -81,15 +71,15 @@ func ValidateConfig(options *config.Options) {
 	}
 }
 
-func validateCommand(log *logrus.Entry, cmd *config.Command, index int) bool {
+func validateCommand(log *logrus.Entry, cmd *config.Command) bool {
 	ok := true
-	if len(cmd.Command) == 0 {
-		log.Error(fmt.Sprintf(errConfComNoPath, index))
+	if len(cmd.Executable) == 0 {
+		log.Error(errConfComNoPath)
 		ok = false
 	}
 
 	if len(cmd.Args) == 0 {
-		log.Info(fmt.Sprintf(noteConfComNoArgs, index))
+		log.Info(noteConfComNoArgs)
 	}
 	return ok
 }

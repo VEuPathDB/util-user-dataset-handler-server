@@ -35,11 +35,9 @@ func GenerateConfig() {
 	enc.SetIndent(2)
 	err = enc.Encode(config.Options{
 		ServiceName: "my service",
-		Commands:    []config.Command{
-			{
-				Command: "my-command",
-				Args:    []string{"<<input-files>>"},
-			},
+		Command:    config.Command{
+			Executable: "my-command",
+			Args:    []string{"<<input-files>>"},
 		},
 	})
 	if err != nil {

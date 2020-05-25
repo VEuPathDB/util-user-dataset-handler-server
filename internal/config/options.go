@@ -31,17 +31,15 @@ func (O *Options) Validate() {
 		errored = true
 	}
 
-	if len(O.Commands) == 0 {
+	if len(O.Command.Executable) == 0 {
 		L.Error("Config: at least one command must be configured.")
 		errored = true
 	}
 
-	for i := range O.Commands {
-		err := O.Commands[i].Validate()
-		if err != nil {
-			L.Errorf("Config: Command %d: %s", i, err.Error())
-			errored = true
-		}
+	err := O.Command.Validate()
+	if err != nil {
+		L.Errorf("Config: Command: %s", err.Error())
+		errored = true
 	}
 
 	if errored {
