@@ -18,13 +18,3 @@ WORKDIR ${GOPATH}/src/github.com/VEuPathDB/util-user-dataset-handler-server
 
 COPY . .
 RUN make
-
-FROM alpine:latest
-
-WORKDIR /service
-
-COPY --from=go /go/src/github.com/VEuPathDB/util-user-dataset-handler-server .
-
-RUN apk add --no-cache python2 py2-pip git \
-    git clone https://github.com/VEuPathDB/EuPathGalaxy.git \
-    pip install EuPathGalaxy/Tools/lib/python/eupath \
