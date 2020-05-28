@@ -1,14 +1,11 @@
 package command
 
 import (
-	"fmt"
+	"errors"
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"os"
-)
-
-const (
-	errComFail = `Command "%s" failed: %s`
+	"strings"
 )
 
 // Configure and run the given command.
@@ -21,6 +18,8 @@ func (r *runner) handleCommand(cmd *config.Command) (err error) {
 	env := os.Environ()
 
 	X := util.PrepCommand(r.log, cmd.Executable, args...)
+	buffer := util.NewBufferPipe(X.Stderr)
+	X.Stderr = buffer
 	X.Dir = r.details.WorkingDir
 	X.Env = env
 
@@ -28,7 +27,7 @@ func (r *runner) handleCommand(cmd *config.Command) (err error) {
 
 	if err != nil {
 		r.log.Debug(X)
-		return fmt.Errorf(errComFail, cmd.Executable, err)
+		return errors.New(strings.TrimSpace(buffer.Buffer.String()))
 	}
 
 	return nil

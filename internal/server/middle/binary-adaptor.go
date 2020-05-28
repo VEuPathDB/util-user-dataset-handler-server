@@ -3,7 +3,7 @@ package middle
 import (
 	"encoding/json"
 	"fmt"
-	"io"
+	"github.com/VEuPathDB/util-exporter-server/internal/command"
 	"net/http"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
@@ -23,6 +23,7 @@ type binaryAdaptor struct {
 func (b binaryAdaptor) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	req, err := midl.NewRequest(request)
 	if err != nil {
+		writer.Header().Set(xhttp.HeaderContentType, "application/json")
 		writer.WriteHeader(http.StatusInternalServerError)
 		_, _ = writer.Write(simpleInternalError(err.Error()))
 		return
@@ -37,34 +38,45 @@ func (b binaryAdaptor) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	}
 
 	if res == nil {
+		writer.Header().Set(xhttp.HeaderContentType, "application/json")
 		writer.WriteHeader(http.StatusInternalServerError)
 		_, _ = writer.Write(simpleInternalError("Invalid state: no response."))
 		return
 	}
 
-	writer.WriteHeader(res.Code())
+	defer func() {
+		for _, fn := range res.Callbacks() {
+			fn()
+		}
+	}()
 
 	if res.Code() != http.StatusOK {
+		writer.Header().Set(xhttp.HeaderContentType, "application/json")
+		writer.WriteHeader(res.Code())
 		bytes, _ := json.Marshal(res.Body())
 		_, _ = writer.Write(bytes)
 		return
 	}
 
-	pipe, ok := res.Body().(io.ReadCloser)
+	pipe, ok := res.Body().(command.RunResult)
 	if !ok {
+		writer.Header().Set(xhttp.HeaderContentType, "application/json")
 		writer.WriteHeader(http.StatusInternalServerError)
 		_, _ = writer.Write(simpleInternalError("Invalid state: bad response body."))
 		return
 	}
-	defer pipe.Close()
+	defer pipe.Stream.Close()
 
-	writer.Header().Add(xhttp.HeaderContentType, "application/binary")
+	writer.Header().Add(xhttp.HeaderContentDisposition, "attachment")
+	writer.Header().Add(xhttp.HeaderContentDisposition, "filename=" + pipe.Name)
+	writer.Header().Set(xhttp.HeaderContentType, "application/binary")
 	size := 8 * util.SizeKibibyte
 	buff := make([]byte, size)
 
 	for true {
-		n, err := pipe.Read(buff)
+		n, err := pipe.Stream.Read(buff)
 		if err != nil {
+			writer.Header().Set(xhttp.HeaderContentType, "application/json")
 			writer.WriteHeader(http.StatusInternalServerError)
 			_, _ = writer.Write(simpleInternalError("Failed to write to output buffer"))
 			return

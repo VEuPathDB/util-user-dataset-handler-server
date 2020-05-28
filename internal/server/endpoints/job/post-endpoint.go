@@ -52,25 +52,25 @@ func (e *endpoint) Handle(req midl.Request) midl.Response {
 	meta  := e.getMeta(token)
 	dets  := e.CreateDetails(&meta)
 	log   := middle.GetCtxLogger(req)
+	e.log = log
 
-	if res := e.HandleUpload(req, dets); res != nil {
+	if res := e.HandleUpload(req, dets, meta); res != nil {
 		return res
 	}
 
-	stream, err := command.NewCommandRunner(token, e.opt, e.upload, e.meta, log).
-		Run()
-	if err != nil {
-		log.WithField("status", http.StatusInternalServerError).Error(err)
-		return svc.ServerError(err.Error())
+	result := command.NewCommandRunner(token, e.opt, e.upload, e.meta, log).Run()
+	if result.Error != nil {
+		log.WithField("status", http.StatusInternalServerError).Error(result.Error)
+		return svc.ServerError(result.Error.Error()).Callback(e.cleanup(token))
 	}
 
-	return midl.MakeResponse(http.StatusOK, stream).
-		Callback(e.cleanup(token))
+	return midl.MakeResponse(http.StatusOK, result).Callback(e.cleanup(token))
 }
 
 func (e *endpoint) HandleUpload(
 	request midl.Request,
 	details *job.Details,
+	meta job.Metadata,
 ) midl.Response {
 	log := middle.GetCtxLogger(request)
 
@@ -95,12 +95,12 @@ func (e *endpoint) HandleUpload(
 	filename := path.Join(dir, head.Filename)
 	out, err := MakeFileTarget(filename, log)
 	if err != nil {
-		return e.FailJob(err, details)
+		return e.FailJob(err, details).Callback(e.cleanup(meta.Token))
 	}
 	defer out.Close()
 
 	if err := CopyFile(out, upload, log); err != nil {
-		return e.FailJob(err, details)
+		return e.FailJob(err, details).Callback(e.cleanup(meta.Token))
 	}
 
 	details.InTarName = head.Filename
@@ -119,6 +119,7 @@ func (e *endpoint) getMeta(token string) job.Metadata {
 // store form.
 func (e *endpoint) cleanup(token string) func() {
 	return func() {
+		e.log.Debug("cleaning up workspace")
 		dets, _ := e.upload.GetDetails(token)
 
 		_ = os.RemoveAll(dets.WorkingDir)

@@ -1,7 +1,8 @@
 package xhttp
 
 const (
-	HeaderContentLength = "Content-Length"
-	HeaderContentType   = "Content-Type"
-	HeaderFileName      = "Filename"
+	HeaderContentDisposition = "Content-Disposition"
+	HeaderContentLength      = "Content-Length"
+	HeaderContentType        = "Content-Type"
+	HeaderFileName           = "Filename"
 )

@@ -20,6 +20,12 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
+type RunResult struct {
+	Error  error
+	Stream io.ReadCloser
+	Name   string
+}
+
 func NewCommandRunner(
 	token string,
 	options *config.Options,
@@ -37,7 +43,7 @@ func NewCommandRunner(
 }
 
 type Runner interface {
-	Run() (io.ReadCloser, error)
+	Run() RunResult
 }
 
 type runner struct {
@@ -53,7 +59,7 @@ type runner struct {
 	meta        job.Metadata
 }
 
-func (r *runner) Run() (io.ReadCloser, error) {
+func (r *runner) Run() RunResult {
 	var err error
 
 	r.getDetails()
@@ -81,7 +87,10 @@ func (r *runner) Run() (io.ReadCloser, error) {
 			errors.New("Failed to open packaged tar for reading: " + err.Error()))
 	}
 
-	return file, nil
+	return RunResult{
+		Stream: file,
+		Name: fileName,
+	}
 }
 
 func (r *runner) getDetails() {
