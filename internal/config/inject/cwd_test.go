@@ -22,7 +22,7 @@ func TestCwdInjector_Inject(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			inj := inject.NewCwdInjector(&details)
+			inj := inject.NewCwdInjector(&details, nil)
 			a, b := inj.Inject(test[0])
 			So(b, ShouldBeNil)
 			So(a, ShouldResemble, test[1])

@@ -26,7 +26,7 @@ func TestInputFileInjector_Inject(t *testing.T) {
 			}
 
 			for _, test := range tests {
-				inj := inject.NewInputFileInjector(&details)
+				inj := inject.NewInputFileInjector(&details, nil)
 				a, b := inj.Inject(test[0])
 				So(b, ShouldBeNil)
 				So(a, ShouldResemble, test[1])
@@ -46,7 +46,7 @@ func TestInputFileInjector_Inject(t *testing.T) {
 			}
 
 			for _, test := range tests {
-				inj := inject.NewInputFileInjector(&details)
+				inj := inject.NewInputFileInjector(&details, nil)
 				a, b := inj.Inject(test)
 				So(b, ShouldNotBeNil)
 				So(a, ShouldBeNil)
