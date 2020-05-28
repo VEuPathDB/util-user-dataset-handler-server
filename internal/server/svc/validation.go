@@ -13,7 +13,7 @@ func (V ValidationSet) Append(other ValidationSet) {
 }
 
 type ValidationResult struct {
-	Ok     bool
+	Failed bool
 	Result ValidationSet
 }
 
@@ -21,7 +21,9 @@ func (V *ValidationResult) AddError(key, val string) {
 	if V.Result == nil {
 		V.Result = make(ValidationSet)
 	}
-	V.Ok = false
+
+	V.Failed = true
+
 	if _, ok := V.Result[key]; ok {
 		V.Result[key] = append(V.Result[key], val)
 	} else {

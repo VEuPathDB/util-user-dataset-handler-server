@@ -6,7 +6,7 @@ import (
 
 const timeInjectorTarget = "<<time>>"
 
-func NewTimeInjector(details *job.Details) VariableInjector {
+func NewTimeInjector(details *job.Details, _ *job.Metadata) VariableInjector {
 	return &timeInjector{details}
 }
 

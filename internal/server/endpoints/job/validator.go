@@ -3,8 +3,9 @@ package job
 import (
 	// Std Lib
 	"encoding/json"
+	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
-
 	// External
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/sirupsen/logrus"
@@ -49,12 +50,15 @@ func parseMetadata(req midl.Request) (*Metadata, midl.Response) {
 
 	var foo Metadata
 	if err := json.Unmarshal(bytes, &foo); err != nil {
-		log.WithField("status", http.StatusBadRequest).Info(errParseMetadata)
+		errTxt := fmt.Sprintf(errParseMetadata, err)
+		log.WithField("status", http.StatusBadRequest).Info(errTxt)
 		return nil, midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
 			Status:  svc.StatusBadRequest,
-			Message: errParseMetadata,
+			Message: errTxt,
 		})
 	}
+
+	foo.Token = mux.Vars(req.RawRequest())[tokenKey]
 
 	if err := validateMetadata(&foo, log); err != nil {
 		return nil, err
@@ -64,7 +68,7 @@ func parseMetadata(req midl.Request) (*Metadata, midl.Response) {
 }
 
 func validateMetadata(meta *Metadata, log *logrus.Entry) midl.Response {
-	if val := meta.Validate(); !val.Ok {
+	if val := meta.Validate(); val.Failed {
 		log.WithField("status", http.StatusUnprocessableEntity).
 			Info("metadata validation failed")
 		return midl.MakeResponse(http.StatusUnprocessableEntity,

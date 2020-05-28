@@ -2,24 +2,24 @@ package job
 
 import (
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
-	"github.com/patrickmn/go-cache"
 	"time"
 )
 
-func (e *endpoint) CreateDetails(meta *Metadata) *job.Details {
+func (e *endpoint) CreateDetails(meta *job.Metadata) *job.Details {
+	now := time.Now()
 	details := job.Details{
 		StorableDetails: job.StorableDetails{
-			Started:  time.Now(),
+			Started:  &now,
 			UserID:   meta.Owner,
 			Token:    meta.Token,
 			Status:   job.StatusReceiving,
 			Projects: meta.Projects,
 		},
 	}
-	e.upload.Set(meta.Token, details, cache.DefaultExpiration)
+	e.upload.SetDetails(meta.Token, details)
 	return &details
 }
 
 func (e *endpoint) StoreDetails(details *job.Details) {
-	e.upload.Set(details.Token, *details, cache.DefaultExpiration)
+	e.upload.SetDetails(details.Token, *details)
 }

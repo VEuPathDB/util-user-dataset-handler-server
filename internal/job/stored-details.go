@@ -10,7 +10,7 @@ import (
 type StorableDetails struct {
 	// Started is the timestamp from the start of the HTTP
 	// request.
-	Started time.Time `json:"started"`
+	Started *time.Time `json:"started,omitempty"`
 
 	// Duration is the length of time the request took
 	// overall.

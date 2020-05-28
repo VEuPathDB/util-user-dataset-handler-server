@@ -9,6 +9,7 @@ import (
 func ConfigureLogger(svcName, status string) *logrus.Entry {
 	log := logrus.New()
 	log.Formatter = new(prefixed.TextFormatter)
+	log.Level = logrus.TraceLevel
 	return log.WithFields(logrus.Fields{
 		app.Keys.Logger.Service: svcName,
 		app.Keys.Logger.Status:  status,

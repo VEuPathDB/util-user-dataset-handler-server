@@ -13,7 +13,7 @@ var version = "untagged dev build"
 func main() {
 	options := new(config.Options)
 	options.Version = version
-
+	log.SetLogger(log.ConfigureLogger("", "starting"))
 	parse.Cli(options)
 	parse.ConfigFile(options)
 

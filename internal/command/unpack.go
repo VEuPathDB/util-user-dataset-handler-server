@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	errUnzip   = "Failed to unzip uploaded archive: "
-	errUntar   = "Failed to extract uploaded tar archive: "
+	errUnzip   = "failed to unzip uploaded archive: "
+	errUntar   = "failed to extract uploaded tar archive: "
+	errDelArch = "failed to cleanup uploaded archive: "
 )
 
 // Unpack the uploaded archive file into the working directory.
@@ -23,6 +24,14 @@ func (r *runner) unpack(d *job.Details) error {
 		if err := r.untar(d); err != nil {
 			return err
 		}
+	}
+
+	cmd := util.PrepCommand(r.log, "rm", d.InTarName)
+	cmd.Dir = d.WorkingDir
+
+	err := cmd.Run()
+	if err != nil {
+		err = errors.New(errDelArch + err.Error())
 	}
 
 	files, err := r.getWorkspaceFiles()
@@ -41,6 +50,7 @@ func (r *runner) untar(d *job.Details) error {
 	if err != nil {
 		err = errors.New(errUntar + err.Error())
 	}
+
 	return err
 }
 
@@ -52,5 +62,6 @@ func (r *runner) unzip(d *job.Details) error {
 	if err != nil {
 		err = errors.New(errUnzip + err.Error())
 	}
+
 	return err
 }

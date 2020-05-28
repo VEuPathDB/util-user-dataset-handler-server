@@ -6,7 +6,7 @@ import (
 
 const cwdInjectorTarget = "<<cwd>>"
 
-func NewCwdInjector(det *job.Details) VariableInjector {
+func NewCwdInjector(det *job.Details, _ *job.Metadata) VariableInjector {
 	return &cwdInjector{det}
 }
 

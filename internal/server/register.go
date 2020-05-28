@@ -1,8 +1,6 @@
 package server
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/log"
-	"github.com/sirupsen/logrus"
 	// Std Lib
 	"net/http"
 	"time"
@@ -10,9 +8,12 @@ import (
 	// External
 	"github.com/gorilla/mux"
 	"github.com/patrickmn/go-cache"
+	"github.com/sirupsen/logrus"
 
 	// Internal
+	cache2 "github.com/VEuPathDB/util-exporter-server/internal/cache"
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
+	"github.com/VEuPathDB/util-exporter-server/internal/log"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/health"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/job"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/options"
@@ -42,8 +43,8 @@ func (s *server) Serve() error {
 }
 
 func (s *server) RegisterEndpoints() {
-	metaCache   := cache.New(72*time.Hour, time.Hour)
-	uploadCache := cache.New(4*time.Hour, time.Hour)
+	metaCache   := cache2.NewMeta(cache.New(72*time.Hour, time.Hour))
+	uploadCache := cache2.NewUpload(cache.New(4*time.Hour, time.Hour))
 
 	// Custom 404 & 405 handlers
 	middle.RegisterGenericHandlers(s.router)
@@ -51,7 +52,7 @@ func (s *server) RegisterEndpoints() {
 	// Serve API docs
 	s.router.Path("/api").
 		Methods(http.MethodGet).
-		Handler(http.FileServer(http.Dir("./static-content")))
+		Handler(http.FileServer(http.Dir("static-content")))
 
 	// Health Endpoint
 	health.Register(s.router, s.options)

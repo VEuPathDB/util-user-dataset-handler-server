@@ -1,6 +1,7 @@
 package job
 
 import (
+	"github.com/VEuPathDB/util-exporter-server/internal/cache"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
 	// Std Lib
 	"net/http"
@@ -11,17 +12,18 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"github.com/gorilla/mux"
-	"github.com/patrickmn/go-cache"
+)
+const (
+	tokenKey = "job-id"
+	urlPath = "/job/{" + tokenKey + "}"
 )
 
-const urlPath = "/job/{job-id}"
-
-func NewJobCreateEndpoint(c *cache.Cache) types.Endpoint {
-	return &metadataEndpoint{metadataCache: c}
+func NewJobCreateEndpoint(c *cache.Meta) types.Endpoint {
+	return &metadataEndpoint{meta: c}
 }
 
 type metadataEndpoint struct {
-	metadataCache *cache.Cache
+	meta *cache.Meta
 }
 
 func (m *metadataEndpoint) Register(r *mux.Router) {
@@ -39,12 +41,8 @@ func (m *metadataEndpoint) Register(r *mux.Router) {
 func (m *metadataEndpoint) Handle(req midl.Request) midl.Response {
 	meta := req.AdditionalContext()["data"].(*Metadata)
 
-	if e := m.metadataCache.Add(meta.Token, meta.Metadata, cache.DefaultExpiration); e != nil {
-		return midl.MakeResponse(http.StatusInternalServerError, &svc.SadResponse{
-			Status:  svc.StatusServerErr,
-			Message: "Failed to write metadata to cache:" + e.Error(),
-		})
-	}
+	m.meta.Set(meta.Token, meta.Metadata)
+
 	return midl.MakeResponse(http.StatusOK, &svc.HappyResponse{
 		Status: svc.StatusOK,
 	})

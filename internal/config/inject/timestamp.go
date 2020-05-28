@@ -7,7 +7,7 @@ import (
 
 const timestampInjectorTarget = "<<timestamp>>"
 
-func NewTimestampInjector(details *job.Details) VariableInjector {
+func NewTimestampInjector(details *job.Details, _ *job.Metadata) VariableInjector {
 	return &timestampInjector{details}
 }
 

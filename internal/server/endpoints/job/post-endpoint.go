@@ -7,9 +7,9 @@ import (
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/gorilla/mux"
-	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
 
+	"github.com/VEuPathDB/util-exporter-server/internal/cache"
 	"github.com/VEuPathDB/util-exporter-server/internal/command"
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
@@ -18,13 +18,9 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
 )
 
-const (
-	tokenKey = "token"
-)
-
 // NewUploadEndpoint instantiates a new endpoint wrapper for the user dataset
 // upload handler.
-func NewUploadEndpoint(o *config.Options, meta, upload *cache.Cache) types.Endpoint {
+func NewUploadEndpoint(o *config.Options, meta *cache.Meta, upload *cache.Upload) types.Endpoint {
 	return &endpoint{
 		opt:    o,
 		meta:   meta,
@@ -35,8 +31,8 @@ func NewUploadEndpoint(o *config.Options, meta, upload *cache.Cache) types.Endpo
 type endpoint struct {
 	log    *logrus.Entry
 	opt    *config.Options
-	meta   *cache.Cache
-	upload *cache.Cache
+	meta   *cache.Meta
+	upload *cache.Upload
 }
 
 func (e *endpoint) Register(r *mux.Router) {
@@ -114,19 +110,18 @@ func (e *endpoint) HandleUpload(
 }
 
 // retrieve metadata from the metadata store
-func (e *endpoint) getMeta(token string) Metadata {
+func (e *endpoint) getMeta(token string) job.Metadata {
 	tmp, _ := e.meta.Get(token)
-	return tmp.(Metadata)
+	return tmp
 }
 
 // remove the working directory and convert the stored metadata to the long
 // store form.
 func (e *endpoint) cleanup(token string) func() {
 	return func() {
-		tmp, _ := e.upload.Get(token)
-		dets := tmp.(job.Details)
+		dets, _ := e.upload.GetDetails(token)
 
 		_ = os.RemoveAll(dets.WorkingDir)
-		e.upload.Set(token, dets.StorableDetails, cache.DefaultExpiration)
+		e.upload.SetStorable(token, dets.StorableDetails)
 	}
 }

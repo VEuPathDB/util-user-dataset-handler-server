@@ -17,10 +17,12 @@ const (
 // Returns the list of files in the working directory
 func (r *runner) getWorkspaceFiles() ([]string, error) {
 	files, err := ioutil.ReadDir(r.details.WorkingDir)
+
 	if err != nil {
 		return nil, errors.New(errDirReadFail + err.Error())
 	}
-	out := make([]string, 0, len(files) - 3)
+
+	out := make([]string, 0, len(files))
 
 	for _, file := range files {
 		if file.Name() == "." || file.Name() == ".." || file.Name() == r.details.InTarName {

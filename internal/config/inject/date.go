@@ -6,7 +6,7 @@ import (
 
 const dateInjectorTarget = "<<date>>"
 
-func NewDateInjector(det *job.Details) VariableInjector {
+func NewDateInjector(det *job.Details, _ *job.Metadata) VariableInjector {
 	return &dateInjector{det}
 }
 

@@ -3,13 +3,16 @@ package command
 import (
 	// Std lib
 	"errors"
+	"fmt"
+	"github.com/VEuPathDB/util-exporter-server/internal/cache"
 	"io"
+	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	// External
-	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
 
 	// Internal
@@ -18,18 +21,18 @@ import (
 )
 
 func NewCommandRunner(
-	token   string,
+	token string,
 	options *config.Options,
-	upload  *cache.Cache,
-	meta    *cache.Cache,
-	ctxLog  *logrus.Entry,
+	upload *cache.Upload,
+	meta *cache.Meta,
+	ctxLog *logrus.Entry,
 ) Runner {
 	return &runner{
-		token:   token,
-		options: options,
-		upload:  upload,
-		meta:    meta,
-		log:     ctxLog,
+		token:       token,
+		options:     options,
+		uploadCache: upload,
+		metaCache:   meta,
+		log:         ctxLog,
 	}
 }
 
@@ -38,21 +41,23 @@ type Runner interface {
 }
 
 type runner struct {
-	log     *logrus.Entry
-	token   string
-	options *config.Options
-	upload  *cache.Cache
-	meta    *cache.Cache
+	log         *logrus.Entry
+	token       string
+	options     *config.Options
+	uploadCache *cache.Upload
+	metaCache   *cache.Meta
 
 	lastStatus  time.Time
 	lastCommand *config.Command
 	details     job.Details
+	meta        job.Metadata
 }
 
 func (r *runner) Run() (io.ReadCloser, error) {
-	var err  error
+	var err error
 
 	r.getDetails()
+	r.getMeta()
 	r.updateStatus(job.StatusUnpacking)
 
 	if err = r.unpack(&r.details); err != nil {
@@ -65,13 +70,12 @@ func (r *runner) Run() (io.ReadCloser, error) {
 		return r.fail(err)
 	}
 
-	r.updateStatus(job.StatusPacking)
-
-	if err = r.packArchive(); err != nil {
+	fileName, err := r.findTar()
+	if err != nil {
 		return r.fail(err)
 	}
 
-	file, err :=  os.Open(path.Join(r.details.WorkingDir, "dataset.tgz"))
+	file, err := os.Open(path.Join(r.details.WorkingDir, fileName))
 	if err != nil {
 		return r.fail(
 			errors.New("Failed to open packaged tar for reading: " + err.Error()))
@@ -81,20 +85,36 @@ func (r *runner) Run() (io.ReadCloser, error) {
 }
 
 func (r *runner) getDetails() {
-	tmp, _ := r.upload.Get(r.token)
-	r.details = tmp.(job.Details)
+	r.details, _ = r.uploadCache.GetDetails(r.token)
 }
 
 func (r *runner) storeDetails() {
-	r.upload.Set(r.token, r.details, cache.DefaultExpiration)
+	r.uploadCache.SetDetails(r.token, r.details)
 }
 
-func (r *runner) getMeta() job.Metadata {
-	tmp, _ := r.upload.Get(r.token)
-	return tmp.(job.Metadata)
+func (r *runner) getMeta() {
+	r.meta, _ = r.metaCache.Get(r.token)
 }
 
 func (r *runner) updateStatus(status job.Status) {
 	r.details.Status = status
 	r.storeDetails()
+}
+
+func (r *runner) findTar() (string, error) {
+	files, err := ioutil.ReadDir(r.details.WorkingDir)
+
+	if err != nil {
+		return "", errors.New(errDirReadFail + err.Error())
+	}
+
+	prefix := fmt.Sprintf("dataset_u%d", r.meta.Owner)
+
+	for _, f := range files {
+		if strings.HasPrefix(f.Name(), prefix) {
+			return f.Name(), nil
+		}
+	}
+
+	return "", errors.New("no dataset archive found")
 }

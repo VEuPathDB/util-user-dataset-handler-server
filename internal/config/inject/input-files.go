@@ -16,7 +16,7 @@ const (
 	wrappedInputFileTarget = `"<<input-files>>"`
 )
 
-func NewInputFileInjector(details *job.Details) VariableInjector {
+func NewInputFileInjector(details *job.Details, _ *job.Metadata) VariableInjector {
 	return &inputFileInjector{details}
 }
 
@@ -35,7 +35,6 @@ func (t *inputFileInjector) Inject(target []string) ([]string, error) {
 			continue
 		}
 
-		// TODO: Need to replace the token
 		for _, match := range matches {
 			switch tgt[match[0]:match[1]] {
 			case simpleInputFileTarget:

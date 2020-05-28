@@ -52,7 +52,12 @@ func (s *stats) RecordSize(bytes uint) {
 }
 
 func (s *stats) averageSize() uint {
+	if len(s.sizes) == 0 {
+		return 0
+	}
+
 	total := uint64(0)
+
 	for _, v := range s.sizes {
 		total += uint64(v)
 	}
@@ -60,7 +65,12 @@ func (s *stats) averageSize() uint {
 }
 
 func (s *stats) averageTime() time.Duration {
+	if len(s.times) == 0 {
+		return time.Duration(0)
+	}
+
 	total := time.Duration(0)
+
 	for _, v := range s.times {
 		total += v
 	}

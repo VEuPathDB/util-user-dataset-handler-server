@@ -13,9 +13,10 @@ func TestTimeInjector_Inject(t *testing.T) {
 	Convey("Time Injector", t, func() {
 		tmp, _ := time.Parse(time.RFC3339, "1988-10-31T04:38:13Z")
 		testTime := "04:38:13"
+		utc := tmp.UTC()
 
 		details := job.Details{
-			StorableDetails: job.StorableDetails{Started: tmp.UTC()},
+			StorableDetails: job.StorableDetails{Started: &utc},
 		}
 
 		tests := [][2][]string{
@@ -26,7 +27,7 @@ func TestTimeInjector_Inject(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			inj := inject.NewTimeInjector(&details)
+			inj := inject.NewTimeInjector(&details, nil)
 			a, b := inj.Inject(test[0])
 			So(b, ShouldBeNil)
 			So(a, ShouldResemble, test[1])

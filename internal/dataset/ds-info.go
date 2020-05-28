@@ -15,30 +15,29 @@ type BaseInfo struct {
 }
 
 func (B *BaseInfo) Validate() (out svc.ValidationResult) {
-	if val := B.Type.Validate(); !val.Ok {
-		out.Ok = false
-		for k, v := range val.Result {
-			out.Result["type." + k] = v
-		}
-	}
+
+	out = B.Type.Validate()
+
 	for i := range B.Projects {
 		if !B.Projects[i].IsValid() {
 			out.AddError("projects", fmt.Sprintf("unrecognized project id '%s'",
 				B.Projects[i]))
 		}
 	}
+
 	if B.Owner == 0 {
 		out.AddError("owner", "owner is required")
 	}
+
 	for i := range B.Dependencies {
-		if val := B.Dependencies[i].Validate(); !val.Ok {
-			out.Ok = false
+		if val := B.Dependencies[i].Validate(); val.Failed {
 			base := "dependencies[" + strconv.Itoa(i) + "]."
 			for k, v := range val.Result {
 				out.Result[base + k] = v
 			}
 		}
 	}
+
 	return
 }
 
@@ -60,6 +59,7 @@ func (T *Type) Validate() (out svc.ValidationResult) {
 	if len(T.Name) == 0 {
 		out.AddError("name", "name is required")
 	}
+
 	return
 }
 

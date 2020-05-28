@@ -5,7 +5,6 @@ go 1.14
 require (
 	github.com/Foxcapades/Argonaut v0.1.7
 	github.com/Foxcapades/go-midl/v2 v2.1.0
-	github.com/google/uuid v1.1.1
 	github.com/gorilla/mux v1.7.4
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect

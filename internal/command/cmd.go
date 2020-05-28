@@ -2,10 +2,9 @@ package command
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
+	"github.com/VEuPathDB/util-exporter-server/internal/util"
+	"os"
 )
 
 const (
@@ -21,13 +20,14 @@ func (r *runner) handleCommand(cmd *config.Command) (err error) {
 
 	env := os.Environ()
 
-	X := exec.Command(cmd.Executable)
-	X.Args = args
-	X.Env  = env
+	X := util.PrepCommand(r.log, cmd.Executable, args...)
+	X.Dir = r.details.WorkingDir
+	X.Env = env
 
 	err = X.Run()
 
 	if err != nil {
+		r.log.Debug(X)
 		return fmt.Errorf(errComFail, cmd.Executable, err)
 	}
 
@@ -38,7 +38,7 @@ func (r *runner) handleCommand(cmd *config.Command) (err error) {
 // variables encountered.
 func (r *runner) parseArgs(args []string) (out []string, err error) {
 	for _, fn := range config.InjectorList() {
-		args, err = fn(&r.details).Inject(args)
+		args, err = fn(&r.details, &r.meta).Inject(args)
 		if err != nil {
 			return
 		}

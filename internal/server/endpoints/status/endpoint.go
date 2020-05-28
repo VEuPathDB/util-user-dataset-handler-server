@@ -1,6 +1,7 @@
 package status
 
 import (
+	"github.com/VEuPathDB/util-exporter-server/internal/cache"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
 	// Std lib
 	"net/http"
@@ -8,37 +9,36 @@ import (
 	// External
 	. "github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/gorilla/mux"
-	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
 
 	// Internal
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	. "github.com/VEuPathDB/util-exporter-server/internal/server/middle"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 )
 
 const (
 	tknKey  = "token"
-	urlPath = "/process/dataset/{" + tknKey + "}/status"
-
-	errInvalidState = "Invalid state: unknown data stored in cache for this " +
-		"process"
+	urlPath = "/job/{" + tknKey + "}/status"
 )
 
-func NewStatusEndpoint(o *config.Options, meta, upload *cache.Cache) types.Endpoint {
+func NewStatusEndpoint(
+	opts *config.Options,
+	meta *cache.Meta,
+	upload *cache.Upload,
+) types.Endpoint {
 	return &statusEndpoint{
-		opts:   o,
+		opts:   opts,
 		meta:   meta,
 		upload: upload,
 	}
 }
 
 type statusEndpoint struct {
-	log  *logrus.Entry
-	opts *config.Options
-	meta *cache.Cache
-	upload *cache.Cache
+	log    *logrus.Entry
+	opts   *config.Options
+	meta   *cache.Meta
+	upload *cache.Upload
 }
 
 func (s *statusEndpoint) Register(r *mux.Router) {
@@ -52,27 +52,20 @@ func (s *statusEndpoint) Register(r *mux.Router) {
 
 func (s *statusEndpoint) Handle(req Request) Response {
 	token := mux.Vars(req.RawRequest())[tknKey]
-	unkwn, ok := s.upload.Get(token)
 
-	if !ok {
-		return MakeResponse(http.StatusOK, job.StorableDetails{
-			Token:  token,
-			Status: job.StatusNotStarted,
-		})
-	}
-
-	if det, ok := unkwn.(job.Details); ok {
-		return MakeResponse(http.StatusOK, det.StorableDetails)
-	}
-
-	if det, ok := unkwn.(job.StorableDetails); ok {
+	if det, ok := s.upload.GetStorable(token); ok {
 		return MakeResponse(http.StatusOK, det)
 	}
 
-	GetCtxLogger(req).WithField("status", http.StatusInternalServerError).
-		Error(errInvalidState)
-	return svc.ServerError(errInvalidState)
+	if det, ok := s.upload.GetDetails(token); ok {
+		return MakeResponse(http.StatusOK, det.StorableDetails)
+	}
+
+	meta, _ := s.meta.Get(token)
+	return MakeResponse(http.StatusOK, job.StorableDetails{
+		UserID:   meta.Owner,
+		Token:    token,
+		Status:   job.StatusNotStarted,
+		Projects: meta.Projects,
+	})
 }
-
-
-

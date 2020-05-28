@@ -16,7 +16,7 @@ const (
 	wrappedOutFileTarget = `"<<output-files>>"`
 )
 
-func NewOutputFileInjector(details *job.Details) VariableInjector {
+func NewOutputFileInjector(details *job.Details, _ *job.Metadata) VariableInjector {
 	return &outputFileInjector{details}
 }
 

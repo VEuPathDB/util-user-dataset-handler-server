@@ -26,21 +26,21 @@ func NotFound(msg string) midl.Response {
 	return midl.MakeResponse(http.StatusNotFound, &SadResponse{
 		Status:  StatusNotFound,
 		Message: msg,
-	})
+	}).SetHeader("Content-Type", "application/json")
 }
 
 func BadRequest(msg string) midl.Response {
 	return midl.MakeResponse(http.StatusBadRequest, &SadResponse{
 		Status:  StatusBadRequest,
 		Message: msg,
-	})
+	}).SetHeader("Content-Type", "application/json")
 }
 
 func ServerError(msg string) midl.Response {
 	return midl.MakeResponse(http.StatusInternalServerError, &SadResponse{
 		Status:  StatusServerErr,
 		Message: msg,
-	})
+	}).SetHeader("Content-Type", "application/json")
 }
 
 type SadResponse struct {
