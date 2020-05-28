@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/api"
 	// Std Lib
 	"net/http"
 	"time"
@@ -50,9 +51,7 @@ func (s *server) RegisterEndpoints() {
 	middle.RegisterGenericHandlers(s.router)
 
 	// Serve API docs
-	s.router.Path("/api").
-		Methods(http.MethodGet).
-		Handler(http.FileServer(http.Dir("static-content")))
+	api.NewApiEndpoint().Register(s.router)
 
 	// Health Endpoint
 	health.Register(s.router, s.options)

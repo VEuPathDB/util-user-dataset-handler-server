@@ -22,6 +22,8 @@ v1.0.0
 
 Exposes configured exporter / validation scripts over HTTP.
 
+https://veupathdb.github.io/util-user-dataset-handler-server/api.html[API Docs]
+
 == Usage
 
 === In Script Container
