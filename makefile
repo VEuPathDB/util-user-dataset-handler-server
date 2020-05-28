@@ -3,6 +3,9 @@ FILES   = $(shell find . -name '*.go')
 
 build: bin/server bin/static-content/index.html
 
+travis: bin/server bin/static-content/index.html
+	@cd bin && tar -czf server-${TRAVIS_TAG}.tar.gz server static-content && cd ..
+
 bin/server: $(FILES)
 	@go build -o bin/server --ldflags="-X 'main.version=${VERSION}'" cmd/service.go
 
