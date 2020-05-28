@@ -60,8 +60,14 @@ func (e *endpoint) Handle(req midl.Request) midl.Response {
 
 	result := command.NewCommandRunner(token, e.opt, e.upload, e.meta, log).Run()
 	if result.Error != nil {
-		log.WithField("status", http.StatusInternalServerError).Error(result.Error)
-		return svc.ServerError(result.Error.Error()).Callback(e.cleanup(token))
+		switch result.Error.(type) {
+		case *command.UserError:
+			log.WithField("status", http.StatusUnprocessableEntity).Error(result.Error)
+			return svc.InvalidRequest(result.Error.Error()).Callback(e.cleanup(token))
+		default:
+			log.WithField("status", http.StatusInternalServerError).Error(result.Error)
+			return svc.ServerError(result.Error.Error()).Callback(e.cleanup(token))
+		}
 	}
 
 	return midl.MakeResponse(http.StatusOK, result).Callback(e.cleanup(token))

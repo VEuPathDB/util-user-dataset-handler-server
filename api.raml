@@ -301,6 +301,22 @@ types:
       - Vectorbase
       - VeupathDB
 
+  StatusResponse:
+    type: object
+    properties:
+      started?: datetime
+      duration:
+        description: Time it took to process the dataset.
+        type: string
+      userId: integer
+      jobId: string
+      status: string
+      projects:
+        type: array
+        items: ProjectEnum
+        minItems: 1
+      size: integer
+
   Dependency:
     type: object
     properties:

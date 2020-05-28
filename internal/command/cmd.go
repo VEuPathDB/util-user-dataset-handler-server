@@ -1,12 +1,18 @@
 package command
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"os"
 	"strings"
 )
+
+type response struct {
+	Error   string `json:"error"`
+	Message string `json:"message"`
+}
 
 // Configure and run the given command.
 func (r *runner) handleCommand(cmd *config.Command) (err error) {
@@ -27,7 +33,30 @@ func (r *runner) handleCommand(cmd *config.Command) (err error) {
 
 	if err != nil {
 		r.log.Debug(X)
-		return errors.New(strings.TrimSpace(buffer.Buffer.String()))
+
+		raw := strings.TrimSpace(buffer.Buffer.String())
+		obj := strings.IndexByte(raw, '{')
+
+		if obj == -1 {
+			return errors.New(strings.TrimSpace(raw))
+		}
+
+		tmp := response{}
+		if err := json.Unmarshal([]byte(raw[obj:]), &tmp); err != nil {
+			return errors.New(strings.TrimSpace(raw))
+		}
+
+		msg := tmp.Message
+		if obj > 0 {
+			msg += "\n" + raw[0:obj]
+		}
+
+		switch tmp.Error {
+		case "user":
+			return NewUserError(msg)
+		default:
+			return NewHandlerError(msg)
+		}
 	}
 
 	return nil

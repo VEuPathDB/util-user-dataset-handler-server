@@ -87,6 +87,8 @@ func (r *runner) Run() RunResult {
 			errors.New("Failed to open packaged tar for reading: " + err.Error()))
 	}
 
+	r.updateStatus(job.StatusCompleted)
+
 	return RunResult{
 		Stream: file,
 		Name: fileName,

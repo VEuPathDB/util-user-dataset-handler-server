@@ -29,6 +29,13 @@ func NotFound(msg string) midl.Response {
 	}).SetHeader("Content-Type", "application/json")
 }
 
+func InvalidRequest(msg string) midl.Response {
+	return midl.MakeResponse(http.StatusUnprocessableEntity, &SadResponse{
+		Status:  StatusBadInput,
+		Message: msg,
+	}).SetHeader("Content-Type", "application/json")
+}
+
 func BadRequest(msg string) midl.Response {
 	return midl.MakeResponse(http.StatusBadRequest, &SadResponse{
 		Status:  StatusBadRequest,

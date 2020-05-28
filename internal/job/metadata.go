@@ -8,5 +8,5 @@ type Metadata struct {
 	Name        string `json:"name"`
 	Summary     string `json:"summary"`
 	Description string `json:"description"`
-	Token       string `json:"token"`
+	Token       string `json:"jobId"`
 }

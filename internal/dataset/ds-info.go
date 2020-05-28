@@ -8,15 +8,12 @@ import (
 )
 
 type BaseInfo struct {
-	Type         Type           `json:"type"`
 	Projects     []site.WdkSite `json:"projects"`
 	Owner        uint           `json:"owner"`
 	Dependencies []Resource     `json:"dependencies,omitempty"`
 }
 
 func (B *BaseInfo) Validate() (out svc.ValidationResult) {
-
-	out = B.Type.Validate()
 
 	for i := range B.Projects {
 		if !B.Projects[i].IsValid() {
@@ -45,22 +42,6 @@ type File struct {
 	File string `json:"file"`
 	Name string `json:"name"`
 	Size uint64 `json:"size"`
-}
-
-type Type struct {
-	Version string `json:"version"`
-	Name    string `json:"name"`
-}
-
-func (T *Type) Validate() (out svc.ValidationResult) {
-	if len(T.Version) == 0 {
-		out.AddError("version", "version is required")
-	}
-	if len(T.Name) == 0 {
-		out.AddError("name", "name is required")
-	}
-
-	return
 }
 
 type Resource struct {

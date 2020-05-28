@@ -1,6 +1,6 @@
 = Exporter Script Server
 // General Doc Settings
-:toc: left
+//:toc: left
 :source-highlighter: pygments
 :icons: font
 // Github specifics
@@ -18,18 +18,6 @@ v1.0.0
 :repo-url: https://github.com/VEuPathDB/util-user-dataset-handler-server
 :site-url: https://veupathdb.github.io/util-user-dataset-handler-server
 :repo-file-base: {repo-url}/blob/master
-
-// File paths
-:file-base-readme: {repo-url}
-:file-config-readme: {repo-file-base}/extras/readme/config-file.adoc
-:file-command-readme: {repo-file-base}/extras/readme/commands.adoc
-:file-api-readme: {repo-file-base}/api.raml
-ifndef::env-github[]
-include::extras/readme/include/site-config.adoc[]
-endif::[]
-
-{file-config-readme}[Configuration] | {file-command-readme}[Command Execution] | {file-api-readme}[API Docs]
-
 
 
 Exposes configured exporter / validation scripts over HTTP.
@@ -68,5 +56,89 @@ information about the configuration file.
 [source, bash-session]
 ----
 $ ./service --config=config.yml check-config
-
 ----
+
+== Config File
+
+=== Components
+
+.config.yml
+[source, yaml]
+----
+service-name: my service <1>
+command:
+  executable: /some/path/to/your/executable <2>
+  args: <3>
+    - <<input-files>> <4>
+----
+<1> The display name of the running service
+<2> Path to an executable script or binary to be called by the server to process
+    uploaded datasets.
+<3> An array of arguments that will be passed to the configured executable.
+    Each array element is effectively a single, quote wrapped cli arg.
++
+WARNING: Space separated entries in the args array _will_ be treated as a single
+         argument.
+<4> An <<Variables,Injected Variable>>
+
+=== Command Context
+
+The configured command will be executed in an isolated subshell, but will be
+provided the same environment as the server itself, meaning it is possible to
+set environment variables for the script simply by setting them on the docker
+container.
+
+The output of the script's `stdout` will be piped through the server's logging
+mechanism and will appear in the container logs.
+
+The output of the script's `stderr` will be both piped through the server's
+logging mechanism (like `stdout`) but will also be captured for parsing and
+returning to the caller.
+
+=== Variables
+
+==== `+<<cwd>>+`
+
+The working directory for the job that is running in the current request.
+
+==== `+<<date>>+`
+
+The current date formatted as `YYYY-MM-DD`.
+
+==== `+<<date-time>>+`
+
+The current datetime in RFC3339 format.
+
+==== `+<<ds-description>>+`
+
+The user provided description for the current dataset upload.
+
+==== `+<<ds-name>>+`
+
+The user provided name for the current dataset upload.
+
+==== `+<<ds-summary>>+`
+
+The user provided summary of the current dataset upload.
+
+==== `+<<ds-user-email>>+`
+
+A generated "email address" consumed by the exporter script.
+
+==== `+<<input-files>>+`
+
+A space separated list of the files that were unpacked from the uploaded zip or
+tar file sorted by name ascending.
+
+===== `+<<input-files[n]>>+`
+
+Array style access of the input file list allowing retrieval of a single file
+name from the input file list.
+
+==== `+<<time>>+`
+
+The current time formatted as `HH:MM:SS`.
+
+==== `+<<timestamp>>+`
+
+The current unix timestamp in seconds.
