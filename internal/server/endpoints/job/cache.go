@@ -19,6 +19,7 @@ func (e *endpoint) CreateDetails(meta *job.Metadata) *job.Details {
 		},
 	}
 	cache.PutDetails(meta.Token, details)
+
 	return &details
 }
 

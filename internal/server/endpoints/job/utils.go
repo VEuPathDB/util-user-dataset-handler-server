@@ -1,12 +1,12 @@
 package job
 
 import (
-	"github.com/sirupsen/logrus"
 	"mime/multipart"
 	"net/http"
 	"strings"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
+	"github.com/sirupsen/logrus"
 
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
@@ -32,6 +32,7 @@ func ValidateFileSuffix(file string, log *logrus.Entry) (string, midl.Response) 
 
 	msg := errBadSuffix + strings.Join(allowedSuffixes, ", ")
 	log.WithField("status", http.StatusBadRequest).Info(msg)
+
 	return "", svc.BadRequest(msg)
 }
 
@@ -45,7 +46,7 @@ const (
 func GetFileHandle(req *http.Request, log *logrus.Entry) (
 	file multipart.File,
 	head *multipart.FileHeader,
-	out  midl.Response,
+	out midl.Response,
 ) {
 	file, head, err := req.FormFile("file")
 
@@ -53,16 +54,20 @@ func GetFileHandle(req *http.Request, log *logrus.Entry) (
 		switch err {
 		case http.ErrMissingBoundary:
 			log.WithField("status", http.StatusBadRequest).Info(errNoBoundary)
+
 			out = svc.BadRequest(errNoBoundary)
 		case http.ErrMissingFile:
 			log.WithField("status", http.StatusBadRequest).Info(errNoFile)
+
 			out = svc.BadRequest(errNoFile)
 		case http.ErrNotMultipart:
 			log.WithField("status", http.StatusBadRequest).Info(errNotMulti)
+
 			out = svc.BadRequest(errNotMulti)
 		default:
 			log.WithField("status", http.StatusBadRequest).
 				Info(errUnknown + err.Error())
+
 			out = svc.BadRequest(errUnknown + err.Error())
 		}
 	}
@@ -74,5 +79,6 @@ func (e *endpoint) FailJob(out midl.Response, details *job.Details) midl.Respons
 	details.Status = job.StatusFailed
 	e.StoreDetails(details)
 	out.Callback(e.cleanup(details.Token))
+
 	return out
 }

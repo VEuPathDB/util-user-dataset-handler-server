@@ -11,5 +11,3 @@ type ServerError struct {
 func (s *ServerError) Error() string {
 	return s.Message
 }
-
-

@@ -1,19 +1,18 @@
 package job
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/except"
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"net/http"
 	"os"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/sirupsen/logrus"
 
 	"github.com/VEuPathDB/util-exporter-server/internal/command"
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
+	"github.com/VEuPathDB/util-exporter-server/internal/except"
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
@@ -21,6 +20,7 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/service/cache"
 	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 	"github.com/VEuPathDB/util-exporter-server/internal/service/workspace"
+	"github.com/VEuPathDB/util-exporter-server/internal/util"
 )
 
 var (
@@ -48,8 +48,8 @@ func NewUploadEndpoint(opts *config.Options) types.Endpoint {
 }
 
 type endpoint struct {
-	log    *logrus.Entry
-	opt    *config.Options
+	log *logrus.Entry
+	opt *config.Options
 }
 
 func (e *endpoint) Register(r *mux.Router) {
@@ -57,7 +57,7 @@ func (e *endpoint) Register(r *mux.Router) {
 		Methods(http.MethodPost).
 		Handler(middle.MetricAgg(middle.RequestCtxProvider(
 			middle.BinaryAdaptor().AddHandlers(
-				middle.JobIdValidator(tokenKey, e)))))
+				middle.JobIDValidator(tokenKey, e)))))
 }
 
 // Handle the request.
@@ -66,9 +66,9 @@ func (e *endpoint) Register(r *mux.Router) {
 // points to an existing metadata entry in the store.
 func (e *endpoint) Handle(req midl.Request) midl.Response {
 	token := mux.Vars(req.RawRequest())[tokenKey]
-	meta  := e.getMeta(token)
-	dets  := e.CreateDetails(&meta)
-	log   := logger.ByRequest(req)
+	meta := e.getMeta(token)
+	dets := e.CreateDetails(&meta)
+	log := logger.ByRequest(req)
 	e.log = log
 
 	wkspc, err := workspace.Create(token, log)
@@ -125,13 +125,15 @@ func (e *endpoint) HandleUpload(
 	}
 	defer file.Close()
 
-	if info, err := file.Stat(); err != nil {
+	info, err := file.Stat()
+
+	if err != nil {
 		log.WithField("status", http.StatusInternalServerError).Error(err)
 		return svc.ServerError(except.NewServerError(err.Error()).Error())
-	} else {
-		promRequestPayloadSize.WithLabelValues(suff).
-			Observe(float64(info.Size()) / float64(util.SizeMebibyte))
 	}
+
+	promRequestPayloadSize.WithLabelValues(suff).
+		Observe(float64(info.Size()) / float64(util.SizeMebibyte))
 
 	details.InTarName = head.Filename
 	e.StoreDetails(details)
@@ -139,7 +141,7 @@ func (e *endpoint) HandleUpload(
 	return nil
 }
 
-// retrieve metadata from the metadata store
+// retrieve metadata from the metadata store.
 func (e *endpoint) getMeta(token string) job.Metadata {
 	tmp, _ := cache.GetMetadata(token)
 	return tmp
@@ -150,6 +152,7 @@ func (e *endpoint) getMeta(token string) job.Metadata {
 func (e *endpoint) cleanup(token string) func() {
 	return func() {
 		e.log.Debug("cleaning up workspace")
+
 		details, _ := cache.GetDetails(token)
 
 		_ = os.RemoveAll(details.WorkingDir)

@@ -2,12 +2,12 @@ package svc
 
 type ValidationSet map[string][]string
 
-func (V ValidationSet) Append(other ValidationSet) {
+func (s ValidationSet) Append(other ValidationSet) {
 	for k, v := range other {
-		if _, ok := V[k]; ok {
-			V[k] = append(V[k], v...)
+		if _, ok := s[k]; ok {
+			s[k] = append(s[k], v...)
 		} else {
-			V[k] = v
+			s[k] = v
 		}
 	}
 }
@@ -17,16 +17,11 @@ type ValidationResult struct {
 	Result ValidationSet
 }
 
-func (V *ValidationResult) AddError(key, val string) {
-	if V.Result == nil {
-		V.Result = make(ValidationSet)
+func (r *ValidationResult) AddError(key, val string) {
+	if r.Result == nil {
+		r.Result = make(ValidationSet)
 	}
 
-	V.Failed = true
-
-	if _, ok := V.Result[key]; ok {
-		V.Result[key] = append(V.Result[key], val)
-	} else {
-		V.Result[key] = []string{val}
-	}
+	r.Failed = true
+	r.Result[key] = append(r.Result[key], val)
 }

@@ -16,7 +16,6 @@ const (
 	StatusBadMethod  ResponseStatus = "bad-http-method"
 )
 
-
 func NotFound(msg string) midl.Response {
 	return midl.MakeResponse(http.StatusNotFound, &SadResponse{
 		Status:  StatusNotFound,

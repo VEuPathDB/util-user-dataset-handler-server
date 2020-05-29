@@ -1,29 +1,30 @@
 package middle
 
 import (
-	"github.com/gorilla/mux"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
+	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+
 	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 )
 
 var (
 	promTotalRequests = promauto.NewCounterVec(prometheus.CounterOpts{
-		Namespace:   "http",
-		Name:        "total_requests",
-		Help:        "Total HTTP request count.",
+		Namespace: "http",
+		Name:      "total_requests",
+		Help:      "Total HTTP request count.",
 	}, []string{"path", "method", "status"})
 
 	promRequestTime = promauto.NewHistogramVec(prometheus.HistogramOpts{
-		Namespace:   "http",
-		Name:        "request_duration",
-		Help:        "Request times in milliseconds",
-		Buckets:     []float64{0.05, 0.1, 0.5, 1, 5, 10},
+		Namespace: "http",
+		Name:      "request_duration",
+		Help:      "Request times in milliseconds",
+		Buckets:   []float64{0.05, 0.1, 0.5, 1, 5, 10},
 	}, []string{"path", "method"})
 )
 

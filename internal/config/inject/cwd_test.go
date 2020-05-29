@@ -1,11 +1,12 @@
 package inject_test
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/config/inject"
-	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/config/inject"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 func TestCwdInjector_Inject(t *testing.T) {

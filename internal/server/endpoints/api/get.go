@@ -13,11 +13,11 @@ import (
 
 const DocsEndpointPath = "/api"
 
-func NewApiEndpoint() types.Endpoint {
+func NewAPIEndpoint() types.Endpoint {
 	return &docsEndpoint{}
 }
 
-type docsEndpoint struct {}
+type docsEndpoint struct{}
 
 func (d *docsEndpoint) Register(r *mux.Router) {
 	r.Path(DocsEndpointPath).
@@ -26,17 +26,19 @@ func (d *docsEndpoint) Register(r *mux.Router) {
 			func(out http.ResponseWriter, in *http.Request) { d.handle(out) }))))
 }
 
-func (d * docsEndpoint) handle(out http.ResponseWriter)  {
+func (d *docsEndpoint) handle(out http.ResponseWriter) {
 	file, err := os.Open("static-content/api.html")
 	if err != nil {
 		out.WriteHeader(http.StatusInternalServerError)
+
 		_, _ = out.Write([]byte(err.Error()))
+
 		return
 	}
 	defer file.Close()
 
 	out.Header().Set(xhttp.HeaderContentType, "text/html")
 	out.WriteHeader(http.StatusOK)
+
 	_, _ = io.Copy(out, file)
 }
-

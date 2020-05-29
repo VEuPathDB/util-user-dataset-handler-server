@@ -3,28 +3,28 @@ package parse
 import (
 	// Std Lib
 	"fmt"
-	"github.com/VEuPathDB/util-exporter-server/internal/app/service"
-	"github.com/VEuPathDB/util-exporter-server/internal/log"
 	"os"
 
 	// External
-	"github.com/Foxcapades/Argonaut/v0"
+	cli "github.com/Foxcapades/Argonaut/v0"
 	"github.com/Foxcapades/Argonaut/v0/pkg/argo"
 
 	// Internal
 	"github.com/VEuPathDB/util-exporter-server/internal/app"
+	"github.com/VEuPathDB/util-exporter-server/internal/app/service"
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
+	"github.com/VEuPathDB/util-exporter-server/internal/log"
 )
 
 const (
-	argPort  = "port"
-	helpPort = "Port the server should bind to"
-	defPort  = uint16(80)
+	argPort         = "port"
+	helpPort        = "Port the server should bind to"
+	defPort  uint16 = 80
 
 	argOpts  = "config"
 	helpOpts = "Path to service configuration file.\n\n" +
 		"Defaults to " + defOpts + " for containerized usage."
-	defOpts  = "/app/config.yml"
+	defOpts = "/app/config.yml"
 
 	argWdir  = "workspace"
 	helpWdir = "Path to workspace directory.  If this directory does not " +

@@ -1,12 +1,12 @@
 package parse
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/log"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v3"
 
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
+	"github.com/VEuPathDB/util-exporter-server/internal/log"
 )
 
 // ConfigFile parses the config file set by the CLI options.
@@ -21,6 +21,6 @@ func ConfigFile(opts *config.Options) {
 		log.Logger().Fatal(err)
 	}
 
-	opts.Command     = tmp.Command
+	opts.Command = tmp.Command
 	opts.ServiceName = tmp.ServiceName
 }

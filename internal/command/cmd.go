@@ -3,10 +3,11 @@ package command
 import (
 	"encoding/json"
 	"errors"
-	"github.com/VEuPathDB/util-exporter-server/internal/config"
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"os"
 	"strings"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/config"
+	"github.com/VEuPathDB/util-exporter-server/internal/util"
 )
 
 type response struct {

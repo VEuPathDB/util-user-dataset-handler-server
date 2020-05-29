@@ -4,20 +4,22 @@ import (
 	// Std Lib
 	"encoding/json"
 	"fmt"
-	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
-	"github.com/gorilla/mux"
 	"net/http"
+
 	// External
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
+	// Internal
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 )
 
 const (
 	errEmptyMetadata = "metadata payload cannot be empty"
 	errParseMetadata = "failed to parse input JSON: %s"
-	dataCtxKey = "data"
+	dataCtxKey       = "data"
 )
 
 // NewMetadataValidator is a validation wrapper middleware
@@ -33,6 +35,7 @@ func NewMetadataValidator() midl.MiddlewareFunc {
 		}
 
 		req.AdditionalContext()[dataCtxKey] = data
+
 		return nil
 	}
 }
@@ -41,8 +44,10 @@ func parseMetadata(req midl.Request) (*Metadata, midl.Response) {
 	log := logger.ByRequest(req)
 
 	bytes := req.Body()
+
 	if req.Body() == nil {
 		log.WithField("status", http.StatusBadRequest).Info(errEmptyMetadata)
+
 		return nil, midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
 			Status:  svc.StatusBadRequest,
 			Message: errEmptyMetadata,
@@ -52,7 +57,9 @@ func parseMetadata(req midl.Request) (*Metadata, midl.Response) {
 	var foo Metadata
 	if err := json.Unmarshal(bytes, &foo); err != nil {
 		errTxt := fmt.Sprintf(errParseMetadata, err)
+
 		log.WithField("status", http.StatusBadRequest).Info(errTxt)
+
 		return nil, midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
 			Status:  svc.StatusBadRequest,
 			Message: errTxt,
@@ -72,11 +79,13 @@ func validateMetadata(meta *Metadata, log *logrus.Entry) midl.Response {
 	if val := meta.Validate(); val.Failed {
 		log.WithField("status", http.StatusUnprocessableEntity).
 			Info("metadata validation failed")
+
 		return midl.MakeResponse(http.StatusUnprocessableEntity,
 			&svc.ValidationResponse{
-				Status: svc.StatusBadInput,
+				Status:  svc.StatusBadInput,
 				Reasons: val.Result,
 			})
 	}
+
 	return nil
 }

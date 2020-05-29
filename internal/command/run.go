@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"strings"
-	"time"
 
 	// External
 	"github.com/sirupsen/logrus"
@@ -48,11 +47,9 @@ type runner struct {
 	token   string
 	options *config.Options
 
-	lastStatus  time.Time
-	lastCommand *config.Command
-	details     job.Details
-	meta        job.Metadata
-	wkspc       workspace.Workspace
+	details job.Details
+	meta    job.Metadata
+	wkspc   workspace.Workspace
 }
 
 func (r *runner) Run() RunResult {

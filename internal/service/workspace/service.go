@@ -60,6 +60,7 @@ func (w *workspace) Files(fn FilePredicate) ([]os.FileInfo, error) {
 	}
 
 	out := make([]os.FileInfo, 0, len(tmp))
+
 	for _, info := range tmp {
 		if !autoExclude(info) && fn(info) {
 			out = append(out, info)

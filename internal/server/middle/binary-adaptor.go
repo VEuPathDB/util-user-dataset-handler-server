@@ -3,13 +3,17 @@ package middle
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/VEuPathDB/util-exporter-server/internal/command"
 	"net/http"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 
+	"github.com/VEuPathDB/util-exporter-server/internal/command"
 	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"github.com/VEuPathDB/util-exporter-server/internal/xhttp"
+)
+
+const (
+	bufferSize = 8 * util.SizeKibibyte
 )
 
 // BinaryAdaptor returns a midl.Adapter instance for responding with
@@ -27,7 +31,9 @@ func (b binaryAdaptor) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	if err != nil {
 		writer.Header().Set(xhttp.HeaderContentType, "application/json")
 		writer.WriteHeader(http.StatusInternalServerError)
+
 		_, _ = writer.Write(simpleInternalError(err.Error()))
+
 		return
 	}
 
@@ -42,7 +48,9 @@ func (b binaryAdaptor) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	if res == nil {
 		writer.Header().Set(xhttp.HeaderContentType, "application/json")
 		writer.WriteHeader(http.StatusInternalServerError)
+
 		_, _ = writer.Write(simpleInternalError("Invalid state: no response."))
+
 		return
 	}
 
@@ -55,8 +63,10 @@ func (b binaryAdaptor) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	if res.Code() != http.StatusOK {
 		writer.Header().Set(xhttp.HeaderContentType, "application/json")
 		writer.WriteHeader(res.Code())
+
 		bytes, _ := json.Marshal(res.Body())
 		_, _ = writer.Write(bytes)
+
 		return
 	}
 
@@ -64,27 +74,33 @@ func (b binaryAdaptor) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	if !ok {
 		writer.Header().Set(xhttp.HeaderContentType, "application/json")
 		writer.WriteHeader(http.StatusInternalServerError)
+
 		_, _ = writer.Write(simpleInternalError("Invalid state: bad response body."))
+
 		return
 	}
 	defer pipe.Stream.Close()
 
 	writer.Header().Add(xhttp.HeaderContentDisposition, "attachment")
-	writer.Header().Add(xhttp.HeaderContentDisposition, "filename=" + pipe.Name)
+	writer.Header().Add(xhttp.HeaderContentDisposition, "filename="+pipe.Name)
 	writer.Header().Set(xhttp.HeaderContentType, "application/binary")
-	size := 8 * util.SizeKibibyte
-	buff := make([]byte, size)
 
-	for true {
+	buff := make([]byte, bufferSize)
+
+	for {
 		n, err := pipe.Stream.Read(buff)
 		if err != nil {
 			writer.Header().Set(xhttp.HeaderContentType, "application/json")
 			writer.WriteHeader(http.StatusInternalServerError)
+
 			_, _ = writer.Write(simpleInternalError("Failed to write to output buffer"))
+
 			return
 		}
+
 		_, _ = writer.Write(buff[0:n])
-		if n < size {
+
+		if n < bufferSize {
 			break
 		}
 	}

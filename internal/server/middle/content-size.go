@@ -21,12 +21,12 @@ const (
 // ContentLengthFilter constructs a middleware filter that enforces the incoming
 // request has a Content-Length header and that the value is below the given
 // threshold.
-func ContentLengthFilter(bytes uint64)  midl.Middleware {
+func ContentLengthFilter(bytes uint64) midl.Middleware {
 	return &contentLengthFilter{bytes: bytes}
 }
 
 type contentLengthFilter struct {
-	bytes  uint64
+	bytes uint64
 }
 
 func (c *contentLengthFilter) Handle(req midl.Request) midl.Response {
@@ -37,6 +37,7 @@ func (c *contentLengthFilter) Handle(req midl.Request) midl.Response {
 
 		if err != nil {
 			log.Info(errBadLengthVal)
+
 			return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
 				Status:  svc.StatusBadRequest,
 				Message: errBadLengthVal,
@@ -45,7 +46,9 @@ func (c *contentLengthFilter) Handle(req midl.Request) midl.Response {
 
 		if size > c.bytes {
 			msg := fmt.Sprintf(errTooBig, size, c.bytes)
+
 			log.Info(msg)
+
 			return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
 				Status:  svc.StatusBadRequest,
 				Message: msg,
@@ -53,6 +56,7 @@ func (c *contentLengthFilter) Handle(req midl.Request) midl.Response {
 		}
 	} else {
 		log.Info(errNoLengthVal)
+
 		return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
 			Status:  svc.StatusBadRequest,
 			Message: errNoLengthVal,

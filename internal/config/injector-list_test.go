@@ -1,12 +1,13 @@
 package config_test
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"go/build"
 	"os"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/config"
 )
 
 // TODO: Improve this test, this dangerously assumes that files and injectors

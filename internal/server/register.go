@@ -38,6 +38,7 @@ type server struct {
 func (s *server) Serve() error {
 	http.Handle("/", s.router)
 	s.logger.Info("Server started.  Listening on port ", s.options.Port)
+
 	return http.ListenAndServe(s.options.GetUsablePort(), nil)
 }
 
@@ -50,7 +51,7 @@ func (s *server) RegisterEndpoints() {
 		Handler(promhttp.Handler())
 
 	// Serve API docs
-	api.NewApiEndpoint().Register(s.router)
+	api.NewAPIEndpoint().Register(s.router)
 
 	// Health Endpoint
 	health.Register(s.router, s.options)

@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/log"
 	"strconv"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/log"
 )
 
 const (
@@ -19,26 +20,30 @@ type Options struct {
 	Workspace   string  `yaml:"-" json:"workspace"`
 }
 
-func (O *Options) GetUsablePort() string {
-	return ":" + strconv.FormatUint(uint64(O.Port), 10)
+func (o *Options) GetUsablePort() string {
+	return ":" + strconv.FormatUint(uint64(o.Port), 10)
 }
 
-func (O *Options) Validate() {
+func (o *Options) Validate() {
 	L := log.Logger()
 	errored := false
-	if len(O.ServiceName) == 0 {
+
+	if len(o.ServiceName) == 0 {
 		L.Error("Config: serviceName is required.")
+
 		errored = true
 	}
 
-	if len(O.Command.Executable) == 0 {
+	if len(o.Command.Executable) == 0 {
 		L.Error("Config: at least one command must be configured.")
+
 		errored = true
 	}
 
-	err := O.Command.Validate()
+	err := o.Command.Validate()
 	if err != nil {
 		L.Errorf("Config: Command: %s", err.Error())
+
 		errored = true
 	}
 

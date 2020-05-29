@@ -28,7 +28,7 @@ const (
 		`from the server at runtime.`
 	errBadConfig = "Config invalid."
 	noteOkConfig = "Config valid."
-	noteInfo = "Validating the configuration file \"%s\".  NOTE: This " +
+	noteInfo     = `Validating the configuration file "%s".  NOTE: This ` +
 		"validation does not verify that the configured commands exist on the " +
 		"current $PATH."
 )
@@ -48,13 +48,16 @@ func ValidateConfig(options *config.Options) {
 
 	opts := new(config.Options)
 	err = yaml.Unmarshal(bytes, opts)
+
 	if err != nil {
 		L.Fatal(errParseConfigFail, err)
 	}
 
 	ok := true
+
 	if opts.ServiceName == "" {
 		L.Error(errConfSvcName)
+
 		ok = false
 	}
 
@@ -65,21 +68,24 @@ func ValidateConfig(options *config.Options) {
 	if !ok {
 		L.Error(errBadConfig)
 		os.Exit(app.StatusValidateConfFailed)
-	} else {
-		L.Info(noteOkConfig)
-		os.Exit(app.StatusSuccess)
 	}
+
+	L.Info(noteOkConfig)
+	os.Exit(app.StatusSuccess)
 }
 
 func validateCommand(log *logrus.Entry, cmd *config.Command) bool {
 	ok := true
+
 	if len(cmd.Executable) == 0 {
 		log.Error(errConfComNoPath)
+
 		ok = false
 	}
 
 	if len(cmd.Args) == 0 {
 		log.Info(noteConfComNoArgs)
 	}
+
 	return ok
 }

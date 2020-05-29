@@ -2,9 +2,9 @@ package dataset
 
 import (
 	"fmt"
+
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 	"github.com/VEuPathDB/util-exporter-server/internal/wdk/site"
-	"strconv"
 )
 
 type BaseInfo struct {
@@ -13,24 +13,24 @@ type BaseInfo struct {
 	Dependencies []Resource     `json:"dependencies,omitempty"`
 }
 
-func (B *BaseInfo) Validate() (out svc.ValidationResult) {
-
-	for i := range B.Projects {
-		if !B.Projects[i].IsValid() {
+func (b *BaseInfo) Validate() (out svc.ValidationResult) {
+	for i := range b.Projects {
+		if !b.Projects[i].IsValid() {
 			out.AddError("projects", fmt.Sprintf("unrecognized project id '%s'",
-				B.Projects[i]))
+				b.Projects[i]))
 		}
 	}
 
-	if B.Owner == 0 {
+	if b.Owner == 0 {
 		out.AddError("owner", "owner is required")
 	}
 
-	for i := range B.Dependencies {
-		if val := B.Dependencies[i].Validate(); val.Failed {
-			base := "dependencies[" + strconv.Itoa(i) + "]."
-			for k, v := range val.Result {
-				out.Result[base + k] = v
+	for i := range b.Dependencies {
+		if val := b.Dependencies[i].Validate(); val.Failed {
+			base := fmt.Sprintf("dependencies[%d].", i)
+
+			for k := range val.Result {
+				out.Result[base+k] = val.Result[k]
 			}
 		}
 	}
@@ -50,15 +50,18 @@ type Resource struct {
 	Identifier  string `json:"resourceIdentifier"`
 }
 
-func (R *Resource) Validate() (out svc.ValidationResult) {
-	if len(R.DisplayName) == 0 {
+func (r *Resource) Validate() (out svc.ValidationResult) {
+	if len(r.DisplayName) == 0 {
 		out.AddError("resourceDisplayName", "resource display name is required")
 	}
-	if len(R.Version) == 0 {
+
+	if len(r.Version) == 0 {
 		out.AddError("resourceVersion", "resource version is required")
 	}
-	if len(R.Identifier) == 0 {
+
+	if len(r.Identifier) == 0 {
 		out.AddError("resourceIdentifier", "resource identifier is required")
 	}
+
 	return
 }

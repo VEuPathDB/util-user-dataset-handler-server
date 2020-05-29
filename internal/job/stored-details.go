@@ -1,8 +1,9 @@
 package job
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/wdk/site"
 	"time"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/wdk/site"
 )
 
 // StorableDetails is the subset of process details that

@@ -2,12 +2,12 @@ package middle
 
 import (
 	"fmt"
-	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 	"net/http"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 )
 
 const (
@@ -16,9 +16,9 @@ const (
 	errNoContentType = "Missing required Content-Type header."
 )
 
-// JsonContentFilter creates a middleware layer that enforces both the existence
+// JSONContentFilter creates a middleware layer that enforces both the existence
 // of the Content-Type header and that the header equals "application/json".
-func JsonContentFilter() midl.MiddlewareFunc {
+func JSONContentFilter() midl.MiddlewareFunc {
 	return func(req midl.Request) midl.Response {
 		log := logger.ByRequest(req).WithField("status", http.StatusBadRequest)
 
@@ -26,6 +26,7 @@ func JsonContentFilter() midl.MiddlewareFunc {
 
 		if !ok {
 			log.Info(errNoContentType)
+
 			return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
 				Status:  svc.StatusBadRequest,
 				Message: errNoContentType,
@@ -34,7 +35,9 @@ func JsonContentFilter() midl.MiddlewareFunc {
 
 		if val != "application/json" {
 			msg := fmt.Sprintf(errBadContentType, val)
+
 			log.Info(msg)
+
 			return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
 				Status:  svc.StatusBadRequest,
 				Message: msg,

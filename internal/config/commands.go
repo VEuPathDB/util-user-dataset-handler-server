@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	errNoCmd       = "Command name is required"
-	errCmdNotAvail = "Cannot find command with the name %s: %s"
+	errNoCmd       = "command name is required"
+	errCmdNotAvail = "cannot find command with the name %s: %s"
 )
 
-// Yaml keys for Command props
+// Yaml keys for Command props.
 const (
 	CmdKeyCommandYaml = "command"
 	CmdKeyArgsYaml    = "args"
@@ -22,13 +22,13 @@ type Command struct {
 	Args       []string `yaml:"args" json:"arguments"`
 }
 
-func (C *Command) Validate() error {
-	if len(C.Executable) == 0 {
+func (c *Command) Validate() error {
+	if len(c.Executable) == 0 {
 		return errors.New(errNoCmd)
 	}
 
-	if _, err := exec.LookPath(C.Executable); err != nil {
-		return fmt.Errorf(errCmdNotAvail, C.Executable, err)
+	if _, err := exec.LookPath(c.Executable); err != nil {
+		return fmt.Errorf(errCmdNotAvail, c.Executable, err)
 	}
 
 	return nil

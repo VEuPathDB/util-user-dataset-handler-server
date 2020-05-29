@@ -5,8 +5,9 @@ import (
 	"net/http"
 
 	// External
-	. "github.com/Foxcapades/go-midl/v2/pkg/midl"
+	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/gorilla/mux"
+
 	// Internal
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
@@ -32,32 +33,32 @@ type statusEndpoint struct {
 func (s *statusEndpoint) Register(r *mux.Router) {
 	r.Path(urlPath).
 		Methods(http.MethodGet).
-		Handler(middle.MetricAgg(middle.RequestCtxProvider(JSONAdapter(s))))
+		Handler(middle.MetricAgg(middle.RequestCtxProvider(midl.JSONAdapter(s))))
 }
 
-func (s *statusEndpoint) Handle(req Request) Response {
-	jobId := mux.Vars(req.RawRequest())[tknKey]
+func (s *statusEndpoint) Handle(req midl.Request) midl.Response {
+	jobID := mux.Vars(req.RawRequest())[tknKey]
 
 	// Is the job in progress
-	if det, ok := cache.GetDetails(jobId); ok {
-		MakeResponse(http.StatusOK, det)
+	if det, ok := cache.GetDetails(jobID); ok {
+		midl.MakeResponse(http.StatusOK, det)
 	}
 
 	// Is the job waiting to start
-	if det, ok := cache.GetMetadata(jobId); ok {
-		return MakeResponse(http.StatusOK, job.StorableDetails{
+	if det, ok := cache.GetMetadata(jobID); ok {
+		return midl.MakeResponse(http.StatusOK, job.StorableDetails{
 			UserID:   det.Owner,
-			Token:    jobId,
+			Token:    jobID,
 			Status:   job.StatusNotStarted,
 			Projects: det.Projects,
 		})
 	}
 
 	// Is the job already completed
-	if det, ok := cache.GetHistoricalDetails(jobId); ok {
-		return MakeResponse(http.StatusOK, det)
+	if det, ok := cache.GetHistoricalDetails(jobID); ok {
+		return midl.MakeResponse(http.StatusOK, det)
 	}
 
 	// No job
-	return svc.NotFound("no job found with id " + jobId)
+	return svc.NotFound("no job found with id " + jobID)
 }

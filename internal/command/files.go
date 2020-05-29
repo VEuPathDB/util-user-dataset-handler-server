@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-// Returns the list of files in the working directory
+// Returns the list of files in the working directory.
 func (r *runner) getWorkspaceFiles() ([]string, error) {
 	files, err := r.wkspc.Files(func(info os.FileInfo) bool {
 		return info.Name() != r.details.InTarName

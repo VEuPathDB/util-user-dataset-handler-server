@@ -1,13 +1,14 @@
 package logger
 
 import (
-	"github.com/Foxcapades/go-midl/v2/pkg/midl"
-	"github.com/VEuPathDB/util-exporter-server/internal/service/rid"
 	"time"
 
-	"github.com/VEuPathDB/util-exporter-server/internal/log"
+	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/log"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/rid"
 )
 
 const (
@@ -37,6 +38,7 @@ func AddFields(id rid.RID, fields map[string]interface{}) *logrus.Entry {
 	tmp := Get(id).WithFields(fields)
 	_, left, _ := logCache.GetWithExpiration(string(id))
 	logCache.Set(string(id), tmp, time.Until(left))
+
 	return tmp
 }
 

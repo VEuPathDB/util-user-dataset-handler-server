@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	errUnzip   = "failed to unzip uploaded archive: "
-	errUntar   = "failed to extract uploaded tar archive: "
+	errUnzip = "failed to unzip uploaded archive: "
+	errUntar = "failed to extract uploaded tar archive: "
 )
 
 // Unpack the uploaded archive file into the working directory.
@@ -33,7 +33,9 @@ func (r *runner) unpack(d *job.Details) error {
 	if err != nil {
 		return err
 	}
+
 	r.details.InputFiles = files
+
 	return nil
 }
 
@@ -41,7 +43,7 @@ func (r *runner) untar(d *job.Details) error {
 	cmd := util.PrepCommand(r.log, "tar", "-xf", d.InTarName)
 	cmd.Dir = r.wkspc.GetPath()
 
-	time, err :=util.TimeCmd(cmd)
+	time, err := util.TimeCmd(cmd)
 	promCommandTime.WithLabelValues("tar").Observe(time)
 
 	if err != nil {

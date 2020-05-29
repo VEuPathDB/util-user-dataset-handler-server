@@ -1,34 +1,37 @@
 package job
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
-	"github.com/VEuPathDB/util-exporter-server/internal/service/cache"
 	// Std Lib
 	"net/http"
 
 	// External
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"github.com/gorilla/mux"
+
+	// Internal
+	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/cache"
+	"github.com/VEuPathDB/util-exporter-server/internal/util"
 )
+
 const (
 	tokenKey = "job-id"
-	urlPath = "/job/{" + tokenKey + "}"
+	urlPath  = "/job/{" + tokenKey + "}"
 )
 
 func NewJobCreateEndpoint() types.Endpoint {
 	return &metadataEndpoint{}
 }
 
-type metadataEndpoint struct {}
+type metadataEndpoint struct{}
 
 func (m *metadataEndpoint) Register(r *mux.Router) {
 	r.Path(urlPath).
 		Methods(http.MethodPut).
 		Handler(middle.MetricAgg(middle.RequestCtxProvider(
 			midl.JSONAdapter(
-				middle.JsonContentFilter(),
+				middle.JSONContentFilter(),
 				middle.ContentLengthFilter(util.SizeMebibyte),
 				NewMetadataValidator(),
 				m))))

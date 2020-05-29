@@ -13,6 +13,7 @@ var version = "untagged dev build"
 func main() {
 	options := new(config.Options)
 	options.Version = version
+
 	log.SetLogger(log.ConfigureLogger())
 	parse.Cli(options)
 	parse.ConfigFile(options)
@@ -22,6 +23,7 @@ func main() {
 	log.SetLogger(log.ConfigureLogger().WithField("source", options.ServiceName))
 
 	serve := server.NewServer(options)
+
 	serve.RegisterEndpoints()
 	log.Logger().Fatal(serve.Serve())
 }

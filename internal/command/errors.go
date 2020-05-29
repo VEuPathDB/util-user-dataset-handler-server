@@ -23,4 +23,3 @@ type HandlerError struct {
 func (u *HandlerError) Error() string {
 	return u.Message
 }
-

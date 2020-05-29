@@ -2,7 +2,7 @@ package log
 
 import (
 	"github.com/sirupsen/logrus"
-	"github.com/x-cray/logrus-prefixed-formatter"
+	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
 func ConfigureLogger() *logrus.Entry {
@@ -12,6 +12,7 @@ func ConfigureLogger() *logrus.Entry {
 	fmt.TimestampFormat = "2006-01-02 15:04:05.000000"
 	log.Formatter = fmt
 	log.Level = logrus.TraceLevel
+
 	return log.WithFields(logrus.Fields{
 		"source": "server",
 	})

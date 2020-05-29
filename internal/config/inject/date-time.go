@@ -1,8 +1,9 @@
 package inject
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"time"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 const dateTimeInjectTarget = "<<date-time>>"
@@ -19,4 +20,3 @@ func (d *dateTimeInjector) Inject(target []string) ([]string, error) {
 	return simpleReplace(target, dateTimeInjectTarget,
 		d.state.Started.Format(time.RFC3339)), nil
 }
-

@@ -3,10 +3,11 @@ package inject
 import (
 	"errors"
 	"fmt"
-	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 var inputFileInjectorTarget = regexp.MustCompile(`"?<<input-files(?:\[([^]]*)])?>>"?`)
@@ -26,6 +27,7 @@ type inputFileInjector struct {
 
 func (t *inputFileInjector) Inject(target []string) ([]string, error) {
 	out := make([]string, 0, len(target))
+
 	for _, tgt := range target {
 		matches := inputFileInjectorTarget.FindAllStringSubmatchIndex(tgt, -1)
 
@@ -52,11 +54,12 @@ func (t *inputFileInjector) Inject(target []string) ([]string, error) {
 				return nil, errors.New("invalid state: input file variable injector")
 			}
 
-			if tmp, err := t.targetFile(out, tgt, match); err != nil {
+			tmp, err := t.targetFile(out, tgt, match)
+			if err != nil {
 				return nil, err
-			} else {
-				out = tmp
 			}
+
+			out = tmp
 		}
 	}
 
@@ -68,9 +71,7 @@ func (t *inputFileInjector) simpleAll(out []string, target string, match []int) 
 		out = append(out, target[:match[0]])
 	}
 
-	for _, file := range t.state.InputFiles {
-		out = append(out, file)
-	}
+	out = append(out, t.state.InputFiles...)
 
 	if match[1] < len(target) {
 		out = append(out, target[match[1]:])

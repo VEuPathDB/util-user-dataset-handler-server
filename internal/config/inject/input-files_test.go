@@ -1,10 +1,12 @@
 package inject_test
 
 import (
+	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
+
 	"github.com/VEuPathDB/util-exporter-server/internal/config/inject"
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
-	. "github.com/smartystreets/goconvey/convey"
-	"testing"
 )
 
 func TestInputFileInjector_Inject(t *testing.T) {

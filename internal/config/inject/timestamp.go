@@ -1,8 +1,9 @@
 package inject
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"strconv"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 const timestampInjectorTarget = "<<timestamp>>"
@@ -19,4 +20,3 @@ func (t *timestampInjector) Inject(target []string) ([]string, error) {
 	return simpleReplace(target, timestampInjectorTarget,
 		strconv.FormatInt(t.state.Started.Unix(), 10)), nil
 }
-

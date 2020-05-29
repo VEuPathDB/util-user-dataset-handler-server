@@ -1,8 +1,9 @@
 package log
 
 import (
-	"github.com/sirupsen/logrus"
 	"io"
+
+	"github.com/sirupsen/logrus"
 )
 
 // StdWriters constructs a pair of log writers that pass
@@ -13,13 +14,10 @@ func StdWriters(log *logrus.Entry, cmd string) (out, err io.Writer) {
 }
 
 type stdWriter struct {
-	fn  func(...interface{})
-	buf []byte
+	fn func(...interface{})
 }
 
 func (s *stdWriter) Write(p []byte) (n int, err error) {
 	s.fn(string(p))
 	return len(p), nil
 }
-
-

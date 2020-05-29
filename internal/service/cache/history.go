@@ -1,9 +1,11 @@
 package cache
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/job"
-	"github.com/patrickmn/go-cache"
 	"time"
+
+	"github.com/patrickmn/go-cache"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 const (
@@ -13,14 +15,14 @@ const (
 
 var historyCache = cache.New(historyLife, historyClean)
 
-func GetHistoricalDetails(jobId string) (job.StorableDetails, bool) {
-	if tmp, ok := historyCache.Get(jobId); ok {
+func GetHistoricalDetails(jobID string) (job.StorableDetails, bool) {
+	if tmp, ok := historyCache.Get(jobID); ok {
 		return tmp.(job.StorableDetails), ok
 	}
 
 	return job.StorableDetails{}, false
 }
 
-func PutHistoricalDetails(jobId string, details job.StorableDetails) {
-	historyCache.SetDefault(jobId, details)
+func PutHistoricalDetails(jobID string, details job.StorableDetails) {
+	historyCache.SetDefault(jobID, details)
 }

@@ -1,9 +1,11 @@
 package cache
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/job"
-	"github.com/patrickmn/go-cache"
 	"time"
+
+	"github.com/patrickmn/go-cache"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
 const (
@@ -13,23 +15,23 @@ const (
 
 var metaCache = cache.New(metaLife, metaClean)
 
-func HasMetadata(jobId string) bool {
-	_, ok := metaCache.Get(jobId)
+func HasMetadata(jobID string) bool {
+	_, ok := metaCache.Get(jobID)
 	return ok
 }
 
-func GetMetadata(jobId string) (job.Metadata, bool) {
-	if tmp, ok := metaCache.Get(jobId); ok {
+func GetMetadata(jobID string) (job.Metadata, bool) {
+	if tmp, ok := metaCache.Get(jobID); ok {
 		return tmp.(job.Metadata), ok
 	}
 
 	return job.Metadata{}, false
 }
 
-func PutMetadata(jobId string, meta job.Metadata) {
-	metaCache.SetDefault(jobId, meta)
+func PutMetadata(jobID string, meta job.Metadata) {
+	metaCache.SetDefault(jobID, meta)
 }
 
-func DeleteMetadata(jobId string) {
-	metaCache.Delete(jobId)
+func DeleteMetadata(jobID string) {
+	metaCache.Delete(jobID)
 }

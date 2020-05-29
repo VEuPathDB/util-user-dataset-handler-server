@@ -2,6 +2,7 @@ package inject
 
 import (
 	"fmt"
+
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
@@ -9,7 +10,6 @@ const (
 	dsUserEmailInjectorTarget = "<<ds-user-email>>"
 	dsUserEmailFormat         = "handler.%d@veupathdb.org"
 )
-
 
 func NewDsUserEmailInjector(_ *job.Details, meta *job.Metadata) VariableInjector {
 	return &dsUserEmailInjector{meta}

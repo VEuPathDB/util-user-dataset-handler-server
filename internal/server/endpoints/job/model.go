@@ -9,14 +9,14 @@ type Metadata struct {
 	job.Metadata
 }
 
-func (M *Metadata) Validate() (out svc.ValidationResult) {
-	out = M.BaseInfo.Validate()
+func (m *Metadata) Validate() (out svc.ValidationResult) {
+	out = m.BaseInfo.Validate()
 
-	if len(M.Name) == 0 {
+	if len(m.Name) == 0 {
 		out.AddError("name", "name is required")
 	}
 
-	if len(M.Projects) == 0 {
+	if len(m.Projects) == 0 {
 		out.AddError("projects", "at least one project is required")
 	}
 

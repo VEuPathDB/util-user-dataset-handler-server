@@ -15,12 +15,12 @@ type Meta struct {
 	cache *cache.Cache
 }
 
-func (M *Meta) Set(token string, data job.Metadata) {
-	M.cache.Set(token, data, DefaultExpiration)
+func (m *Meta) Set(token string, data job.Metadata) {
+	m.cache.Set(token, data, DefaultExpiration)
 }
 
-func (M *Meta) Get(token string) (out job.Metadata, ok bool) {
-	tmp, ok := M.cache.Get(token)
+func (m *Meta) Get(token string) (out job.Metadata, ok bool) {
+	tmp, ok := m.cache.Get(token)
 
 	if ok {
 		out = tmp.(job.Metadata)
@@ -37,32 +37,34 @@ type Upload struct {
 	cache *cache.Cache
 }
 
-func (U *Upload) SetDetails(token string, details job.Details) {
-	U.cache.Set(token, details, DefaultExpiration)
+func (u *Upload) SetDetails(token string, details job.Details) {
+	u.cache.Set(token, details, DefaultExpiration)
 }
 
-func (U *Upload) SetStorable(token string, details job.StorableDetails) {
-	U.cache.Set(token, details, DefaultExpiration)
+func (u *Upload) SetStorable(token string, details job.StorableDetails) {
+	u.cache.Set(token, details, DefaultExpiration)
 }
 
-func (U *Upload) GetDetails(token string) (out job.Details, ok bool) {
-	tmp, ok := U.cache.Get(token)
+func (u *Upload) GetDetails(token string) (out job.Details, ok bool) {
+	tmp, ok := u.cache.Get(token)
 
 	if !ok {
 		return
 	}
 
 	out, ok = tmp.(job.Details)
+
 	return
 }
 
-func (U *Upload) GetStorable(token string) (out job.StorableDetails, ok bool) {
-	tmp, ok := U.cache.Get(token)
+func (u *Upload) GetStorable(token string) (out job.StorableDetails, ok bool) {
+	tmp, ok := u.cache.Get(token)
 
 	if !ok {
 		return
 	}
 
 	out, ok = tmp.(job.StorableDetails)
+
 	return
 }

@@ -42,6 +42,6 @@ var validSites = map[WdkSite]bool{
 	VeupathDB:       true,
 }
 
-func (W WdkSite) IsValid() bool {
-	return validSites[W]
+func (w WdkSite) IsValid() bool {
+	return validSites[w]
 }

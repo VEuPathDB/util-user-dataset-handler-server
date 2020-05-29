@@ -13,4 +13,3 @@ func RegisterGenericHandlers(r *mux.Router) {
 	r.NotFoundHandler = MetricAgg(
 		RequestCtxProvider(midl.JSONAdapter(New404Handler())))
 }
-
