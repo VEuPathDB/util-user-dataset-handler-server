@@ -24,15 +24,24 @@ mediaType: application/json
           type: OptionsResponse
 
 /health:
-    get:
-      description: Current status/stats about the the HTTP service.
-      responses:
-        200:
-          body:
-            description: Successful server status lookup.
-            type: HealthResponse
-        500:
-          body: ServerError
+  get:
+    description: Current status/stats about the the HTTP service.
+    responses:
+      200:
+        body:
+          description: Successful server status lookup.
+          type: HealthResponse
+      500:
+        body: ServerError
+
+/metrics:
+  get:
+    description: Prometheus metrics readout for the service.
+    responses:
+      200:
+        body:
+          text/plain:
+            type: string
 
 /job/{job-id}:
   uriParameters:
