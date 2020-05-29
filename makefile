@@ -7,7 +7,7 @@ travis: bin/server bin/static-content/index.html
 	@cd bin && tar -czf server-${TRAVIS_TAG}.tar.gz server static-content && cd ..
 
 bin/server: $(FILES)
-	@env CGO_ENABLED=0 GOOS=linux go build -o bin/server --ldflags="-X 'main.version=${VERSION}'" cmd/service.go
+	@env CGO_ENABLED=0 GOOS=linux go build -o bin/server --ldflags="-X 'main.version=${VERSION}' -s -w" cmd/service.go
 
 bin/static-content/index.html: docs/api.html
 	@mkdir -p bin/static-content

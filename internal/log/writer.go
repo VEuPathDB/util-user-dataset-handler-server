@@ -8,7 +8,7 @@ import (
 // StdWriters constructs a pair of log writers that pass
 // command output through to the standard logger.
 func StdWriters(log *logrus.Entry, cmd string) (out, err io.Writer) {
-	log = log.WithField("command", cmd)
+	log = log.WithField("source", cmd)
 	return &stdWriter{fn: log.Debug}, &stdWriter{fn: log.Error}
 }
 

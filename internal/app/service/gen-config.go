@@ -17,7 +17,7 @@ const headerComment = `# Config Template
 `
 
 func GenerateConfig() {
-	L := log.ConfigureLogger(GenerateAppName, "running")
+	L := log.ConfigureLogger().WithField("source", GenerateAppName)
 	file, err := os.OpenFile("config.tpl.yml", os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		L.Error(err)

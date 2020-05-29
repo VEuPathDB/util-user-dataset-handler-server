@@ -10,12 +10,12 @@ import (
 
 func RequestCtxProvider() midl.MiddlewareFunc {
 	return func(req midl.Request) midl.Response {
-		if rid, err := rid.AssignRID(req); err != nil {
+		if id, err := rid.AssignRID(req); err != nil {
 			log.Logger().WithField("endpoint", req.RawRequest().URL.Path).
 				Error("Failed to generate request ID")
 			return svc.ServerError("failed to generate request id")
 		} else {
-			logger.AddFields(rid, map[string]interface{}{
+			logger.AddFields(id, map[string]interface{}{
 				"endpoint": req.RawRequest().URL.Path,
 				"method":   req.RawRequest().Method,
 			})

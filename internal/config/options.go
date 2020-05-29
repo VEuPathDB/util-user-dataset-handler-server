@@ -24,7 +24,7 @@ func (O *Options) GetUsablePort() string {
 }
 
 func (O *Options) Validate() {
-	L := log.ConfigureLogger("service", "booting")
+	L := log.Logger()
 	errored := false
 	if len(O.ServiceName) == 0 {
 		L.Error("Config: serviceName is required.")

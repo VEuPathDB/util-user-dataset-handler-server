@@ -37,7 +37,7 @@ const (
 // the options parsed from the command line and attempts to
 // read and validate the Yaml server config file.
 func ValidateConfig(options *config.Options) {
-	L := log.ConfigureLogger(ValidateAppName, "running")
+	L := log.ConfigureLogger().WithField("source", ValidateAppName)
 
 	L.Infof(noteInfo, options.ConfigPath)
 
