@@ -6,8 +6,10 @@ import (
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 )
 
+// ResponseStatus defines a service response status type.
 type ResponseStatus string
 
+// All possible response status types.
 const (
 	StatusNotFound   ResponseStatus = "not-found"
 	StatusBadRequest ResponseStatus = "bad-request"
@@ -48,11 +50,13 @@ func ServerError(msg string) midl.Response {
 	}).SetHeader("Content-Type", "application/json")
 }
 
+// SadResponse defines a generic error response body.
 type SadResponse struct {
 	Status  ResponseStatus `json:"status"`
 	Message string         `json:"message"`
 }
 
+// ValidationResponse defines a 422 error response body.
 type ValidationResponse struct {
 	Status  ResponseStatus      `json:"status"`
 	Message string              `json:"message,omitempty"`

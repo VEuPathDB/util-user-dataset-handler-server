@@ -15,6 +15,7 @@ import (
 
 const path = "/config"
 
+// Register appends the configuration printout endpoint to the given router.
 func Register(r *mux.Router, o *config.Options) {
 	r.Path(path).
 		Methods(http.MethodGet).

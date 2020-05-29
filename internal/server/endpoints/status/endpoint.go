@@ -22,6 +22,8 @@ const (
 	urlPath = "/job/{" + tknKey + "}/status"
 )
 
+// NewStatusEndpoint returns a new Endpoint instance for the job status
+// endpoint.
 func NewStatusEndpoint(opts *config.Options) types.Endpoint {
 	return &statusEndpoint{opts: opts}
 }

@@ -11,6 +11,8 @@ import (
 )
 
 const (
+	// GenerateAppName defines the name and argument text for the config template
+	// generation task.
 	GenerateAppName = "gen-config"
 )
 
@@ -23,6 +25,8 @@ const (
 `
 )
 
+// GenerateConfig generates a template configuration file to be edited by the
+// caller.
 func GenerateConfig() {
 	L := log.ConfigureLogger().WithField("source", GenerateAppName)
 

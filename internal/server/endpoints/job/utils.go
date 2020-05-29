@@ -77,7 +77,7 @@ func GetFileHandle(req *http.Request, log *logrus.Entry) (
 
 func (e *endpoint) FailJob(out midl.Response, details *job.Details) midl.Response {
 	details.Status = job.StatusFailed
-	e.StoreDetails(details)
+	e.storeDetails(details)
 	out.Callback(e.cleanup(details.Token))
 
 	return out

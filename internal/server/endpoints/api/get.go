@@ -11,8 +11,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// DocsEndpointPath defines the URL path to the API docs endpoint.
 const DocsEndpointPath = "/api"
 
+// NewAPIEndpoint returns a new Endpoint instance for the API docs endpoint.
 func NewAPIEndpoint() types.Endpoint {
 	return &docsEndpoint{}
 }

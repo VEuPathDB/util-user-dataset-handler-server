@@ -13,6 +13,8 @@ import (
 )
 
 const (
+	// ValidateAppName defines the name and argument text for the config
+	// validation task.
 	ValidateAppName = "check-config"
 )
 
@@ -33,9 +35,9 @@ const (
 		"current $PATH."
 )
 
-// ValidateConfig takes an Options object containing just
-// the options parsed from the command line and attempts to
-// read and validate the Yaml server config file.
+// ValidateConfig takes an Options object containing just the options parsed
+// from the command line and attempts to read and validate the Yaml server
+// config file.
 func ValidateConfig(options *config.Options) {
 	L := log.ConfigureLogger().WithField("source", ValidateAppName)
 

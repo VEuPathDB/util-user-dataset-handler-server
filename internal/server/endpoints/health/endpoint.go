@@ -17,6 +17,7 @@ const (
 	path = "/health"
 )
 
+// Register appends the "/health" endpoint to the given router.
 func Register(r *mux.Router, o *config.Options) {
 	r.Path(path).
 		Methods(http.MethodGet).

@@ -1,10 +1,8 @@
 package app
 
 const (
+	// Application ended successfully.
 	StatusSuccess = 0
-
-	// Used by logrus Fatal
-	StatusLoggerFatal = 1
 
 	// Used by config validation run mode
 	StatusValidateConfFailed = 2

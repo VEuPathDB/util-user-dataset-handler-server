@@ -67,7 +67,7 @@ func (e *endpoint) Register(r *mux.Router) {
 func (e *endpoint) Handle(req midl.Request) midl.Response {
 	token := mux.Vars(req.RawRequest())[tokenKey]
 	meta := e.getMeta(token)
-	dets := e.CreateDetails(&meta)
+	dets := e.createDetails(&meta)
 	log := logger.ByRequest(req)
 	e.log = log
 
@@ -116,7 +116,7 @@ func (e *endpoint) HandleUpload(
 	}
 
 	details.WorkingDir = wkspc.GetPath()
-	e.StoreDetails(details)
+	e.storeDetails(details)
 
 	file, err := wkspc.FileFromStream(head.Filename, upload)
 	if err != nil {
@@ -136,7 +136,7 @@ func (e *endpoint) HandleUpload(
 		Observe(float64(info.Size()) / float64(util.SizeMebibyte))
 
 	details.InTarName = head.Filename
-	e.StoreDetails(details)
+	e.storeDetails(details)
 
 	return nil
 }
