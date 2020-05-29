@@ -1,10 +1,12 @@
-package svc
+package middle
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 	"net/http"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 )
 
 const (
@@ -17,8 +19,15 @@ func New404Handler() midl.Middleware {
 		logger.ByRequest(r).
 			WithField("status", http.StatusNotFound).
 			Info("Not found")
-		return midl.MakeResponse(http.StatusNotFound, &SadResponse{
-			Status:  StatusNotFound,
+
+		promTotalRequests.WithLabelValues(
+			r.RawRequest().URL.Path,
+			r.RawRequest().Method,
+			"404",
+		).Inc()
+
+		return midl.MakeResponse(http.StatusNotFound, &svc.SadResponse{
+			Status:  svc.StatusNotFound,
 			Message: err404,
 		})
 	})
@@ -29,8 +38,15 @@ func New405Handler() midl.Middleware {
 		logger.ByRequest(r).
 			WithField("status", http.StatusMethodNotAllowed).
 			Info("Method not allowed")
-		return midl.MakeResponse(http.StatusMethodNotAllowed, &SadResponse{
-			Status:  StatusBadMethod,
+
+		promTotalRequests.WithLabelValues(
+			r.RawRequest().URL.Path,
+			r.RawRequest().Method,
+			"405",
+		).Inc()
+
+		return midl.MakeResponse(http.StatusMethodNotAllowed, &svc.SadResponse{
+			Status:  svc.StatusBadMethod,
 			Message: err405,
 		})
 	})

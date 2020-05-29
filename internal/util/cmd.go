@@ -2,6 +2,7 @@ package util
 
 import (
 	"os/exec"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -16,4 +17,12 @@ func PrepCommand(logger *logrus.Entry, com string, args... string) *exec.Cmd {
 	cmd.Stdout = sOut
 	cmd.Stderr = sErr
 	return cmd
+}
+
+func TimeCmd(cmd *exec.Cmd) (millis float64, err error) {
+	start := time.Now()
+	err = cmd.Run()
+	millis = float64(time.Since(start)) / float64(time.Millisecond)
+
+	return
 }

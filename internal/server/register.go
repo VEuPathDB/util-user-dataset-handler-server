@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	// Std Lib
 	"net/http"
 
@@ -43,6 +44,10 @@ func (s *server) Serve() error {
 func (s *server) RegisterEndpoints() {
 	// Custom 404 & 405 handlers
 	middle.RegisterGenericHandlers(s.router)
+
+	s.router.Path("/metrics").
+		Methods(http.MethodGet).
+		Handler(promhttp.Handler())
 
 	// Serve API docs
 	api.NewApiEndpoint().Register(s.router)

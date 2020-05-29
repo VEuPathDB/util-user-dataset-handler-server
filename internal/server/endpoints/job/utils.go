@@ -23,16 +23,16 @@ const (
 	errBadSuffix = "Invalid file format, must be one of: "
 )
 
-func ValidateFileSuffix(file string, log *logrus.Entry) midl.Response {
+func ValidateFileSuffix(file string, log *logrus.Entry) (string, midl.Response) {
 	for i := range allowedSuffixes {
 		if strings.HasSuffix(file, allowedSuffixes[i]) {
-			return nil
+			return allowedSuffixes[i], nil
 		}
 	}
 
 	msg := errBadSuffix + strings.Join(allowedSuffixes, ", ")
 	log.WithField("status", http.StatusBadRequest).Info(msg)
-	return svc.BadRequest(msg)
+	return "", svc.BadRequest(msg)
 }
 
 const (

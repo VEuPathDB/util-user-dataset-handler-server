@@ -32,9 +32,7 @@ type statusEndpoint struct {
 func (s *statusEndpoint) Register(r *mux.Router) {
 	r.Path(urlPath).
 		Methods(http.MethodGet).
-		Handler(JSONAdapter(
-			middle.RequestCtxProvider(),
-			middle.NewTimer(s)))
+		Handler(middle.MetricAgg(middle.RequestCtxProvider(JSONAdapter(s))))
 }
 
 func (s *statusEndpoint) Handle(req Request) Response {

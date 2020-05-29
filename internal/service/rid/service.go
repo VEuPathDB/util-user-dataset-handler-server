@@ -1,18 +1,23 @@
 package rid
 
 import (
+	"fmt"
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/VEuPathDB/util-exporter-server/internal/except"
 	"github.com/teris-io/shortid"
 )
 
-const RIDKey = "request-id"
+const (
+	RIDKey = "request-id"
+
+	errFailedToGen = "failed to generate a request id: %s"
+)
 
 type RID string
 
 func GenerateRID() (RID, error) {
 	if tmp, err := shortid.Generate(); err != nil {
-		return "", except.NewServerError(err.Error())
+		return "", except.NewServerError(fmt.Sprintf(errFailedToGen, err))
 	} else {
 		return RID(tmp), nil
 	}
@@ -24,10 +29,10 @@ func AssignRID(request midl.Request) (RID, error) {
 		return "", err
 	}
 
-	request.AdditionalContext()[RIDKey] = rid
+	request.RawRequest().Header[RIDKey] = []string{string(rid)}
 	return rid, nil
 }
 
 func GetRID(request midl.Request) RID {
-	return request.AdditionalContext()[RIDKey].(RID)
+	return RID(request.RawRequest().Header[RIDKey][0])
 }

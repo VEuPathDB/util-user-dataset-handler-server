@@ -2,4 +2,4 @@
 bin/
 *.tpl.yml
 /server
-/service
+/service/config.yml

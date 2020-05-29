@@ -41,7 +41,9 @@ func (r *runner) untar(d *job.Details) error {
 	cmd := util.PrepCommand(r.log, "tar", "-xf", d.InTarName)
 	cmd.Dir = r.wkspc.GetPath()
 
-	err := cmd.Run()
+	time, err :=util.TimeCmd(cmd)
+	promCommandTime.WithLabelValues("tar").Observe(time)
+
 	if err != nil {
 		err = errors.New(errUntar + err.Error())
 	}
@@ -53,7 +55,9 @@ func (r *runner) unzip(d *job.Details) error {
 	cmd := util.PrepCommand(r.log, "unzip", d.InTarName)
 	cmd.Dir = r.wkspc.GetPath()
 
-	err := cmd.Run()
+	time, err := util.TimeCmd(cmd)
+	promCommandTime.WithLabelValues("unzip").Observe(time)
+
 	if err != nil {
 		err = errors.New(errUnzip + err.Error())
 	}

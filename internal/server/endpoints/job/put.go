@@ -26,12 +26,12 @@ type metadataEndpoint struct {}
 func (m *metadataEndpoint) Register(r *mux.Router) {
 	r.Path(urlPath).
 		Methods(http.MethodPut).
-		Handler(midl.JSONAdapter(middle.NewTimer(
-			middle.RequestCtxProvider(),
-			middle.NewJsonContentFilter(),
-			middle.NewContentLengthFilter(util.SizeMebibyte),
-			NewMetadataValidator(),
-			m)))
+		Handler(middle.MetricAgg(middle.RequestCtxProvider(
+			midl.JSONAdapter(
+				middle.NewJsonContentFilter(),
+				middle.NewContentLengthFilter(util.SizeMebibyte),
+				NewMetadataValidator(),
+				m))))
 }
 
 func (m *metadataEndpoint) Handle(req midl.Request) midl.Response {

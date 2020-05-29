@@ -1,26 +1,29 @@
 package middle
 
 import (
-	"github.com/Foxcapades/go-midl/v2/pkg/midl"
+	"fmt"
 	"github.com/VEuPathDB/util-exporter-server/internal/log"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 	"github.com/VEuPathDB/util-exporter-server/internal/service/rid"
+	"net/http"
 )
 
-func RequestCtxProvider() midl.MiddlewareFunc {
-	return func(req midl.Request) midl.Response {
-		if id, err := rid.AssignRID(req); err != nil {
-			log.Logger().WithField("endpoint", req.RawRequest().URL.Path).
-				Error("Failed to generate request ID")
-			return svc.ServerError("failed to generate request id")
-		} else {
-			logger.AddFields(id, map[string]interface{}{
-				"endpoint": req.RawRequest().URL.Path,
-				"method":   req.RawRequest().Method,
-			})
+func RequestCtxProvider(next http.Handler) http.HandlerFunc {
+	return func(res http.ResponseWriter, req *http.Request) {
+		id, err := rid.GenerateRID()
+		if err != nil {
+			log.Logger().WithField("endpoint", req.URL.Path).Error(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			_, _ = res.Write([]byte(fmt.Sprintf(simpleErrFmt, err)))
+			return
 		}
 
-		return nil
+		req.Header[rid.RIDKey] = []string{string(id)}
+		logger.AddFields(id, map[string]interface{}{
+			"endpoint": req.URL.Path,
+			"method": req.Method,
+		})
+
+		next.ServeHTTP(res, req)
 	}
 }

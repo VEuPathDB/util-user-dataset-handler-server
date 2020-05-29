@@ -1,6 +1,10 @@
 package job
 
 import (
+	"github.com/VEuPathDB/util-exporter-server/internal/except"
+	"github.com/VEuPathDB/util-exporter-server/internal/util"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"net/http"
 	"os"
 
@@ -19,6 +23,24 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/service/workspace"
 )
 
+var (
+	promRequestPayloadSize = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Namespace: "upload",
+		Name:      "file_size",
+		Help:      "File size for user uploads in MiB.",
+		Buckets: []float64{
+			0.5,  // 0.5 MiB
+			1,    // 1   MiB
+			10,   // 10  MiB
+			50,   // 50  MiB
+			100,  // 100 MiB
+			250,  // 250 MiB
+			500,  // 500 MiB
+			1024, // 1   GiB
+		},
+	}, []string{"ext"})
+)
+
 // NewUploadEndpoint instantiates a new endpoint wrapper for the user dataset
 // upload handler.
 func NewUploadEndpoint(opts *config.Options) types.Endpoint {
@@ -31,9 +53,11 @@ type endpoint struct {
 }
 
 func (e *endpoint) Register(r *mux.Router) {
-	r.Path(urlPath).Handler(middle.NewBinaryAdaptor().AddHandlers(middle.NewTimer(
-		middle.RequestCtxProvider(),
-		middle.NewTokenValidator(tokenKey, e))))
+	r.Path(urlPath).
+		Methods(http.MethodPost).
+		Handler(middle.MetricAgg(middle.RequestCtxProvider(
+			middle.NewBinaryAdaptor().AddHandlers(
+				middle.NewTokenValidator(tokenKey, e)))))
 }
 
 // Handle the request.
@@ -85,18 +109,28 @@ func (e *endpoint) HandleUpload(
 	}
 	defer upload.Close()
 
-	if err := ValidateFileSuffix(head.Filename, log); err != nil {
-		return e.FailJob(err, details)
+	suff, errRes := ValidateFileSuffix(head.Filename, log)
+
+	if errRes != nil {
+		return e.FailJob(errRes, details)
 	}
 
 	details.WorkingDir = wkspc.GetPath()
 	e.StoreDetails(details)
 
-	if file, err := wkspc.FileFromStream(head.Filename, upload); err != nil {
+	file, err := wkspc.FileFromStream(head.Filename, upload)
+	if err != nil {
 		log.WithField("status", http.StatusInternalServerError).Error(err)
 		return svc.ServerError(err.Error())
+	}
+	defer file.Close()
+
+	if info, err := file.Stat(); err != nil {
+		log.WithField("status", http.StatusInternalServerError).Error(err)
+		return svc.ServerError(except.NewServerError(err.Error()).Error())
 	} else {
-		file.Close()
+		promRequestPayloadSize.WithLabelValues(suff).
+			Observe(float64(info.Size()) / float64(util.SizeMebibyte))
 	}
 
 	details.InTarName = head.Filename

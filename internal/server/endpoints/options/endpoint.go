@@ -17,9 +17,8 @@ const path = "/config"
 func Register(r *mux.Router, o *config.Options) {
 	r.Path(path).
 		Methods(http.MethodGet).
-		Handler(midl.JSONAdapter(
-			middle.RequestCtxProvider(),
-			middle.NewTimer(midl.MiddlewareFunc(func(request midl.Request) midl.Response {
+		Handler(middle.MetricAgg(middle.RequestCtxProvider(
+			midl.JSONAdapter(midl.MiddlewareFunc(func(request midl.Request) midl.Response {
 					return midl.MakeResponse(http.StatusOK, o)
-			}))))
+				})))))
 }

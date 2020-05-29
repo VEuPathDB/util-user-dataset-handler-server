@@ -1,12 +1,11 @@
 package api
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/stats"
 	"io"
 	"net/http"
 	"os"
-	"time"
 
+	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
 	"github.com/VEuPathDB/util-exporter-server/internal/xhttp"
 	"github.com/gorilla/mux"
@@ -23,11 +22,8 @@ type docsEndpoint struct {}
 func (d *docsEndpoint) Register(r *mux.Router) {
 	r.Path(DocsEndpointPath).
 		Methods(http.MethodGet).
-		Handler(http.HandlerFunc(func(out http.ResponseWriter, in *http.Request) {
-			start := time.Now()
-			d.handle(out)
-			stats.GetServerStatus().RecordTime(time.Since(start))
-		}))
+		Handler(middle.MetricAgg(middle.RequestCtxProvider(http.HandlerFunc(
+			func(out http.ResponseWriter, in *http.Request) { d.handle(out) }))))
 }
 
 func (d * docsEndpoint) handle(out http.ResponseWriter)  {

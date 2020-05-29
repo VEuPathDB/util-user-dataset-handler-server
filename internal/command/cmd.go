@@ -29,7 +29,8 @@ func (r *runner) handleCommand(cmd *config.Command) (err error) {
 	X.Dir = r.details.WorkingDir
 	X.Env = env
 
-	err = X.Run()
+	time, err := util.TimeCmd(X)
+	promCommandTime.WithLabelValues(cmd.Executable).Observe(time)
 
 	if err != nil {
 		r.log.Debug(X)
