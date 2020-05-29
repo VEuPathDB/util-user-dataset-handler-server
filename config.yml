@@ -4,6 +4,22 @@
 
 service-name: my service
 command:
-  executable: my-command
+  executable: /app/EuPathGalaxy/Tools/bin/exportBiomToEuPathDB
   args:
-    - <<input-files>>
+    # dataset name
+    - <<ds-name>>
+    # dataset summary
+    - <<ds-summary>>
+    # dataset description
+    - <<ds-description>>
+    # dataset uploader "email" (for auth purposes, not a real email address)
+    # <wdk user name>.<wdk user id>@veupathdb.org
+    - <<ds-user-email>>
+    # path to XML lib
+    - /app/EuPathGalaxy/Tools/lib/xml
+    # output file (ignored)
+    - html.html
+    # ???
+    - ""
+    # dataset file path
+    - <<input-files[0]>>

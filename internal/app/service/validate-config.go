@@ -29,7 +29,7 @@ const (
 	errBadConfig = "Config invalid."
 	noteOkConfig = "Config valid."
 	noteInfo = "Validating the configuration file \"%s\".  NOTE: This " +
-		"validation does not verify that the configured commands exist on the" +
+		"validation does not verify that the configured commands exist on the " +
 		"current $PATH."
 )
 
@@ -39,7 +39,7 @@ const (
 func ValidateConfig(options *config.Options) {
 	L := log.ConfigureLogger(ValidateAppName, "running")
 
-	L.Info(noteInfo)
+	L.Infof(noteInfo, options.ConfigPath)
 
 	bytes, err := ioutil.ReadFile(options.ConfigPath)
 	if err != nil {
