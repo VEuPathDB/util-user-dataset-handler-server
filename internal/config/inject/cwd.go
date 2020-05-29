@@ -6,6 +6,8 @@ import (
 
 const cwdInjectorTarget = "<<cwd>>"
 
+// NewCwdInjector returns a new VariableInjector instance that will replace
+// <<cwd>> variables in a command config.
 func NewCwdInjector(det *job.Details, _ *job.Metadata) VariableInjector {
 	return &cwdInjector{det}
 }

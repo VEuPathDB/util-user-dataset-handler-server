@@ -16,6 +16,8 @@ const (
 	StatusBadMethod  ResponseStatus = "bad-http-method"
 )
 
+
+// NotFound constructs a simple 404 response body.
 func NotFound(msg string) midl.Response {
 	return midl.MakeResponse(http.StatusNotFound, &SadResponse{
 		Status:  StatusNotFound,
@@ -23,6 +25,7 @@ func NotFound(msg string) midl.Response {
 	}).SetHeader("Content-Type", "application/json")
 }
 
+// InvalidRequest constructs a simple 422 response body.
 func InvalidRequest(msg string) midl.Response {
 	return midl.MakeResponse(http.StatusUnprocessableEntity, &SadResponse{
 		Status:  StatusBadInput,
@@ -30,6 +33,7 @@ func InvalidRequest(msg string) midl.Response {
 	}).SetHeader("Content-Type", "application/json")
 }
 
+// BadRequest constructs a simple 400 response body.
 func BadRequest(msg string) midl.Response {
 	return midl.MakeResponse(http.StatusBadRequest, &SadResponse{
 		Status:  StatusBadRequest,
@@ -37,6 +41,7 @@ func BadRequest(msg string) midl.Response {
 	}).SetHeader("Content-Type", "application/json")
 }
 
+// ServerError constructs a simple 500 response body.
 func ServerError(msg string) midl.Response {
 	return midl.MakeResponse(http.StatusInternalServerError, &SadResponse{
 		Status:  StatusServerErr,

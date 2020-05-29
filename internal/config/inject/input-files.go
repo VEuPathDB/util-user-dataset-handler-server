@@ -17,6 +17,8 @@ const (
 	wrappedInputFileTarget = `"<<input-files>>"`
 )
 
+// NewInputFileInjector returns a new VariableInjector instance that will
+// replace <<input-files>> and <<input-files[n]>> variables in a command config.
 func NewInputFileInjector(details *job.Details, _ *job.Metadata) VariableInjector {
 	return &inputFileInjector{details}
 }

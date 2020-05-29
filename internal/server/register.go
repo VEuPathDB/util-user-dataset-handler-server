@@ -20,11 +20,19 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 )
 
+// Server defines a wrapper around the HTTP server functionality, specifically
+// involving setting up and starting an HTTP server.
 type Server interface {
+
+	// RegisterEndpoints configures all routes for the server.
 	RegisterEndpoints()
+
+	// Serve starts the server instance.
 	Serve() error
 }
 
+// NewServer returns a new instance of the Server type, configured with the
+// given options.
 func NewServer(o *config.Options) Server {
 	return &server{mux.NewRouter(), o, log.Logger()}
 }

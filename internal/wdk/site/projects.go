@@ -2,6 +2,7 @@ package site
 
 type WdkSite string
 
+// Enum of allowed ProjectType values.
 const (
 	AmoebaDB        WdkSite = "AmoebaDB"
 	ClinEpiDB       WdkSite = "ClinEpiDB"
@@ -42,6 +43,7 @@ var validSites = map[WdkSite]bool{
 	VEuPathDB:       true,
 }
 
+// IsValid returns whether or not the the wrapped value is a known WdkSite.
 func (w WdkSite) IsValid() bool {
 	return validSites[w]
 }

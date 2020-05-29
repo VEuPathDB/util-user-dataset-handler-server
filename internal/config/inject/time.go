@@ -6,6 +6,8 @@ import (
 
 const timeInjectorTarget = "<<time>>"
 
+// NewTimeInjector returns a new VariableInjector instance that will replace
+// <<time>> variables in a command config.
 func NewTimeInjector(details *job.Details, _ *job.Metadata) VariableInjector {
 	return &timeInjector{details}
 }

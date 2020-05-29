@@ -6,6 +6,8 @@ import (
 
 const dsDescriptionInjectorTarget = "<<ds-description>>"
 
+// NewDsDescriptionInjector returns a new VariableInjector instance that will
+// replace <<ds-description>> variables in a command config.
 func NewDsDescriptionInjector(_ *job.Details, meta *job.Metadata) VariableInjector {
 	return &dsDescriptionInjector{meta}
 }

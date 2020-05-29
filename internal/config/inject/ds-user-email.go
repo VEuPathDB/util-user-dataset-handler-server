@@ -11,6 +11,8 @@ const (
 	dsUserEmailFormat         = "handler.%d@veupathdb.org"
 )
 
+// NewDsUserEmailInjector returns a new VariableInjector instance that will
+// replace <<ds-user-email>> variables in a command config.
 func NewDsUserEmailInjector(_ *job.Details, meta *job.Metadata) VariableInjector {
 	return &dsUserEmailInjector{meta}
 }

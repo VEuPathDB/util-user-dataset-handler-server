@@ -6,6 +6,8 @@ import (
 
 const dsSummaryInjectorTarget = "<<ds-summary>>"
 
+// NewDsSummaryInjector returns a new VariableInjector instance that will
+// replace <<ds-summary>> variables in a command config.
 func NewDsSummaryInjector(_ *job.Details, meta *job.Metadata) VariableInjector {
 	return &dsSummaryInjector{meta}
 }

@@ -11,6 +11,9 @@ const (
 	OptKeyCommandsYaml    = "commands"
 )
 
+// Options is a container for the full configuration of the running server.
+//
+// This includes both CLI params and configuration file contents.
 type Options struct {
 	ServiceName string  `yaml:"service-name" json:"serviceName"`
 	Port        uint16  `yaml:"-" json:"port"`
@@ -20,10 +23,14 @@ type Options struct {
 	Workspace   string  `yaml:"-" json:"workspace"`
 }
 
+// GetUsablePort returns the configured server port in the format expected by
+// the Golang HTTP server package.
 func (o *Options) GetUsablePort() string {
 	return ":" + strconv.FormatUint(uint64(o.Port), 10)
 }
 
+// Validate confirms that the Options instance contains all the required config
+// values needed to start up the server.
 func (o *Options) Validate() {
 	L := log.Logger()
 	errored := false

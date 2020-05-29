@@ -20,6 +20,9 @@ func PrepCommand(logger *logrus.Entry, com string, args ...string) *exec.Cmd {
 	return cmd
 }
 
+// TimeCmd executes the given command and returns the execution time as a float
+// value of milliseconds and the response error (if any) from the command
+// execution.
 func TimeCmd(cmd *exec.Cmd) (millis float64, err error) {
 	start := time.Now()
 	err = cmd.Run()

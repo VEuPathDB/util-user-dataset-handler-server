@@ -6,6 +6,8 @@ import (
 
 const dsNameInjectorTarget = "<<ds-name>>"
 
+// NewDsNameInjector returns a new VariableInjector instance that will replace
+// <<ds-name>> variables in a command config.
 func NewDsNameInjector(_ *job.Details, meta *job.Metadata) VariableInjector {
 	return &dsNameInjector{meta}
 }

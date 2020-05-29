@@ -8,6 +8,8 @@ import (
 
 const timestampInjectorTarget = "<<timestamp>>"
 
+// NewTimestampInjector returns a new VariableInjector instance that will
+// replace <<timestamp>> variables in a command config.
 func NewTimestampInjector(details *job.Details, _ *job.Metadata) VariableInjector {
 	return &timestampInjector{details}
 }

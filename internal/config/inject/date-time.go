@@ -8,6 +8,8 @@ import (
 
 const dateTimeInjectTarget = "<<date-time>>"
 
+// NewDateTimeInjector returns a new VariableInjector instance that will replace
+// <<date-time>> variables in a command config.
 func NewDateTimeInjector(det *job.Details, _ *job.Metadata) VariableInjector {
 	return &dateTimeInjector{det}
 }
