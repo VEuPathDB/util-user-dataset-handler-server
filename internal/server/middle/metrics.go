@@ -1,6 +1,7 @@
 package middle
 
 import (
+	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"net/http"
@@ -38,8 +39,8 @@ func MetricAgg(next http.Handler) http.HandlerFunc {
 
 func recordTime(start time.Time, req midl.Request, code int) {
 	dur := time.Since(start)
-	url := req.RawRequest().URL.Path
 	met := req.RawRequest().Method
+	url, _ := mux.CurrentRoute(req.RawRequest()).GetPathTemplate()
 
 	logger.ByRequest(req).
 		WithField("duration", dur.String()).
