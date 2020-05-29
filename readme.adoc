@@ -2,9 +2,11 @@
 // General Doc Settings
 :toc: left
 :source-highlighter: pygments
+:pygments-style: monokai
 :icons: font
 // Github specifics
 ifdef::env-github[]
+:toc: left
 :tip-caption: :bulb:
 :note-caption: :information_source:
 :important-caption: :heavy_exclamation_mark:
@@ -27,7 +29,7 @@ image:https://img.shields.io/github/v/release/VEuPathDB/util-user-dataset-handle
 Exposes configured exporter / validation scripts over HTTP.
 
 ifdef::env-github[]
-{site-url}[Rendered Readme] | 
+{site-url}[Rendered Readme] |
 endif::[]
 {site-url}/api.html[API Docs]
 
@@ -73,7 +75,7 @@ $ ./service --config=config.yml check-config
 === Components
 
 .config.yml
-[source, yaml]
+[source, yaml, linenums]
 ----
 service-name: my service <1>
 command:
