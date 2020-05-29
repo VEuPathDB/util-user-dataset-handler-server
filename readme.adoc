@@ -27,7 +27,7 @@ image:https://img.shields.io/github/v/release/VEuPathDB/util-user-dataset-handle
 Exposes configured exporter / validation scripts over HTTP.
 
 ifdef::env-github[]
-{site-url}[Rendered Readme]
+{site-url}[Rendered Readme] | 
 endif::[]
 {site-url}/api.html[API Docs]
 
