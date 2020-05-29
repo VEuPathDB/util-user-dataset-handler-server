@@ -40,7 +40,7 @@ func Create(dir string, log *logrus.Entry) (Workspace, error) {
 		return nil, except.NewServerError(fmt.Sprintf(errDirCreateFail, root, err))
 	}
 
-	return &workspace{dir, log}, nil
+	return &workspace{root, log}, nil
 }
 
 type workspace struct {
