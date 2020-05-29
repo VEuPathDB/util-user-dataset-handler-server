@@ -1,6 +1,6 @@
 = Exporter Script Server
 // General Doc Settings
-//:toc: left
+:toc: left
 :source-highlighter: pygments
 :icons: font
 // Github specifics
@@ -26,7 +26,10 @@ image:https://img.shields.io/github/v/release/VEuPathDB/util-user-dataset-handle
 
 Exposes configured exporter / validation scripts over HTTP.
 
-https://veupathdb.github.io/util-user-dataset-handler-server/api.html[API Docs]
+ifdef::env-github[]
+{site-url}[Rendered Readme]
+endif::[]
+{site-url}/api.html[API Docs]
 
 == Usage
 
