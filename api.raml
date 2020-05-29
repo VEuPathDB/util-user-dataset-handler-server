@@ -271,11 +271,11 @@ types:
           WDK User ID of the user submitting this User Dataset for processing.
         type: integer
         minimum: 0
-      dependencies:
-        type: array
-        items: Dependency
-        minItems: 1
-        required: false
+#      dependencies:
+#        type: array
+#        items: Dependency
+#        minItems: 1
+#        required: false
       name:
         description: Name of the dataset.
         type: string
@@ -326,12 +326,12 @@ types:
         minItems: 1
       size: integer
 
-  Dependency:
-    type: object
-    properties:
-      resourceDisplayName:
-        type: string
-      resourceVersion:
-        type: string
-      resourceIdentifier:
-        type: string
+#  Dependency:
+#    type: object
+#    properties:
+#      resourceDisplayName:
+#        type: string
+#      resourceVersion:
+#        type: string
+#      resourceIdentifier:
+#        type: string
