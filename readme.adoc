@@ -19,6 +19,10 @@ v1.0.0
 :site-url: https://veupathdb.github.io/util-user-dataset-handler-server
 :repo-file-base: {repo-url}/blob/master
 
+image:https://www.travis-ci.org/VEuPathDB/util-user-dataset-handler-server.svg?branch=master["Build Status", link="https://www.travis-ci.org/VEuPathDB/util-user-dataset-handler-server"]
+image:https://goreportcard.com/badge/github.com/VEuPathDB/util-user-dataset-handler-server["Go Report Card", link="https://goreportcard.com/report/github.com/VEuPathDB/util-user-dataset-handler-server"]
+image:https://img.shields.io/github/v/release/VEuPathDB/util-user-dataset-handler-server["Latest Release", link="https://github.com/VEuPathDB/util-user-dataset-handler-server/releases/latest"]
+
 
 Exposes configured exporter / validation scripts over HTTP.
 
