@@ -20,9 +20,9 @@ const (
 func Register(r *mux.Router, o *config.Options) {
 	r.Path(path).
 		Methods(http.MethodGet).
-		Handler(midl.JSONAdapter(
+		Handler(midl.JSONAdapter(middle.NewTimer(
 			middle.RequestCtxProvider(),
-			middle.NewTimer(&healthEndpoint{o.Version})))
+			&healthEndpoint{o.Version})))
 }
 
 type healthEndpoint struct {

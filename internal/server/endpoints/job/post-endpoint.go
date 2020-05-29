@@ -31,10 +31,9 @@ type endpoint struct {
 }
 
 func (e *endpoint) Register(r *mux.Router) {
-	r.Path(urlPath).Handler(middle.NewBinaryAdaptor().
-		AddHandlers(
-			middle.RequestCtxProvider(),
-			middle.NewTimer(middle.NewTokenValidator(tokenKey, e))))
+	r.Path(urlPath).Handler(middle.NewBinaryAdaptor().AddHandlers(middle.NewTimer(
+		middle.RequestCtxProvider(),
+		middle.NewTokenValidator(tokenKey, e))))
 }
 
 // Handle the request.
