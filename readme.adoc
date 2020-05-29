@@ -6,7 +6,7 @@
 :icons: font
 // Github specifics
 ifdef::env-github[]
-:toc: left
+:toc: preamble
 :tip-caption: :bulb:
 :note-caption: :information_source:
 :important-caption: :heavy_exclamation_mark:
