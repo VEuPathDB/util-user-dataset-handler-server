@@ -9,7 +9,6 @@ import (
 	// External
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"github.com/gorilla/mux"
 )
@@ -42,7 +41,5 @@ func (m *metadataEndpoint) Handle(req midl.Request) midl.Response {
 
 	cache.PutMetadata(meta.Token, meta.Metadata)
 
-	return midl.MakeResponse(http.StatusOK, &svc.HappyResponse{
-		Status: svc.StatusOK,
-	})
+	return midl.MakeResponse(http.StatusNoContent, nil)
 }
