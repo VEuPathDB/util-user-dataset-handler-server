@@ -56,8 +56,8 @@ func (e *endpoint) Register(r *mux.Router) {
 	r.Path(urlPath).
 		Methods(http.MethodPost).
 		Handler(middle.MetricAgg(middle.RequestCtxProvider(
-			middle.NewBinaryAdaptor().AddHandlers(
-				middle.NewTokenValidator(tokenKey, e)))))
+			middle.BinaryAdaptor().AddHandlers(
+				middle.JobIdValidator(tokenKey, e)))))
 }
 
 // Handle the request.

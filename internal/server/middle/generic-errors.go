@@ -14,6 +14,8 @@ const (
 	err404 = "Resource not found."
 )
 
+// New404Handler constructs a generic handler for requests that have no matching
+// registered route.
 func New404Handler() midl.Middleware {
 	return midl.MiddlewareFunc(func(r midl.Request) midl.Response {
 		logger.ByRequest(r).
@@ -33,6 +35,8 @@ func New404Handler() midl.Middleware {
 	})
 }
 
+// New405Handler constructs a generic handler for requests that have no matching
+// route for the request method (e.g. no handler for POST request to /api).
 func New405Handler() midl.Middleware {
 	return midl.MiddlewareFunc(func(r midl.Request) midl.Response {
 		logger.ByRequest(r).

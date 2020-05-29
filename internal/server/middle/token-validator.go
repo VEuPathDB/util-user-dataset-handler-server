@@ -17,7 +17,9 @@ const (
 		"never started or has timed out."
 )
 
-func NewTokenValidator(
+// JobIdValidator is a middleware filter that rejects requests that have invalid
+// jobId url parameters.
+func JobIdValidator(
 	tknKey string,
 	next midl.Middleware,
 ) midl.MiddlewareFunc {

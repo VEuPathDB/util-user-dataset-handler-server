@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+// RequestCtxProvider wraps an HTTP handler and provides additional context to
+// the request and to the server for the request.
 func RequestCtxProvider(next http.Handler) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		id, err := rid.GenerateRID()

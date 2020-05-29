@@ -27,6 +27,8 @@ var (
 	}, []string{"path", "method"})
 )
 
+// MetricAgg is an HTTP handler wrapper that records metrics for the wrapped
+// handler.
 func MetricAgg(next http.Handler) http.HandlerFunc {
 	return func(res http.ResponseWriter, req *http.Request) {
 		start := time.Now()

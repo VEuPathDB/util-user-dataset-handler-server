@@ -28,8 +28,8 @@ func (m *metadataEndpoint) Register(r *mux.Router) {
 		Methods(http.MethodPut).
 		Handler(middle.MetricAgg(middle.RequestCtxProvider(
 			midl.JSONAdapter(
-				middle.NewJsonContentFilter(),
-				middle.NewContentLengthFilter(util.SizeMebibyte),
+				middle.JsonContentFilter(),
+				middle.ContentLengthFilter(util.SizeMebibyte),
 				NewMetadataValidator(),
 				m))))
 }

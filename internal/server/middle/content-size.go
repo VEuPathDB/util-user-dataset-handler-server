@@ -18,10 +18,10 @@ const (
 	errTooBig       = "Content-Length %d is larger than the allowed size for this endpoint: %d"
 )
 
-// NewContentLengthFilter constructs a middleware filter that enforces the
-// incoming request has a Content-Length header and that the value is below the
-// given threshold.
-func NewContentLengthFilter(bytes uint64)  midl.Middleware {
+// ContentLengthFilter constructs a middleware filter that enforces the incoming
+// request has a Content-Length header and that the value is below the given
+// threshold.
+func ContentLengthFilter(bytes uint64)  midl.Middleware {
 	return &contentLengthFilter{bytes: bytes}
 }
 

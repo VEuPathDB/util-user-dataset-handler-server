@@ -9,7 +9,6 @@ import (
 type ResponseStatus string
 
 const (
-	StatusOK         ResponseStatus = "ok"
 	StatusNotFound   ResponseStatus = "not-found"
 	StatusBadRequest ResponseStatus = "bad-request"
 	StatusBadInput   ResponseStatus = "invalid-input"
@@ -17,10 +16,6 @@ const (
 	StatusBadMethod  ResponseStatus = "bad-http-method"
 )
 
-type HappyResponse struct {
-	Status  ResponseStatus `json:"status"`
-	Message *string         `json:"message,omitempty"`
-}
 
 func NotFound(msg string) midl.Response {
 	return midl.MakeResponse(http.StatusNotFound, &SadResponse{

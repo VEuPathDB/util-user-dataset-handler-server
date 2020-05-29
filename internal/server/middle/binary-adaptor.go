@@ -12,7 +12,9 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/xhttp"
 )
 
-func NewBinaryAdaptor() midl.Adapter {
+// BinaryAdaptor returns a midl.Adapter instance for responding with
+// application/binary on success and application/json on error.
+func BinaryAdaptor() midl.Adapter {
 	return &binaryAdaptor{}
 }
 

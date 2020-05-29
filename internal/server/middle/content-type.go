@@ -16,10 +16,9 @@ const (
 	errNoContentType = "Missing required Content-Type header."
 )
 
-// NewJsonContentFilter creates a middleware layer that
-// enforces both the existence of the Content-Type header
-// and that the header equals "application/json".
-func NewJsonContentFilter() midl.MiddlewareFunc {
+// JsonContentFilter creates a middleware layer that enforces both the existence
+// of the Content-Type header and that the header equals "application/json".
+func JsonContentFilter() midl.MiddlewareFunc {
 	return func(req midl.Request) midl.Response {
 		log := logger.ByRequest(req).WithField("status", http.StatusBadRequest)
 

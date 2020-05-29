@@ -5,6 +5,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// RegisterGenericHandlers appends generic error generators for unroutable
+// requests to the global router.
 func RegisterGenericHandlers(r *mux.Router) {
 	r.MethodNotAllowedHandler = MetricAgg(
 		RequestCtxProvider(midl.JSONAdapter(New405Handler())))
