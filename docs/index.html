@@ -465,17 +465,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="_in_script_container">In Script Container</h3>
 <div class="sect3">
 <h4 id="_standard_use">Standard Use</h4>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
-</td>
-<td class="content">
-TODO: Create demo script container repo and provide link here
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p><a href="https://github.com/VEuPathDB/dataset-handlers/tree/master/biom">Sample project using this server</a></p>
 </div>
 </div>
 <div class="sect3">
@@ -620,11 +611,23 @@ returning to the caller.</p>
 <div class="paragraph">
 <p>The working directory for the job that is running in the current request.</p>
 </div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content">
+<pre>/workspace/12345</pre>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_date"><code>&lt;&lt;date&gt;&gt;</code></h4>
 <div class="paragraph">
 <p>The current date formatted as <code>YYYY-MM-DD</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content">
+<pre>1994-02-13</pre>
+</div>
 </div>
 </div>
 <div class="sect3">
@@ -632,11 +635,23 @@ returning to the caller.</p>
 <div class="paragraph">
 <p>The current datetime in RFC3339 format.</p>
 </div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content">
+<pre>2018-10-31T23:37:18.013557+0500</pre>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_ds_description"><code>&lt;&lt;ds-description&gt;&gt;</code></h4>
 <div class="paragraph">
 <p>The user provided description for the current dataset upload.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content">
+<pre>My dataset upload containing foo and bar</pre>
+</div>
 </div>
 </div>
 <div class="sect3">
@@ -644,17 +659,38 @@ returning to the caller.</p>
 <div class="paragraph">
 <p>The user provided name for the current dataset upload.</p>
 </div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content">
+<pre>My Dataset 3</pre>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_ds_summary"><code>&lt;&lt;ds-summary&gt;&gt;</code></h4>
 <div class="paragraph">
 <p>The user provided summary of the current dataset upload.</p>
 </div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content">
+<pre>Some summary text for my dataset upload</pre>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_ds_user_email"><code>&lt;&lt;ds-user-email&gt;&gt;</code></h4>
 <div class="paragraph">
-<p>A generated "email address" consumed by the exporter script.</p>
+<p>A generated "email address" consumed by the exporter script.  This is a
+generated string in the form of an email address containing the WDK user id of
+the requesting user.  This is only formatted as an email address for exporter
+compatibility reasons.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content">
+<pre>handler.123456@veupathdb.org</pre>
+</div>
 </div>
 </div>
 <div class="sect3">
@@ -664,10 +700,48 @@ returning to the caller.</p>
 tar file sorted by name ascending.</p>
 </div>
 <div class="sect4">
+<h5 id="_examples">Examples</h5>
+<div id="upload-tgz" class="listingblock">
+<div class="title">Upload Contents</div>
+<div class="content">
+<pre>dataset.tgz
+ ├─ foo.txt
+ ├─ bar.xml
+ ├─ fizz.json
+ └─ buzz/
+     └─ fazz.yml</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">&lt;&lt;input-files&gt;&gt;</div>
+<div class="content">
+<pre>bar.xml buzz fizz.json foo.txt</pre>
+</div>
+</div>
+</div>
+<div class="sect4">
 <h5 id="_input_filesn"><code>&lt;&lt;input-files[n]&gt;&gt;</code></h5>
 <div class="paragraph">
 <p>Array style access of the input file list allowing retrieval of a single file
 name from the input file list.</p>
+</div>
+<div class="sect5">
+<h6 id="_examples_2">Examples</h6>
+<div class="paragraph">
+<p>These use <a href="#upload-tgz">this example input</a>.</p>
+</div>
+<div class="listingblock">
+<div class="title">&lt;&lt;input-files[0]&gt;&gt;</div>
+<div class="content">
+<pre>bar.xml</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">&lt;&lt;input-files[2]&gt;&gt;</div>
+<div class="content">
+<pre>fizz.json</pre>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -676,11 +750,23 @@ name from the input file list.</p>
 <div class="paragraph">
 <p>The current time formatted as <code>HH:MM:SS</code>.</p>
 </div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content">
+<pre>03:47:58</pre>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_timestamp"><code>&lt;&lt;timestamp&gt;&gt;</code></h4>
 <div class="paragraph">
 <p>The current unix timestamp in seconds.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example</div>
+<div class="content">
+<pre>783647299</pre>
+</div>
 </div>
 </div>
 </div>
@@ -690,7 +776,7 @@ name from the input file list.</p>
 <div id="footer">
 <div id="footer-text">
 Version 1.0.0<br>
-Last updated 2020-05-28 17:57:13 -0400
+Last updated 2020-05-29 11:12:15 -0400
 </div>
 </div>
 <style>

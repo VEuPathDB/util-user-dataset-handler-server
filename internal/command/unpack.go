@@ -38,7 +38,7 @@ func (r *runner) unpack(d *job.Details) error {
 }
 
 func (r *runner) untar(d *job.Details) error {
-	cmd := util.PrepCommand(r.log, "tar", "-xvf", d.InTarName)
+	cmd := util.PrepCommand(r.log, "tar", "-xf", d.InTarName)
 	cmd.Dir = r.wkspc.GetPath()
 
 	err := cmd.Run()

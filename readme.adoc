@@ -30,7 +30,8 @@ https://veupathdb.github.io/util-user-dataset-handler-server/api.html[API Docs]
 
 ==== Standard Use
 
-WARNING: TODO: Create demo script container repo and provide link here
+https://github.com/VEuPathDB/dataset-handlers/tree/master/biom[Sample project using this server]
+
 
 ==== Custom Use
 
@@ -103,44 +104,124 @@ returning to the caller.
 
 The working directory for the job that is running in the current request.
 
+.Example
+----
+/workspace/12345
+----
+
 ==== `+<<date>>+`
 
 The current date formatted as `YYYY-MM-DD`.
+
+.Example
+----
+1994-02-13
+----
 
 ==== `+<<date-time>>+`
 
 The current datetime in RFC3339 format.
 
+.Example
+----
+2018-10-31T23:37:18.013557+0500
+----
+
 ==== `+<<ds-description>>+`
 
 The user provided description for the current dataset upload.
+
+.Example
+----
+My dataset upload containing foo and bar
+----
 
 ==== `+<<ds-name>>+`
 
 The user provided name for the current dataset upload.
 
+.Example
+----
+My Dataset 3
+----
+
 ==== `+<<ds-summary>>+`
 
 The user provided summary of the current dataset upload.
 
+.Example
+----
+Some summary text for my dataset upload
+----
+
 ==== `+<<ds-user-email>>+`
 
-A generated "email address" consumed by the exporter script.
+A generated "email address" consumed by the exporter script.  This is a
+generated string in the form of an email address containing the WDK user id of
+the requesting user.  This is only formatted as an email address for exporter
+compatibility reasons.
+
+.Example
+----
+handler.123456@veupathdb.org
+----
 
 ==== `+<<input-files>>+`
 
 A space separated list of the files that were unpacked from the uploaded zip or
 tar file sorted by name ascending.
 
+===== Examples
+
+[#upload-tgz]
+.Upload Contents
+----
+dataset.tgz
+ ├─ foo.txt
+ ├─ bar.xml
+ ├─ fizz.json
+ └─ buzz/
+     └─ fazz.yml
+----
+
+.+<<input-files>>+
+----
+bar.xml buzz fizz.json foo.txt
+----
+
 ===== `+<<input-files[n]>>+`
 
 Array style access of the input file list allowing retrieval of a single file
 name from the input file list.
 
+====== Examples
+
+These use <<#upload-tgz, this example input>>.
+
+.+<<input-files[0]>>+
+----
+bar.xml
+----
+
+.+<<input-files[2]>>+
+----
+fizz.json
+----
+
 ==== `+<<time>>+`
 
 The current time formatted as `HH:MM:SS`.
 
+.Example
+----
+03:47:58
+----
+
 ==== `+<<timestamp>>+`
 
 The current unix timestamp in seconds.
+
+.Example
+----
+783647299
+----
