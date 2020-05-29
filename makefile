@@ -17,7 +17,7 @@ git-push:
 	@go test ./...
 
 git-pre-commit: docs/api.html docs/index.html
-	@git add docs/api.html docs/index.html docs/config.html docs/commands.html
+	@git add docs/api.html docs/index.html
 
 docs/api.html: api.raml
 	@raml2html --theme raml2html-modern-theme api.raml > docs/api.html
