@@ -3,44 +3,38 @@ package job
 import (
 	"net/http"
 	"os"
-	"path"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
-	"github.com/VEuPathDB/util-exporter-server/internal/cache"
 	"github.com/VEuPathDB/util-exporter-server/internal/command"
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/cache"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/workspace"
 )
 
 // NewUploadEndpoint instantiates a new endpoint wrapper for the user dataset
 // upload handler.
-func NewUploadEndpoint(o *config.Options, meta *cache.Meta, upload *cache.Upload) types.Endpoint {
-	return &endpoint{
-		opt:    o,
-		meta:   meta,
-		upload: upload,
-	}
+func NewUploadEndpoint(opts *config.Options) types.Endpoint {
+	return &endpoint{opt: opts}
 }
 
 type endpoint struct {
 	log    *logrus.Entry
 	opt    *config.Options
-	meta   *cache.Meta
-	upload *cache.Upload
 }
 
 func (e *endpoint) Register(r *mux.Router) {
 	r.Path(urlPath).Handler(middle.NewBinaryAdaptor().
 		AddHandlers(
-			middle.RequestIdProvider(),
-			middle.LogProvider(),
-			middle.NewTimer(middle.NewTokenValidator(tokenKey, e.meta, e))))
+			middle.RequestCtxProvider(),
+			middle.NewTimer(middle.NewTokenValidator(tokenKey, e))))
 }
 
 // Handle the request.
@@ -51,14 +45,20 @@ func (e *endpoint) Handle(req midl.Request) midl.Response {
 	token := mux.Vars(req.RawRequest())[tokenKey]
 	meta  := e.getMeta(token)
 	dets  := e.CreateDetails(&meta)
-	log   := middle.GetCtxLogger(req)
+	log   := logger.ByRequest(req)
 	e.log = log
 
-	if res := e.HandleUpload(req, dets, meta); res != nil {
+	wkspc, err := workspace.Create(token, log)
+	if err != nil {
+		log.WithField("status", http.StatusInternalServerError).Error(err)
+		return svc.ServerError(err.Error())
+	}
+
+	if res := e.HandleUpload(req, dets, wkspc); res != nil {
 		return res
 	}
 
-	result := command.NewCommandRunner(token, e.opt, e.upload, e.meta, log).Run()
+	result := command.NewCommandRunner(token, e.opt, wkspc, log).Run()
 	if result.Error != nil {
 		switch result.Error.(type) {
 		case *command.UserError:
@@ -76,9 +76,9 @@ func (e *endpoint) Handle(req midl.Request) midl.Response {
 func (e *endpoint) HandleUpload(
 	request midl.Request,
 	details *job.Details,
-	meta job.Metadata,
+	wkspc workspace.Workspace,
 ) midl.Response {
-	log := middle.GetCtxLogger(request)
+	log := e.log
 
 	upload, head, res := GetFileHandle(request.RawRequest(), log)
 	if res != nil {
@@ -90,23 +90,14 @@ func (e *endpoint) HandleUpload(
 		return e.FailJob(err, details)
 	}
 
-	dir := path.Join(e.opt.Workspace, details.Token)
-	if err := MakeWorkDir(dir, log); err != nil {
-		return e.FailJob(err, details)
-	}
-
-	details.WorkingDir = dir
+	details.WorkingDir = wkspc.GetPath()
 	e.StoreDetails(details)
 
-	filename := path.Join(dir, head.Filename)
-	out, err := MakeFileTarget(filename, log)
-	if err != nil {
-		return e.FailJob(err, details).Callback(e.cleanup(meta.Token))
-	}
-	defer out.Close()
-
-	if err := CopyFile(out, upload, log); err != nil {
-		return e.FailJob(err, details).Callback(e.cleanup(meta.Token))
+	if file, err := wkspc.FileFromStream(head.Filename, upload); err != nil {
+		log.WithField("status", http.StatusInternalServerError).Error(err)
+		return svc.ServerError(err.Error())
+	} else {
+		file.Close()
 	}
 
 	details.InTarName = head.Filename
@@ -117,7 +108,7 @@ func (e *endpoint) HandleUpload(
 
 // retrieve metadata from the metadata store
 func (e *endpoint) getMeta(token string) job.Metadata {
-	tmp, _ := e.meta.Get(token)
+	tmp, _ := cache.GetMetadata(token)
 	return tmp
 }
 
@@ -126,9 +117,11 @@ func (e *endpoint) getMeta(token string) job.Metadata {
 func (e *endpoint) cleanup(token string) func() {
 	return func() {
 		e.log.Debug("cleaning up workspace")
-		dets, _ := e.upload.GetDetails(token)
+		details, _ := cache.GetDetails(token)
 
-		_ = os.RemoveAll(dets.WorkingDir)
-		e.upload.SetStorable(token, dets.StorableDetails)
+		_ = os.RemoveAll(details.WorkingDir)
+		cache.PutHistoricalDetails(token, details.StorableDetails)
+		cache.DeleteMetadata(token)
+		cache.DeleteDetails(token)
 	}
 }

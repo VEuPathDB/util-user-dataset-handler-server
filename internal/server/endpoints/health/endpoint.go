@@ -21,8 +21,7 @@ func Register(r *mux.Router, o *config.Options) {
 	r.Path(path).
 		Methods(http.MethodGet).
 		Handler(midl.JSONAdapter(
-			middle.RequestIdProvider(),
-			middle.LogProvider(),
+			middle.RequestCtxProvider(),
 			middle.NewTimer(&healthEndpoint{o.Version})))
 }
 

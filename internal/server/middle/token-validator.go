@@ -2,11 +2,14 @@ package middle
 
 import (
 	"fmt"
-	. "github.com/Foxcapades/go-midl/v2/pkg/midl"
-	"github.com/VEuPathDB/util-exporter-server/internal/cache"
-	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
-	"github.com/gorilla/mux"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/cache"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 	"net/http"
+
+	"github.com/Foxcapades/go-midl/v2/pkg/midl"
+	"github.com/gorilla/mux"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 )
 
 const (
@@ -16,15 +19,14 @@ const (
 
 func NewTokenValidator(
 	tknKey string,
-	meta *cache.Meta,
-	next Middleware,
-) MiddlewareFunc {
-	return func(req Request) Response {
-		log := GetCtxLogger(req)
+	next midl.Middleware,
+) midl.MiddlewareFunc {
+	return func(req midl.Request) midl.Response {
+		log := logger.ByRequest(req)
 		log.Debug("Validating job id")
 		token := mux.Vars(req.RawRequest())[tknKey]
 
-		if _, ok := meta.Get(token); !ok {
+		if !cache.HasMetadata(token) {
 			errTxt := fmt.Sprintf(errTknNotFound, token)
 			log.WithField("status", http.StatusNotFound).
 				Info(errTxt)

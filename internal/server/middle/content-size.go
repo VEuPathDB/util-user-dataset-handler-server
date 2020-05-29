@@ -8,6 +8,7 @@ import (
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 	"github.com/VEuPathDB/util-exporter-server/internal/xhttp"
 )
 
@@ -29,7 +30,7 @@ type contentLengthFilter struct {
 }
 
 func (c *contentLengthFilter) Handle(req midl.Request) midl.Response {
-	log := GetCtxLogger(req).WithField("status", http.StatusBadRequest)
+	log := logger.ByRequest(req).WithField("status", http.StatusBadRequest)
 
 	if val, ok := req.Header(xhttp.HeaderContentLength); ok {
 		size, err := strconv.ParseUint(val, 10, 64)

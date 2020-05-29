@@ -4,20 +4,20 @@ import (
 	// Std Lib
 	"encoding/json"
 	"fmt"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 	"github.com/gorilla/mux"
 	"net/http"
 	// External
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/sirupsen/logrus"
 
-	// Internal
-	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 )
 
 const (
 	errEmptyMetadata = "metadata payload cannot be empty"
 	errParseMetadata = "failed to parse input JSON: %s"
+	dataCtxKey = "data"
 )
 
 // NewMetadataValidator is a validation wrapper middleware
@@ -26,18 +26,19 @@ const (
 // success or returning an error response to the caller.
 func NewMetadataValidator() midl.MiddlewareFunc {
 	return func(req midl.Request) midl.Response {
-		if data, err := parseMetadata(req); err != nil {
+		data, err := parseMetadata(req)
+
+		if err != nil {
 			return err
-		} else {
-			req.AdditionalContext()["data"] = data
 		}
 
+		req.AdditionalContext()[dataCtxKey] = data
 		return nil
 	}
 }
 
 func parseMetadata(req midl.Request) (*Metadata, midl.Response) {
-	log := req.AdditionalContext()[middle.KeyLogger].(*logrus.Entry)
+	log := logger.ByRequest(req)
 
 	bytes := req.Body()
 	if req.Body() == nil {

@@ -4,11 +4,8 @@ import (
 	// Std lib
 	"errors"
 	"fmt"
-	"github.com/VEuPathDB/util-exporter-server/internal/cache"
 	"io"
-	"io/ioutil"
 	"os"
-	"path"
 	"strings"
 	"time"
 
@@ -18,6 +15,8 @@ import (
 	// Internal
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/cache"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/workspace"
 )
 
 type RunResult struct {
@@ -29,16 +28,14 @@ type RunResult struct {
 func NewCommandRunner(
 	token string,
 	options *config.Options,
-	upload *cache.Upload,
-	meta *cache.Meta,
-	ctxLog *logrus.Entry,
+	wkspc workspace.Workspace,
+	log *logrus.Entry,
 ) Runner {
 	return &runner{
-		token:       token,
-		options:     options,
-		uploadCache: upload,
-		metaCache:   meta,
-		log:         ctxLog,
+		log:     log,
+		token:   token,
+		options: options,
+		wkspc:   wkspc,
 	}
 }
 
@@ -47,16 +44,15 @@ type Runner interface {
 }
 
 type runner struct {
-	log         *logrus.Entry
-	token       string
-	options     *config.Options
-	uploadCache *cache.Upload
-	metaCache   *cache.Meta
+	log     *logrus.Entry
+	token   string
+	options *config.Options
 
 	lastStatus  time.Time
 	lastCommand *config.Command
 	details     job.Details
 	meta        job.Metadata
+	wkspc       workspace.Workspace
 }
 
 func (r *runner) Run() RunResult {
@@ -81,7 +77,7 @@ func (r *runner) Run() RunResult {
 		return r.fail(err)
 	}
 
-	file, err := os.Open(path.Join(r.details.WorkingDir, fileName))
+	file, err := r.wkspc.Open(fileName)
 	if err != nil {
 		return r.fail(
 			errors.New("Failed to open packaged tar for reading: " + err.Error()))
@@ -91,20 +87,20 @@ func (r *runner) Run() RunResult {
 
 	return RunResult{
 		Stream: file,
-		Name: fileName,
+		Name:   fileName,
 	}
 }
 
 func (r *runner) getDetails() {
-	r.details, _ = r.uploadCache.GetDetails(r.token)
+	r.details, _ = cache.GetDetails(r.token)
 }
 
 func (r *runner) storeDetails() {
-	r.uploadCache.SetDetails(r.token, r.details)
+	cache.PutDetails(r.token, r.details)
 }
 
 func (r *runner) getMeta() {
-	r.meta, _ = r.metaCache.Get(r.token)
+	r.meta, _ = cache.GetMetadata(r.token)
 }
 
 func (r *runner) updateStatus(status job.Status) {
@@ -113,19 +109,22 @@ func (r *runner) updateStatus(status job.Status) {
 }
 
 func (r *runner) findTar() (string, error) {
-	files, err := ioutil.ReadDir(r.details.WorkingDir)
-
-	if err != nil {
-		return "", errors.New(errDirReadFail + err.Error())
-	}
-
 	prefix := fmt.Sprintf("dataset_u%d", r.meta.Owner)
 
-	for _, f := range files {
-		if strings.HasPrefix(f.Name(), prefix) {
-			return f.Name(), nil
-		}
+	matches, err := r.wkspc.Files(func(f os.FileInfo) bool {
+		return strings.HasPrefix(f.Name(), prefix)
+	})
+
+	if err != nil {
+		return "", err
 	}
 
-	return "", errors.New("no dataset archive found")
+	switch len(matches) {
+	case 0:
+		return "", errors.New("no dataset archive found")
+	case 1:
+		return matches[0].Name(), nil
+	default:
+		return "", errors.New("invalid state, more than one dataset archive present in workspace")
+	}
 }

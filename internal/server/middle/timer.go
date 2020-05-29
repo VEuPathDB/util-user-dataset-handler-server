@@ -1,6 +1,7 @@
 package middle
 
 import (
+	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 	"strconv"
 	"time"
 
@@ -10,11 +11,19 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/stats"
 )
 
-func NewTimer(next midl.Middleware) midl.MiddlewareFunc {
+func NewTimer(next ...midl.Middleware) midl.MiddlewareFunc {
 	return func(req midl.Request) midl.Response {
+		var res midl.Response
 		start := time.Now()
-		res   := next.Handle(req)
-		recordTime(start, GetCtxLogger(req), res)
+
+		for _, next := range next {
+			if res = next.Handle(req); res != nil {
+				break
+			}
+		}
+
+		recordTime(start, logger.ByRequest(req), res)
+
 		return res
 	}
 }
@@ -24,4 +33,5 @@ func recordTime(start time.Time, logger *logrus.Entry, res midl.Response) {
 	logger.WithField("duration", dur.String()).
 		Info("Request completed with code " + strconv.Itoa(res.Code()))
 	stats.GetServerStatus().RecordTime(dur)
+	stats.GetServerStatus().IncrementByStatus(res.Code())
 }

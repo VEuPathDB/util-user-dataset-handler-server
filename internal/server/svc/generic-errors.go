@@ -1,7 +1,7 @@
 package svc
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 	"net/http"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
@@ -14,7 +14,7 @@ const (
 
 func New404Handler() midl.Middleware {
 	return midl.MiddlewareFunc(func(r midl.Request) midl.Response {
-		r.AdditionalContext()["logger"].(*logrus.Entry).
+		logger.ByRequest(r).
 			WithField("status", http.StatusNotFound).
 			Info("Not found")
 		return midl.MakeResponse(http.StatusNotFound, &SadResponse{
@@ -26,7 +26,7 @@ func New404Handler() midl.Middleware {
 
 func New405Handler() midl.Middleware {
 	return midl.MiddlewareFunc(func(r midl.Request) midl.Response {
-		r.AdditionalContext()["logger"].(*logrus.Entry).
+		logger.ByRequest(r).
 			WithField("status", http.StatusMethodNotAllowed).
 			Info("Method not allowed")
 		return midl.MakeResponse(http.StatusMethodNotAllowed, &SadResponse{

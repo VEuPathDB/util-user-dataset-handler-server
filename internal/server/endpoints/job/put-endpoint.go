@@ -1,8 +1,8 @@
 package job
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/cache"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/cache"
 	// Std Lib
 	"net/http"
 
@@ -18,30 +18,29 @@ const (
 	urlPath = "/job/{" + tokenKey + "}"
 )
 
-func NewJobCreateEndpoint(c *cache.Meta) types.Endpoint {
-	return &metadataEndpoint{meta: c}
+func NewJobCreateEndpoint() types.Endpoint {
+	return &metadataEndpoint{}
 }
 
-type metadataEndpoint struct {
-	meta *cache.Meta
-}
+type metadataEndpoint struct {}
 
 func (m *metadataEndpoint) Register(r *mux.Router) {
 	r.Path(urlPath).
 		Methods(http.MethodPut).
 		Handler(midl.JSONAdapter(
-			middle.RequestIdProvider(),
-			middle.LogProvider(),
-			middle.NewJsonContentFilter(),
-			middle.NewContentLengthFilter(util.SizeMebibyte),
-			NewMetadataValidator(),
-			middle.NewTimer(m)))
+			middle.RequestCtxProvider(),
+			middle.NewTimer(
+				middle.NewJsonContentFilter(),
+				middle.NewContentLengthFilter(util.SizeMebibyte),
+				NewMetadataValidator(),
+				m,
+			)))
 }
 
 func (m *metadataEndpoint) Handle(req midl.Request) midl.Response {
-	meta := req.AdditionalContext()["data"].(*Metadata)
+	meta := req.AdditionalContext()[dataCtxKey].(*Metadata)
 
-	m.meta.Set(meta.Token, meta.Metadata)
+	cache.PutMetadata(meta.Token, meta.Metadata)
 
 	return midl.MakeResponse(http.StatusOK, &svc.HappyResponse{
 		Status: svc.StatusOK,

@@ -2,16 +2,15 @@ package command
 
 import (
 	"errors"
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"strings"
 
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
+	"github.com/VEuPathDB/util-exporter-server/internal/util"
 )
 
 const (
 	errUnzip   = "failed to unzip uploaded archive: "
 	errUntar   = "failed to extract uploaded tar archive: "
-	errDelArch = "failed to cleanup uploaded archive: "
 )
 
 // Unpack the uploaded archive file into the working directory.
@@ -26,12 +25,8 @@ func (r *runner) unpack(d *job.Details) error {
 		}
 	}
 
-	cmd := util.PrepCommand(r.log, "rm", d.InTarName)
-	cmd.Dir = d.WorkingDir
-
-	err := cmd.Run()
-	if err != nil {
-		err = errors.New(errDelArch + err.Error())
+	if err := r.wkspc.Delete(d.InTarName); err != nil {
+		return err
 	}
 
 	files, err := r.getWorkspaceFiles()
@@ -44,7 +39,7 @@ func (r *runner) unpack(d *job.Details) error {
 
 func (r *runner) untar(d *job.Details) error {
 	cmd := util.PrepCommand(r.log, "tar", "-xvf", d.InTarName)
-	cmd.Dir = d.WorkingDir
+	cmd.Dir = r.wkspc.GetPath()
 
 	err := cmd.Run()
 	if err != nil {
@@ -56,7 +51,7 @@ func (r *runner) untar(d *job.Details) error {
 
 func (r *runner) unzip(d *job.Details) error {
 	cmd := util.PrepCommand(r.log, "unzip", d.InTarName)
-	cmd.Dir = d.WorkingDir
+	cmd.Dir = r.wkspc.GetPath()
 
 	err := cmd.Run()
 	if err != nil {

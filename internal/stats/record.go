@@ -8,6 +8,7 @@ import (
 type ServerStats interface {
 	RecordTime(duration time.Duration)
 	RecordSize(bytes uint)
+	IncrementByStatus(status int)
 	ToPublic() interface{}
 }
 
@@ -31,6 +32,10 @@ type stats struct {
 	sizes    []uint
 	longest  time.Duration
 	largest  uint
+}
+
+func (s *stats) IncrementByStatus(status int) {
+	s.byStatus[status] = s.byStatus[status] + 1
 }
 
 func (s *stats) RecordTime(dur time.Duration) {

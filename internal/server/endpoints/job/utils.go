@@ -2,10 +2,8 @@ package job
 
 import (
 	"github.com/sirupsen/logrus"
-	"io"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
@@ -71,45 +69,6 @@ func GetFileHandle(req *http.Request, log *logrus.Entry) (
 
 	return
 }
-
-const (
-	errDirFail  = "Could not create workspace directory "
-	errFileFail = "Could not open target file for writing: "
-	errCopyFail = "Could not copy upload to workspace directory: "
-)
-
-// MakeWorkDir attempts to create a working directory at the path given.
-func MakeWorkDir(dir string, log *logrus.Entry) midl.Response {
-	if err := os.MkdirAll(dir, 0666); err != nil {
-		log.WithField("status", http.StatusInternalServerError).
-			Error(errDirFail + dir)
-		return svc.ServerError(errDirFail + dir)
-	}
-	return nil
-}
-
-// MakeFileTarget attempts to create a file in the working directory in which
-// the user input will be saved.
-func MakeFileTarget(file string, log *logrus.Entry) (*os.File, midl.Response) {
-	out, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		log.WithField("status", http.StatusInternalServerError).Error(err)
-		return nil, svc.ServerError(errFileFail + err.Error())
-	}
-	return out, nil
-}
-
-// CopyFile attempts to copy the input stream from the user request to the
-// given output stream.
-func CopyFile(out io.Writer, in io.Reader, log *logrus.Entry) midl.Response {
-	if _, err := io.Copy(out, in); err != nil {
-		log.WithField("status", http.StatusInternalServerError).
-			Error(errCopyFail + err.Error())
-		return svc.ServerError(errCopyFail + err.Error())
-	}
-	return nil
-}
-
 
 func (e *endpoint) FailJob(out midl.Response, details *job.Details) midl.Response {
 	details.Status = job.StatusFailed

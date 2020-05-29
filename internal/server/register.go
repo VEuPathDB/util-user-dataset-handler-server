@@ -1,20 +1,17 @@
 package server
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/api"
 	// Std Lib
 	"net/http"
-	"time"
 
 	// External
 	"github.com/gorilla/mux"
-	"github.com/patrickmn/go-cache"
 	"github.com/sirupsen/logrus"
 
 	// Internal
-	cache2 "github.com/VEuPathDB/util-exporter-server/internal/cache"
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/log"
+	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/api"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/health"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/job"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/options"
@@ -44,9 +41,6 @@ func (s *server) Serve() error {
 }
 
 func (s *server) RegisterEndpoints() {
-	metaCache   := cache2.NewMeta(cache.New(72*time.Hour, time.Hour))
-	uploadCache := cache2.NewUpload(cache.New(4*time.Hour, time.Hour))
-
 	// Custom 404 & 405 handlers
 	middle.RegisterGenericHandlers(s.router)
 
@@ -59,8 +53,8 @@ func (s *server) RegisterEndpoints() {
 	// Options Endpoint
 	options.Register(s.router, s.options)
 
-	job.NewJobCreateEndpoint(metaCache).Register(s.router)
-	job.NewUploadEndpoint(s.options, metaCache, uploadCache).Register(s.router)
+	job.NewJobCreateEndpoint().Register(s.router)
+	job.NewUploadEndpoint(s.options).Register(s.router)
 
-	status.NewStatusEndpoint(s.options, metaCache, uploadCache).Register(s.router)
+	status.NewStatusEndpoint(s.options).Register(s.router)
 }

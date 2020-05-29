@@ -1,8 +1,10 @@
 package job
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"time"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/cache"
 )
 
 func (e *endpoint) CreateDetails(meta *job.Metadata) *job.Details {
@@ -16,10 +18,10 @@ func (e *endpoint) CreateDetails(meta *job.Metadata) *job.Details {
 			Projects: meta.Projects,
 		},
 	}
-	e.upload.SetDetails(meta.Token, details)
+	cache.PutDetails(meta.Token, details)
 	return &details
 }
 
 func (e *endpoint) StoreDetails(details *job.Details) {
-	e.upload.SetDetails(details.Token, *details)
+	cache.PutDetails(details.Token, *details)
 }

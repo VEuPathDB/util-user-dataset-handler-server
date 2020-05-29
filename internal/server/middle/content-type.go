@@ -2,7 +2,7 @@ package middle
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
+	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 	"net/http"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
@@ -21,22 +21,24 @@ const (
 // and that the header equals "application/json".
 func NewJsonContentFilter() midl.MiddlewareFunc {
 	return func(req midl.Request) midl.Response {
-		log := req.AdditionalContext()[KeyLogger].(*logrus.Entry).
-			WithField("status", http.StatusBadRequest)
-		if val, ok := req.Header("Content-Type"); ok {
-			if val != "application/json" {
-				msg := fmt.Sprintf(errBadContentType, val)
-				log.Info(msg)
-				return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
-					Status:  svc.StatusBadRequest,
-					Message: msg,
-				})
-			}
-		} else {
+		log := logger.ByRequest(req).WithField("status", http.StatusBadRequest)
+
+		val, ok := req.Header("Content-Type")
+
+		if !ok {
 			log.Info(errNoContentType)
 			return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
 				Status:  svc.StatusBadRequest,
 				Message: errNoContentType,
+			})
+		}
+
+		if val != "application/json" {
+			msg := fmt.Sprintf(errBadContentType, val)
+			log.Info(msg)
+			return midl.MakeResponse(http.StatusBadRequest, &svc.SadResponse{
+				Status:  svc.StatusBadRequest,
+				Message: msg,
 			})
 		}
 
