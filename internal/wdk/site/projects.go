@@ -4,42 +4,42 @@ type WdkSite string
 
 const (
 	AmoebaDB        WdkSite = "AmoebaDB"
-	ClinepiDB       WdkSite = "ClinepiDB"
+	ClinEpiDB       WdkSite = "ClinEpiDB"
 	CryptoDB        WdkSite = "CryptoDB"
 	FungiDB         WdkSite = "FungiDB"
 	GiardiaDB       WdkSite = "GiardiaDB"
 	HostDB          WdkSite = "HostDB"
 	MicrobiomeDB    WdkSite = "MicrobiomeDB"
 	MicrosporidiaDB WdkSite = "MicrosporidiaDB"
-	Orthomcl        WdkSite = "Orthomcl"
+	OrthoMCL        WdkSite = "OrthoMCL"
 	PiroplasmaDB    WdkSite = "PiroplasmaDB"
 	PlasmoDB        WdkSite = "PlasmoDB"
 	SchistoDB       WdkSite = "SchistoDB"
 	ToxoDB          WdkSite = "ToxoDB"
 	TrichDB         WdkSite = "TrichDB"
 	TritrypDB       WdkSite = "TritrypDB"
-	Vectorbase      WdkSite = "Vectorbase"
-	VeupathDB       WdkSite = "VeupathDB"
+	VectorBase      WdkSite = "VectorBase"
+	VEuPathDB       WdkSite = "VEuPathDB"
 )
 
 var validSites = map[WdkSite]bool{
 	AmoebaDB:        true,
-	ClinepiDB:       true,
+	ClinEpiDB:       true,
 	CryptoDB:        true,
 	FungiDB:         true,
 	GiardiaDB:       true,
 	HostDB:          true,
 	MicrobiomeDB:    true,
 	MicrosporidiaDB: true,
-	Orthomcl:        true,
+	OrthoMCL:        true,
 	PiroplasmaDB:    true,
 	PlasmoDB:        true,
 	SchistoDB:       true,
 	ToxoDB:          true,
 	TrichDB:         true,
 	TritrypDB:       true,
-	Vectorbase:      true,
-	VeupathDB:       true,
+	VectorBase:      true,
+	VEuPathDB:       true,
 }
 
 func (w WdkSite) IsValid() bool {
