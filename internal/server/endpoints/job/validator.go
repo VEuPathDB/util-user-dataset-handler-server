@@ -43,8 +43,6 @@ func NewMetadataValidator() midl.MiddlewareFunc {
 func parseMetadata(req midl.Request) (*Metadata, midl.Response) {
 	log := logger.ByRequest(req)
 
-	bytes := req.Body()
-
 	if req.Body() == nil {
 		log.WithField("status", http.StatusBadRequest).Info(errEmptyMetadata)
 
@@ -53,6 +51,9 @@ func parseMetadata(req midl.Request) (*Metadata, midl.Response) {
 			Message: errEmptyMetadata,
 		})
 	}
+
+	bytes := req.Body()
+	log.Debug("Request body: ", string(bytes))
 
 	var foo Metadata
 	if err := json.Unmarshal(bytes, &foo); err != nil {
