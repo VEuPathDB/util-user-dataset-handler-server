@@ -54,17 +54,20 @@ func GetFileHandle(req *http.Request, log *logrus.Entry) (
 	req.Body = http.MaxBytesReader(nil, req.Body, 1 * util.SizeGibibyte)
 
 	reader, err := req.MultipartReader()
+	if err != nil {
+		log.WithField("status", http.StatusInternalServerError).Error(err)
+		out = svc.ServerError(err.Error())
+		return
+	}
 
 	part, err := reader.NextPart()
 	if err != nil {
 		if err == io.EOF {
-			log.WithField("status", http.StatusBadRequest).
-				Info("empty form data")
+			log.WithField("status", http.StatusBadRequest).Info("empty form data")
 			out = svc.BadRequest("empty form data body")
 			return
 		} else {
-			log.WithField("status", http.StatusInternalServerError).
-				Error(err)
+			log.WithField("status", http.StatusInternalServerError).Error(err)
 			out = svc.ServerError(err.Error())
 			return
 		}
