@@ -44,15 +44,15 @@ var (
 // NewUploadEndpoint instantiates a new endpoint wrapper for the user dataset
 // upload handler.
 func NewUploadEndpoint(opts *config.Options) types.Endpoint {
-	return &endpoint{opt: opts}
+	return &uploadEndpoint{opt: opts}
 }
 
-type endpoint struct {
+type uploadEndpoint struct {
 	log *logrus.Entry
 	opt *config.Options
 }
 
-func (e *endpoint) Register(r *mux.Router) {
+func (e *uploadEndpoint) Register(r *mux.Router) {
 	r.Path(urlPath).
 		Methods(http.MethodPost).
 		Handler(middle.MetricAgg(middle.RequestCtxProvider(
@@ -64,12 +64,16 @@ func (e *endpoint) Register(r *mux.Router) {
 //
 // If we've made it this far we know that the token in the URL is valid and
 // points to an existing metadata entry in the store.
-func (e *endpoint) Handle(req midl.Request) midl.Response {
+func (e *uploadEndpoint) Handle(req midl.Request) midl.Response {
+	log := logger.ByRequest(req)
+	e.log = log
+
+	log.Trace("uploadEndpoint#handle")
+
 	token := mux.Vars(req.RawRequest())[tokenKey]
 	meta := e.getMeta(token)
 	dets := e.createDetails(&meta)
-	log := logger.ByRequest(req)
-	e.log = log
+
 
 	wkspc, err := workspace.Create(token, log)
 	if err != nil {
@@ -96,20 +100,20 @@ func (e *endpoint) Handle(req midl.Request) midl.Response {
 	return midl.MakeResponse(http.StatusOK, result).Callback(e.cleanup(token))
 }
 
-func (e *endpoint) HandleUpload(
+func (e *uploadEndpoint) HandleUpload(
 	request midl.Request,
 	details *job.Details,
 	wkspc workspace.Workspace,
 ) midl.Response {
-	log := e.log
+	e.log.Trace("uploadEndpoint#HandleUpload")
 
-	upload, head, res := GetFileHandle(request.RawRequest(), log)
+	upload, head, res := GetFileHandle(request.RawRequest(), e.log)
 	if res != nil {
 		return e.FailJob(res, details)
 	}
 	defer upload.Close()
 
-	suff, errRes := ValidateFileSuffix(head.Filename, log)
+	suff, errRes := ValidateFileSuffix(head.Filename, e.log)
 
 	if errRes != nil {
 		return e.FailJob(errRes, details)
@@ -120,7 +124,7 @@ func (e *endpoint) HandleUpload(
 
 	file, err := wkspc.FileFromStream(head.Filename, upload)
 	if err != nil {
-		log.WithField("status", http.StatusInternalServerError).Error(err)
+		e.log.WithField("status", http.StatusInternalServerError).Error(err)
 		return svc.ServerError(err.Error())
 	}
 	defer file.Close()
@@ -128,7 +132,7 @@ func (e *endpoint) HandleUpload(
 	info, err := file.Stat()
 
 	if err != nil {
-		log.WithField("status", http.StatusInternalServerError).Error(err)
+		e.log.WithField("status", http.StatusInternalServerError).Error(err)
 		return svc.ServerError(except.NewServerError(err.Error()).Error())
 	}
 
@@ -142,14 +146,14 @@ func (e *endpoint) HandleUpload(
 }
 
 // retrieve metadata from the metadata store.
-func (e *endpoint) getMeta(token string) job.Metadata {
+func (e *uploadEndpoint) getMeta(token string) job.Metadata {
 	tmp, _ := cache.GetMetadata(token)
 	return tmp
 }
 
 // remove the working directory and convert the stored metadata to the long
 // store form.
-func (e *endpoint) cleanup(token string) func() {
+func (e *uploadEndpoint) cleanup(token string) func() {
 	return func() {
 		e.log.Debug("cleaning up workspace")
 

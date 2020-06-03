@@ -82,8 +82,10 @@ func validateMetadata(meta *Metadata, log *logrus.Entry) midl.Response {
 
 		return midl.MakeResponse(http.StatusUnprocessableEntity,
 			&svc.ValidationResponse{
-				Status:  svc.StatusBadInput,
-				Reasons: val.Result,
+				Status: svc.StatusBadInput,
+				Errors: svc.ValidationBundle{
+					ByKey: val.Result,
+				},
 			})
 	}
 

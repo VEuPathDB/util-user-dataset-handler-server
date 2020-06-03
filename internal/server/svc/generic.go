@@ -28,9 +28,11 @@ func NotFound(msg string) midl.Response {
 
 // InvalidRequest constructs a simple 422 response body.
 func InvalidRequest(msg string) midl.Response {
-	return midl.MakeResponse(http.StatusUnprocessableEntity, &SadResponse{
-		Status:  StatusBadInput,
-		Message: msg,
+	return midl.MakeResponse(http.StatusUnprocessableEntity, &ValidationResponse{
+		Status: StatusBadInput,
+		Errors: ValidationBundle{
+			General: []string{msg},
+		},
 	}).SetHeader("Content-Type", "application/json")
 }
 
@@ -58,7 +60,11 @@ type SadResponse struct {
 
 // ValidationResponse defines a 422 error response body.
 type ValidationResponse struct {
-	Status  ResponseStatus      `json:"status"`
-	Message string              `json:"message,omitempty"`
-	Reasons map[string][]string `json:"reasons"`
+	Status  ResponseStatus   `json:"status"`
+	Errors  ValidationBundle `json:"reasons"`
+}
+
+type ValidationBundle struct {
+	General []string            `json:"general"`
+	ByKey   map[string][]string `json:"byKey"`
 }

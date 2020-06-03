@@ -7,7 +7,7 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/service/cache"
 )
 
-func (e *endpoint) createDetails(meta *job.Metadata) *job.Details {
+func (e *uploadEndpoint) createDetails(meta *job.Metadata) *job.Details {
 	now := time.Now()
 	details := job.Details{
 		StorableDetails: job.StorableDetails{
@@ -23,6 +23,6 @@ func (e *endpoint) createDetails(meta *job.Metadata) *job.Details {
 	return &details
 }
 
-func (e *endpoint) storeDetails(details *job.Details) {
+func (e *uploadEndpoint) storeDetails(details *job.Details) {
 	cache.PutDetails(details.Token, *details)
 }

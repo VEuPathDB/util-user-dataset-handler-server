@@ -48,6 +48,7 @@ func GetFileHandle(req *http.Request, log *logrus.Entry) (
 	head *multipart.FileHeader,
 	out midl.Response,
 ) {
+	log.Trace("job.GetFileHandle")
 	file, head, err := req.FormFile("file")
 
 	if err != nil {
@@ -75,7 +76,7 @@ func GetFileHandle(req *http.Request, log *logrus.Entry) (
 	return
 }
 
-func (e *endpoint) FailJob(out midl.Response, details *job.Details) midl.Response {
+func (e *uploadEndpoint) FailJob(out midl.Response, details *job.Details) midl.Response {
 	details.Status = job.StatusFailed
 	e.storeDetails(details)
 	out.Callback(e.cleanup(details.Token))

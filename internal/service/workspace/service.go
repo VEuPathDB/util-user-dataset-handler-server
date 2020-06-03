@@ -35,6 +35,8 @@ type Workspace interface {
 }
 
 func Create(dir string, log *logrus.Entry) (Workspace, error) {
+	log.Trace("Workspace#Create")
+
 	root := path.Join(workRoot, dir)
 	if err := os.MkdirAll(root, workPerm); err != nil {
 		return nil, except.NewServerError(fmt.Sprintf(errDirCreateFail, root, err))
