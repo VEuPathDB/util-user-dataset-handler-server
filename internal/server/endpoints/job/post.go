@@ -107,14 +107,13 @@ func (e *uploadEndpoint) HandleUpload(
 ) midl.Response {
 	e.log.Trace("uploadEndpoint#HandleUpload")
 
-	upload, head, res := GetFileHandle(request.RawRequest(), e.log)
+	fileName, stream, res := GetFileHandle(request.RawRequest(), e.log)
 	if res != nil {
 		return e.FailJob(res, details)
 	}
-	defer upload.Close()
+	defer stream.Close()
 
-	suff, errRes := ValidateFileSuffix(head.Filename, e.log)
-
+	suff, errRes := ValidateFileSuffix(fileName, e.log)
 	if errRes != nil {
 		return e.FailJob(errRes, details)
 	}
@@ -122,7 +121,7 @@ func (e *uploadEndpoint) HandleUpload(
 	details.WorkingDir = wkspc.GetPath()
 	e.storeDetails(details)
 
-	file, err := wkspc.FileFromStream(head.Filename, upload)
+	file, err := wkspc.FileFromUpload(fileName, stream)
 	if err != nil {
 		e.log.WithField("status", http.StatusInternalServerError).Error(err)
 		return svc.ServerError(err.Error())
@@ -139,7 +138,7 @@ func (e *uploadEndpoint) HandleUpload(
 	promRequestPayloadSize.WithLabelValues(suff).
 		Observe(float64(info.Size()) / float64(util.SizeMebibyte))
 
-	details.InTarName = head.Filename
+	details.InTarName = fileName
 	e.storeDetails(details)
 
 	return nil

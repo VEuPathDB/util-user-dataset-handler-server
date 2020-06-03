@@ -28,7 +28,7 @@ type FilePredicate func(os.FileInfo) bool
 
 type Workspace interface {
 	GetPath() string
-	FileFromStream(name string, in io.Reader) (*os.File, error)
+	FileFromUpload(name string, in io.Reader) (*os.File, error)
 	Files(FilePredicate) ([]os.FileInfo, error)
 	Open(name string) (*os.File, error)
 	Delete(name string) error
@@ -94,8 +94,11 @@ func (w *workspace) Stat(name string) (os.FileInfo, error) {
 	return tmp, nil
 }
 
-func (w *workspace) FileFromStream(name string, in io.Reader) (*os.File, error) {
+func (w *workspace) FileFromUpload(name string, in io.Reader) (*os.File, error) {
+	w.log.Trace("Workspace#FileFromUpload")
+
 	file, err := os.Create(path.Join(w.dir, name))
+
 	if err != nil {
 		return nil, except.NewServerError(fmt.Sprintf(errTargetCreateFail, err))
 	}

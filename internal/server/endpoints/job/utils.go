@@ -1,7 +1,8 @@
 package job
 
 import (
-	"mime/multipart"
+	"github.com/VEuPathDB/util-exporter-server/internal/util"
+	"io"
 	"net/http"
 	"strings"
 
@@ -40,38 +41,44 @@ const (
 	errNoBoundary = "Malformed request, no form boundary."
 	errNoFile     = "No file was provided at the expected key 'file'."
 	errNotMulti   = "Malformed request, server expects valid multipart/form-data"
-	errUnknown    = "Invalid request: "
+	errUnknown    = "Error: "
 )
 
 func GetFileHandle(req *http.Request, log *logrus.Entry) (
-	file multipart.File,
-	head *multipart.FileHeader,
+	fileName string,
+	stream io.ReadCloser,
 	out midl.Response,
 ) {
 	log.Trace("job.GetFileHandle")
-	file, head, err := req.FormFile("file")
 
+	req.Body = http.MaxBytesReader(nil, req.Body, 1 * util.SizeGibibyte)
+
+	reader, err := req.MultipartReader()
+
+	part, err := reader.NextPart()
 	if err != nil {
-		switch err {
-		case http.ErrMissingBoundary:
-			log.WithField("status", http.StatusBadRequest).Info(errNoBoundary)
-
-			out = svc.BadRequest(errNoBoundary)
-		case http.ErrMissingFile:
-			log.WithField("status", http.StatusBadRequest).Info(errNoFile)
-
-			out = svc.BadRequest(errNoFile)
-		case http.ErrNotMultipart:
-			log.WithField("status", http.StatusBadRequest).Info(errNotMulti)
-
-			out = svc.BadRequest(errNotMulti)
-		default:
+		if err == io.EOF {
 			log.WithField("status", http.StatusBadRequest).
-				Info(errUnknown + err.Error())
-
-			out = svc.BadRequest(errUnknown + err.Error())
+				Info("empty form data")
+			out = svc.BadRequest("empty form data body")
+			return
+		} else {
+			log.WithField("status", http.StatusInternalServerError).
+				Error(err)
+			out = svc.ServerError(err.Error())
+			return
 		}
 	}
+
+	if part.FormName() != "file" {
+		msg := "invalid form body.  expected single part with name \"file\""
+		log.WithField("status", http.StatusBadRequest).Info(msg)
+		out = svc.ServerError(msg)
+		return
+	}
+
+	fileName = part.FileName()
+	stream = part
 
 	return
 }
