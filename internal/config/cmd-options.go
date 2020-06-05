@@ -42,8 +42,8 @@ func appendDefaultFileTypes(types []string) []string {
 
 type fileOptions struct {
 	Command    Command  `yaml:"command"`
-	Extensions []string `yaml:"fileTypes"`
-	SvcName    string   `yaml:"serviceName"`
+	Extensions []string `yaml:"file-types"`
+	SvcName    string   `yaml:"service-name"`
 }
 
 func (f *fileOptions) Commands() Command {
