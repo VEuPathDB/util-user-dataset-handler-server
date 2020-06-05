@@ -1,12 +1,12 @@
 package server
 
 import (
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	// Std Lib
 	"net/http"
 
 	// External
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 
 	// Internal
@@ -33,21 +33,22 @@ type Server interface {
 
 // NewServer returns a new instance of the Server type, configured with the
 // given options.
-func NewServer(o *config.Options) Server {
-	return &server{mux.NewRouter(), o, log.Logger()}
+func NewServer(cli config.CLIOptions, file config.FileOptions) Server {
+	return &server{mux.NewRouter(), cli, file, log.Logger()}
 }
 
 type server struct {
-	router  *mux.Router
-	options *config.Options
-	logger  *logrus.Entry
+	router      *mux.Router
+	cliOptions  config.CLIOptions
+	fileOptions config.FileOptions
+	logger      *logrus.Entry
 }
 
 func (s *server) Serve() error {
 	http.Handle("/", s.router)
-	s.logger.Info("Server started.  Listening on port ", s.options.Port)
+	s.logger.Info("Server started.  Listening on port ", s.cliOptions.Port())
 
-	return http.ListenAndServe(s.options.GetUsablePort(), nil)
+	return http.ListenAndServe(s.cliOptions.GetUsablePort(), nil)
 }
 
 func (s *server) RegisterEndpoints() {
@@ -62,13 +63,12 @@ func (s *server) RegisterEndpoints() {
 	api.NewAPIEndpoint().Register(s.router)
 
 	// Health Endpoint
-	health.Register(s.router, s.options)
+	health.Register(s.router)
 
 	// Options Endpoint
-	options.Register(s.router, s.options)
+	options.Register(s.router, s.cliOptions, s.fileOptions)
 
 	job.NewJobCreateEndpoint().Register(s.router)
-	job.NewUploadEndpoint(s.options).Register(s.router)
-
-	status.NewStatusEndpoint(s.options).Register(s.router)
+	job.NewUploadEndpoint(s.fileOptions).Register(s.router)
+	status.NewStatusEndpoint(s.fileOptions).Register(s.router)
 }

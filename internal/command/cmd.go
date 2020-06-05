@@ -16,7 +16,7 @@ type response struct {
 }
 
 // Configure and run the given command.
-func (r *runner) handleCommand(cmd *config.Command) (err error) {
+func (r *runner) handleCommand(cmd config.Command) (err error) {
 	args, err := r.parseArgs(cmd.Args)
 	if err != nil {
 		return err

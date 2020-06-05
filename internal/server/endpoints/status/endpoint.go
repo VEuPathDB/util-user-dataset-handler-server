@@ -24,12 +24,12 @@ const (
 
 // NewStatusEndpoint returns a new Endpoint instance for the job status
 // endpoint.
-func NewStatusEndpoint(opts *config.Options) types.Endpoint {
+func NewStatusEndpoint(opts config.FileOptions) types.Endpoint {
 	return &statusEndpoint{opts: opts}
 }
 
 type statusEndpoint struct {
-	opts *config.Options
+	opts config.FileOptions
 }
 
 func (s *statusEndpoint) Register(r *mux.Router) {

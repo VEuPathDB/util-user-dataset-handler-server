@@ -14,6 +14,6 @@ func ConfigureLogger() *logrus.Entry {
 	log.Level = logrus.TraceLevel
 
 	return log.WithFields(logrus.Fields{
-		"source": "server",
+		FieldSource: "server",
 	})
 }

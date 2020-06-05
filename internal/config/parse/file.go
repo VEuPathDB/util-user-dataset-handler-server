@@ -21,6 +21,14 @@ func ConfigFile(opts *config.Options) {
 		log.Logger().Fatal(err)
 	}
 
+	opts.FileTypes = appendDefaultFileTypes(tmp.FileTypes)
 	opts.Command = tmp.Command
 	opts.ServiceName = tmp.ServiceName
+}
+
+func appendDefaultFileTypes(types []string) []string {
+	return append(types,
+		".tar.gz",
+		".tgz",
+		".zip")
 }

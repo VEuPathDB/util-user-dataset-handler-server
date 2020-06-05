@@ -9,8 +9,8 @@ import (
 	"github.com/gorilla/mux"
 
 	// Internal
-	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
+	"github.com/VEuPathDB/util-exporter-server/pkg/meta"
 )
 
 const (
@@ -18,20 +18,18 @@ const (
 )
 
 // Register appends the "/health" endpoint to the given router.
-func Register(r *mux.Router, o *config.Options) {
+func Register(r *mux.Router) {
 	r.Path(path).
 		Methods(http.MethodGet).
 		Handler(middle.MetricAgg(middle.RequestCtxProvider(
-			midl.JSONAdapter(&healthEndpoint{o.Version}))))
+			midl.JSONAdapter(&healthEndpoint{}))))
 }
 
-type healthEndpoint struct {
-	version string
-}
+type healthEndpoint struct {}
 
 func (h *healthEndpoint) Handle(midl.Request) midl.Response {
 	return midl.MakeResponse(http.StatusOK, Data{
 		Status:  "healthy", // TODO: define unhealthy status
-		Version: h.version,
+		Version: meta.GetBuildMeta().Version,
 	})
 }

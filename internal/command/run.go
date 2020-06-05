@@ -26,7 +26,7 @@ type RunResult struct {
 
 func NewCommandRunner(
 	token string,
-	options *config.Options,
+	options config.FileOptions,
 	wkspc workspace.Workspace,
 	log *logrus.Entry,
 ) Runner {
@@ -45,7 +45,7 @@ type Runner interface {
 type runner struct {
 	log     *logrus.Entry
 	token   string
-	options *config.Options
+	options config.FileOptions
 
 	details job.Details
 	meta    job.Metadata
@@ -65,7 +65,7 @@ func (r *runner) Run() RunResult {
 
 	r.updateStatus(job.StatusProcessing)
 
-	if err = r.handleCommand(&r.options.Command); err != nil {
+	if err = r.handleCommand(r.options.Commands()); err != nil {
 		return r.fail(err)
 	}
 

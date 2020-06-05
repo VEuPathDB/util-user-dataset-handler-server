@@ -43,13 +43,13 @@ var (
 
 // NewUploadEndpoint instantiates a new endpoint wrapper for the user dataset
 // upload handler.
-func NewUploadEndpoint(opts *config.Options) types.Endpoint {
-	return &uploadEndpoint{opt: opts}
+func NewUploadEndpoint(file config.FileOptions) types.Endpoint {
+	return &uploadEndpoint{file: file}
 }
 
 type uploadEndpoint struct {
-	log *logrus.Entry
-	opt *config.Options
+	log  *logrus.Entry
+	file config.FileOptions
 }
 
 func (e *uploadEndpoint) Register(r *mux.Router) {
@@ -74,7 +74,6 @@ func (e *uploadEndpoint) Handle(req midl.Request) midl.Response {
 	meta := e.getMeta(token)
 	dets := e.createDetails(&meta)
 
-
 	wkspc, err := workspace.Create(token, log)
 	if err != nil {
 		log.WithField("status", http.StatusInternalServerError).Error(err)
@@ -85,7 +84,7 @@ func (e *uploadEndpoint) Handle(req midl.Request) midl.Response {
 		return res
 	}
 
-	result := command.NewCommandRunner(token, e.opt, wkspc, log).Run()
+	result := command.NewCommandRunner(token, e.file, wkspc, log).Run()
 	if result.Error != nil {
 		switch result.Error.(type) {
 		case *command.UserError:

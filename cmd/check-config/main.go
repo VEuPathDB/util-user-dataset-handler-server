@@ -1,26 +1,16 @@
-package service
+package main
 
 import (
 	"io/ioutil"
-	"os"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
-	"github.com/VEuPathDB/util-exporter-server/internal/app"
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
 	"github.com/VEuPathDB/util-exporter-server/internal/log"
 )
 
 const (
-	// ValidateAppName defines the name and argument text for the config
-	// validation task.
-	ValidateAppName = "check-config"
-)
-
-const (
-	errReadConfigFail  = "Failed to read config file.  Process said:"
-	errParseConfigFail = "Failed to parse config file as Yaml.  Process said:"
 	errConfSvcName     = `Key "` + config.OptKeyServiceNameYaml +
 		`" must exist and be a non-empty value.`
 	errConfComNoPath = `Key "` + config.OptKeyCommandsYaml +
@@ -35,31 +25,24 @@ const (
 		"current $PATH."
 )
 
-// ValidateConfig takes an Options object containing just the options parsed
-// from the command line and attempts to read and validate the Yaml server
-// config file.
-func ValidateConfig(options *config.Options) {
-	L := log.ConfigureLogger().WithField("source", ValidateAppName)
+func main() {
+	L := log.ConfigureLogger().WithField(log.FieldSource, "check-config")
 
-	L.Infof(noteInfo, options.ConfigPath)
+	cliOpts, err := config.ParseCLIOptions()
+	checkErr(L, err)
 
-	bytes, err := ioutil.ReadFile(options.ConfigPath)
-	if err != nil {
-		L.Fatal(errReadConfigFail, err)
-	}
+	L.Infof(noteInfo, cliOpts.ConfigPath())
+
+	bytes, err := ioutil.ReadFile(cliOpts.ConfigPath())
+	checkErr(L, err)
 
 	opts := new(config.Options)
-	err = yaml.Unmarshal(bytes, opts)
-
-	if err != nil {
-		L.Fatal(errParseConfigFail, err)
-	}
+	checkErr(L, yaml.Unmarshal(bytes, opts))
 
 	ok := true
 
 	if opts.ServiceName == "" {
 		L.Error(errConfSvcName)
-
 		ok = false
 	}
 
@@ -68,12 +51,10 @@ func ValidateConfig(options *config.Options) {
 	}
 
 	if !ok {
-		L.Error(errBadConfig)
-		os.Exit(app.StatusValidateConfFailed)
+		L.Fatal(errBadConfig)
 	}
 
 	L.Info(noteOkConfig)
-	os.Exit(app.StatusSuccess)
 }
 
 func validateCommand(log *logrus.Entry, cmd *config.Command) bool {
@@ -90,4 +71,10 @@ func validateCommand(log *logrus.Entry, cmd *config.Command) bool {
 	}
 
 	return ok
+}
+
+func checkErr(log *logrus.Entry, err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }

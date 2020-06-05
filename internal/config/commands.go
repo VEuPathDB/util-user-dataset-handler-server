@@ -26,7 +26,7 @@ type Command struct {
 
 // Validate confirms that the current Command instance is usable and that the
 // cli command it defines exists on the path.
-func (c *Command) Validate() error {
+func (c Command) Validate() error {
 	if len(c.Executable) == 0 {
 		return errors.New(errNoCmd)
 	}
