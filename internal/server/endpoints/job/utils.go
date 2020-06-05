@@ -79,10 +79,10 @@ func GetFileHandle(req *http.Request, log *logrus.Entry) (
 	return
 }
 
-func (e *uploadEndpoint) FailJob(out midl.Response, details *job.Details) midl.Response {
+func (u *uploadEndpoint) FailJob(out midl.Response, details *job.Details) midl.Response {
 	details.Status = job.StatusFailed
-	e.storeDetails(details)
-	out.Callback(e.cleanup(details.Token))
+	u.storeDetails(details)
+	out.Callback(u.cleanup(details.Token))
 
 	return out
 }
