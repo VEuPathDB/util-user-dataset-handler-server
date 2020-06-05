@@ -8,7 +8,8 @@ import (
 )
 
 func main() {
-	log.SetLogger(log.ConfigureLogger())
+	logger := log.ConfigureLogger()
+	log.SetLogger(logger)
 
 	cliOpts, err := config.ParseCLIOptions()
 	checkErr(err)
@@ -16,12 +17,11 @@ func main() {
 	fileOpts, err := config.ParseFileOptions(cliOpts.ConfigPath())
 	checkErr(err)
 
-	if !config.IsValid(fileOpts) {
-		log.Logger().Fatal("Shutting down due to configuration errors.")
+	if !config.IsValid(logger, fileOpts) {
+		logger.Fatal("Shutting down due to configuration errors.")
 	}
 
-	log.SetLogger(log.ConfigureLogger().
-		WithField(log.FieldSource, fileOpts.ServiceName))
+	log.SetLogger(logger.WithField(log.FieldSource, fileOpts.ServiceName))
 
 	serve := server.NewServer(cliOpts, fileOpts)
 

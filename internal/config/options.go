@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/log"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -50,24 +50,22 @@ type Options struct {
 
 // Validate confirms that the Options instance contains all the required config
 // values needed to start up the server.
-func IsValid(o FileOptions) (errored bool) {
-	L := log.Logger()
-
+func IsValid(log *logrus.Entry, o FileOptions) (errored bool) {
 	if len(o.ServiceName()) == 0 {
-		L.Error("Config: serviceName is required.")
+		log.Error("Config: serviceName is required.")
 
 		errored = true
 	}
 
 	if len(o.Commands().Executable) == 0 {
-		L.Error("Config: at least one command must be configured.")
+		log.Error("Config: at least one command must be configured.")
 
 		errored = true
 	}
 
 	err := o.Commands().Validate()
 	if err != nil {
-		L.Errorf("Config: Command: %s", err.Error())
+		log.Errorf("Config: Command: %s", err.Error())
 
 		errored = true
 	}
