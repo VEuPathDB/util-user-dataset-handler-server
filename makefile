@@ -47,19 +47,13 @@ bin/gen-config: $(FILES)
 	$(call go_build,gen-config)
 
 bin/server-${TRAVIS_TAG}.tar.gz: bin/server
-	@cd bin
-	@tar -czf server-${TRAVIS_TAG}.tar.gz server static-content
-	@cd ..
+	@cd bin && tar -czf server-${TRAVIS_TAG}.tar.gz server static-content && cd ..
 
 bin/gen-config-${TRAVIS_TAG}.tar.gz: bin/gen-config
-	@cd bin
-	@tar -czf gen-config-${TRAVIS_TAG}.tar.gz gen-config
-	@cd ..
+	@cd bin && tar -czf gen-config-${TRAVIS_TAG}.tar.gz gen-config && cd ..
 
 bin/check-config-${TRAVIS_TAG}.tar.gz: bin/check-config
-	@cd bin
-	@tar -czf check-config-${TRAVIS_TAG}.tar.gz check-config
-	@cd ..
+	@cd bin && tar -czf check-config-${TRAVIS_TAG}.tar.gz check-config && cd ..
 
 bin/static-content/index.html: docs/api.html
 	@mkdir -p bin/static-content
