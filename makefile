@@ -8,9 +8,9 @@ define go_build
 	  go build \
 	    -o bin/$(1) \
 	    --ldflags="\
-	      -X 'pkg.meta.version=$(VERSION)' \
-	      -X 'pkg.meta.commit=$(COMMIT)' \
-	      -X 'pkg.meta.buildDate=$(DATE)' \
+	      -X 'github.com/VEuPathDB/util-exporter-server/pkg/meta.version=$(VERSION)' \
+	      -X 'github.com/VEuPathDB/util-exporter-server/pkg/meta.commit=$(COMMIT)' \
+	      -X 'github.com/VEuPathDB/util-exporter-server/pkg/meta.buildDate=$(DATE)' \
 	      -s -w" \
 	    cmd/$(1)/main.go
 endef
