@@ -13,25 +13,18 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
 )
 
-var allowedSuffixes = []string{
-	".tar",
-	".zip",
-	".tgz",
-	".tar.gz",
-}
-
 const (
 	errBadSuffix = "Invalid file format, must be one of: "
 )
 
-func ValidateFileSuffix(file string, log *logrus.Entry) (string, midl.Response) {
-	for i := range allowedSuffixes {
-		if strings.HasSuffix(file, allowedSuffixes[i]) {
-			return allowedSuffixes[i], nil
+func (u *uploadEndpoint) ValidateFileSuffix(file string, log *logrus.Entry) (string, midl.Response) {
+	for _, s := range u.file.FileTypes() {
+		if strings.HasSuffix(file, s) {
+			return s, nil
 		}
 	}
 
-	msg := errBadSuffix + strings.Join(allowedSuffixes, ", ")
+	msg := errBadSuffix + strings.Join(u.file.FileTypes(), ", ")
 	log.WithField("status", http.StatusBadRequest).Info(msg)
 
 	return "", svc.BadRequest(msg)

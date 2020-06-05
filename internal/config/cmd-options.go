@@ -5,6 +5,13 @@ import (
 	"os"
 )
 
+var globalAllowedTypes = []string{
+	".tar",
+	".tar.gz",
+	".tgz",
+	".zip",
+}
+
 type FileOptions interface {
 	Commands() Command
 	FileTypes() []string
@@ -30,10 +37,7 @@ func ParseFileOptions(path string) (FileOptions, error) {
 }
 
 func appendDefaultFileTypes(types []string) []string {
-	return append(types,
-		".tar.gz",
-		".tgz",
-		".zip")
+	return append(types, globalAllowedTypes...)
 }
 
 type fileOptions struct {
