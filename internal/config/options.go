@@ -51,23 +51,25 @@ type Options struct {
 // Validate confirms that the Options instance contains all the required config
 // values needed to start up the server.
 func IsValid(log *logrus.Entry, o FileOptions) (errored bool) {
+	errored = true
+
 	if len(o.ServiceName()) == 0 {
 		log.Error("Config: serviceName is required.")
 
-		errored = true
+		errored = false
 	}
 
 	if len(o.Commands().Executable) == 0 {
 		log.Error("Config: at least one command must be configured.")
 
-		errored = true
+		errored = false
 	}
 
 	err := o.Commands().Validate()
 	if err != nil {
 		log.Errorf("Config: Command: %s", err.Error())
 
-		errored = true
+		errored = false
 	}
 
 	return
