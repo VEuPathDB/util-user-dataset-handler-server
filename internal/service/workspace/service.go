@@ -2,8 +2,8 @@ package workspace
 
 import (
 	"fmt"
+	"github.com/VEuPathDB/util-exporter-server/internal/util/fs"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 
@@ -24,12 +24,12 @@ const (
 	errDeleteFail       = "failed to delete file %s: %s"
 )
 
-type FilePredicate func(os.FileInfo) bool
+type FilePredicate func(string) bool
 
 type Workspace interface {
 	GetPath() string
 	FileFromUpload(name string, in io.Reader) (*os.File, error)
-	Files(FilePredicate) ([]os.FileInfo, error)
+	Files(FilePredicate) ([]string, error)
 	Open(name string) (*os.File, error)
 	Delete(name string) error
 }
@@ -54,17 +54,17 @@ func (w *workspace) GetPath() string {
 	return w.dir
 }
 
-func (w *workspace) Files(fn FilePredicate) ([]os.FileInfo, error) {
-	tmp, err := ioutil.ReadDir(w.dir)
+func (w *workspace) Files(fn FilePredicate) ([]string, error) {
+	tmp, err := fs.ListFiles(w.dir)
 
 	if err != nil {
 		return nil, except.NewServerError(err.Error())
 	}
 
-	out := make([]os.FileInfo, 0, len(tmp))
+	out := make([]string, 0, len(tmp))
 
 	for _, info := range tmp {
-		if !autoExclude(info) && fn(info) {
+		if fn(info) {
 			out = append(out, info)
 		}
 	}

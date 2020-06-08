@@ -3,12 +3,12 @@ package job
 type Details struct {
 	StorableDetails
 
-	// InTarName is the uploaded tar file name.
-	InTarName string `json:"tarName"`
+	// InputFile is the uploaded tar file name.
+	InputFile string `json:"tarName"`
 
-	// InputFiles is the list of unpacked files uploaded for
+	// UnpackedFiles is the list of unpacked files uploaded for
 	// processing.
-	InputFiles []string `json:"files"`
+	UnpackedFiles []string `json:"files"`
 
 	// OutputFiles is a two-dimensional array of command
 	// executions and their output files.

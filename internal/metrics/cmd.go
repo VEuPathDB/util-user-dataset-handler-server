@@ -1,4 +1,4 @@
-package command
+package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
@@ -16,3 +16,7 @@ var (
 		[]string{"command"},
 	)
 )
+
+func RecordCommandTime(cmd string, time float64){
+	promCommandTime.WithLabelValues(cmd).Observe(time)
+}

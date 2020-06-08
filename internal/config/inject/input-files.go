@@ -73,7 +73,7 @@ func (t *inputFileInjector) simpleAll(out []string, target string, match []int) 
 		out = append(out, target[:match[0]])
 	}
 
-	out = append(out, t.state.InputFiles...)
+	out = append(out, t.state.UnpackedFiles...)
 
 	if match[1] < len(target) {
 		out = append(out, target[match[1]:])
@@ -84,7 +84,7 @@ func (t *inputFileInjector) simpleAll(out []string, target string, match []int) 
 
 func (t *inputFileInjector) wrappedAll(out []string, target string, match []int) []string {
 	return append(out, target[:match[0]+1]+
-		strings.Join(t.state.InputFiles, " ")+
+		strings.Join(t.state.UnpackedFiles, " ")+
 		target[match[1]-1:])
 }
 
@@ -96,17 +96,17 @@ func (t *inputFileInjector) targetFile(out []string, target string, match []int)
 		return nil, err
 	}
 
-	if index >= len(t.state.InputFiles) {
+	if index >= len(t.state.UnpackedFiles) {
 		// TODO: improve this error
 		return nil, fmt.Errorf("invalid input file index %d, array size is %d",
-			index, len(t.state.InputFiles))
+			index, len(t.state.UnpackedFiles))
 	}
 
 	if target[match[0]] == '"' && target[match[1]-1] == '"' {
-		return append(out, target[:match[0]+1]+t.state.InputFiles[index]+
+		return append(out, target[:match[0]+1]+t.state.UnpackedFiles[index]+
 			target[match[1]-1:]), nil
 	}
 
-	return append(out, target[:match[0]]+t.state.InputFiles[index]+
+	return append(out, target[:match[0]]+t.state.UnpackedFiles[index]+
 		target[match[1]:]), nil
 }

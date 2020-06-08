@@ -2,10 +2,9 @@ package command
 
 import (
 	"errors"
-	"strings"
 
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
+	"github.com/VEuPathDB/util-exporter-server/internal/util/archive"
 )
 
 const (
@@ -15,54 +14,23 @@ const (
 
 // Unpack the uploaded archive file into the working directory.
 func (r *runner) unpack(d *job.Details) error {
-	if strings.HasSuffix(d.InTarName, ".zip") {
-		if err := r.unzip(d); err != nil {
-			return err
+	if archive.HasZipExtension(d.InputFile) {
+		files, err := archive.UnZip(d.WorkingDir, d.InputFile, r.log)
+		if err != nil {
+			return errors.New(errUnzip + err.Error())
 		}
+
+		d.UnpackedFiles = files
+	} else if archive.HasTarExtension(d.InputFile) {
+		files, err := archive.UnTar(d.WorkingDir, d.InputFile, r.log)
+		if err != nil {
+			return errors.New(errUntar + err.Error())
+		}
+
+		d.UnpackedFiles = files
 	} else {
-		if err := r.untar(d); err != nil {
-			return err
-		}
+		d.UnpackedFiles = []string{d.InputFile}
 	}
-
-	if err := r.wkspc.Delete(d.InTarName); err != nil {
-		return err
-	}
-
-	files, err := r.getWorkspaceFiles()
-	if err != nil {
-		return err
-	}
-
-	r.details.InputFiles = files
 
 	return nil
-}
-
-func (r *runner) untar(d *job.Details) error {
-	cmd := util.PrepCommand(r.log, "tar", "-xf", d.InTarName)
-	cmd.Dir = r.wkspc.GetPath()
-
-	time, err := util.TimeCmd(cmd)
-	promCommandTime.WithLabelValues("tar").Observe(time)
-
-	if err != nil {
-		err = errors.New(errUntar + err.Error())
-	}
-
-	return err
-}
-
-func (r *runner) unzip(d *job.Details) error {
-	cmd := util.PrepCommand(r.log, "unzip", d.InTarName)
-	cmd.Dir = r.wkspc.GetPath()
-
-	time, err := util.TimeCmd(cmd)
-	promCommandTime.WithLabelValues("unzip").Observe(time)
-
-	if err != nil {
-		err = errors.New(errUnzip + err.Error())
-	}
-
-	return err
 }

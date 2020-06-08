@@ -15,7 +15,7 @@ func TestInputFileInjector_Inject(t *testing.T) {
 			input1 := "foo.txt"
 			input2 := "bar.txt"
 
-			details := job.Details{InputFiles: []string{input1, input2}}
+			details := job.Details{UnpackedFiles: []string{input1, input2}}
 
 			tests := [][2][]string{
 				{{"foo", "<<input-files>>"}, {"foo", input1, input2}},
@@ -38,7 +38,7 @@ func TestInputFileInjector_Inject(t *testing.T) {
 			input1 := "foo.txt"
 			input2 := "bar.txt"
 
-			details := job.Details{InputFiles: []string{input1, input2}}
+			details := job.Details{UnpackedFiles: []string{input1, input2}}
 
 			tests := [][]string{
 				{"--foo=<<input-files[2]>>"},

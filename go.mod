@@ -14,6 +14,8 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf
+	github.com/vulpine-io/bites v1.0.0
+	github.com/vulpine-io/split-pipe v1.0.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	gopkg.in/yaml.v3 v3.0.0-20200504163728-5308cda29e3d
 )

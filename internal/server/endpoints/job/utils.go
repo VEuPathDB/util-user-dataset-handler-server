@@ -1,13 +1,13 @@
 package job
 
 import (
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"io"
 	"net/http"
 	"strings"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/sirupsen/logrus"
+	"github.com/vulpine-io/bites/v1/pkg/bites"
 
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/svc"
@@ -44,7 +44,7 @@ func GetFileHandle(req *http.Request, log *logrus.Entry) (
 ) {
 	log.Trace("job.GetFileHandle")
 
-	req.Body = http.MaxBytesReader(nil, req.Body, 1 * util.SizeGibibyte)
+	req.Body = http.MaxBytesReader(nil, req.Body, int64(bites.SizeGibibyte))
 
 	reader, err := req.MultipartReader()
 	if err != nil {

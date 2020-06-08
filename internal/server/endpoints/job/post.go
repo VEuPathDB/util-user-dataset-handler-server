@@ -1,6 +1,7 @@
 package job
 
 import (
+	"github.com/vulpine-io/bites/v1/pkg/bites"
 	"net/http"
 	"os"
 
@@ -20,7 +21,6 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/service/cache"
 	"github.com/VEuPathDB/util-exporter-server/internal/service/logger"
 	"github.com/VEuPathDB/util-exporter-server/internal/service/workspace"
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
 )
 
 var (
@@ -135,9 +135,9 @@ func (u *uploadEndpoint) HandleUpload(
 	}
 
 	promRequestPayloadSize.WithLabelValues(suff).
-		Observe(float64(info.Size()) / float64(util.SizeMebibyte))
+		Observe(float64(info.Size()) / float64(bites.SizeMebibyte))
 
-	details.InTarName = fileName
+	details.InputFile = fileName
 	u.storeDetails(details)
 
 	return nil

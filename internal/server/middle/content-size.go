@@ -2,6 +2,7 @@ package middle
 
 import (
 	"fmt"
+	"github.com/vulpine-io/bites/v1/pkg/bites"
 	"net/http"
 	"strconv"
 
@@ -21,8 +22,8 @@ const (
 // ContentLengthFilter constructs a middleware filter that enforces the incoming
 // request has a Content-Length header and that the value is below the given
 // threshold.
-func ContentLengthFilter(bytes uint64) midl.Middleware {
-	return &contentLengthFilter{bytes: bytes}
+func ContentLengthFilter(bytes bites.ByteSize) midl.Middleware {
+	return &contentLengthFilter{bytes: uint64(bytes)}
 }
 
 type contentLengthFilter struct {

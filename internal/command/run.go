@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	// External
@@ -108,8 +107,8 @@ func (r *runner) updateStatus(status job.Status) {
 func (r *runner) findTar() (string, error) {
 	prefix := fmt.Sprintf("dataset_u%d", r.meta.Owner)
 
-	matches, err := r.wkspc.Files(func(f os.FileInfo) bool {
-		return strings.HasPrefix(f.Name(), prefix)
+	matches, err := r.wkspc.Files(func(f string) bool {
+		return strings.HasPrefix(f, prefix)
 	})
 
 	if err != nil {
@@ -120,7 +119,7 @@ func (r *runner) findTar() (string, error) {
 	case 0:
 		return "", errors.New("no dataset archive found")
 	case 1:
-		return matches[0].Name(), nil
+		return matches[0], nil
 	default:
 		return "", errors.New("invalid state, more than one dataset archive present in workspace")
 	}

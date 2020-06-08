@@ -3,17 +3,17 @@ package middle
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/vulpine-io/bites/v1/pkg/bites"
 	"net/http"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 
 	"github.com/VEuPathDB/util-exporter-server/internal/command"
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"github.com/VEuPathDB/util-exporter-server/internal/xhttp"
 )
 
 const (
-	bufferSize = 8 * util.SizeKibibyte
+	bufferSize = 8 * int(bites.SizeKibibyte)
 )
 
 // BinaryAdaptor returns a midl.Adapter instance for responding with

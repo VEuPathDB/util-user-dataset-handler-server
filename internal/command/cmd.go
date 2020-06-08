@@ -3,6 +3,8 @@ package command
 import (
 	"encoding/json"
 	"errors"
+	"github.com/VEuPathDB/util-exporter-server/internal/metrics"
+	"github.com/vulpine-io/split-pipe/v1/pkg/spipe"
 	"os"
 	"strings"
 
@@ -25,18 +27,18 @@ func (r *runner) handleCommand(cmd config.Command) (err error) {
 	env := os.Environ()
 
 	X := util.PrepCommand(r.log, cmd.Executable, args...)
-	buffer := util.NewBufferPipe(X.Stderr)
-	X.Stderr = buffer
+	buffer := new(strings.Builder)
+	X.Stderr = spipe.NewSplitWriter(X.Stderr, buffer)
 	X.Dir = r.details.WorkingDir
 	X.Env = env
 
 	time, err := util.TimeCmd(X)
-	promCommandTime.WithLabelValues(cmd.Executable).Observe(time)
+	metrics.RecordCommandTime(cmd.Executable, time)
 
 	if err != nil {
 		r.log.Debug(X)
 
-		raw := strings.TrimSpace(buffer.Buffer.String())
+		raw := strings.TrimSpace(buffer.String())
 		obj := strings.IndexByte(raw, '{')
 
 		if obj == -1 {

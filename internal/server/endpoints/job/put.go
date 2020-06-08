@@ -1,6 +1,7 @@
 package job
 
 import (
+	"github.com/vulpine-io/bites/v1/pkg/bites"
 	// Std Lib
 	"net/http"
 
@@ -12,7 +13,6 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/server/middle"
 	"github.com/VEuPathDB/util-exporter-server/internal/server/types"
 	"github.com/VEuPathDB/util-exporter-server/internal/service/cache"
-	"github.com/VEuPathDB/util-exporter-server/internal/util"
 )
 
 const (
@@ -32,7 +32,7 @@ func (m *metadataEndpoint) Register(r *mux.Router) {
 		Handler(middle.MetricAgg(middle.RequestCtxProvider(
 			midl.JSONAdapter(
 				middle.JSONContentFilter(),
-				middle.ContentLengthFilter(util.SizeMebibyte),
+				middle.ContentLengthFilter(bites.SizeMebibyte),
 				NewMetadataValidator(),
 				m))))
 }
