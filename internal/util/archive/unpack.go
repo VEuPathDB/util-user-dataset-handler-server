@@ -1,13 +1,15 @@
 package archive
 
 import (
+	"errors"
+	"os/exec"
+	"sort"
+	"strings"
+
 	"github.com/VEuPathDB/util-exporter-server/internal/metrics"
 	"github.com/VEuPathDB/util-exporter-server/internal/util"
 	"github.com/VEuPathDB/util-exporter-server/internal/util/fs"
 	"github.com/VEuPathDB/util-exporter-server/internal/util/slice"
-	"os"
-	"os/exec"
-	"sort"
 )
 
 func unpack(dir, file string, cmd *exec.Cmd) ([]string, error) {
@@ -30,9 +32,13 @@ func unpack(dir, file string, cmd *exec.Cmd) ([]string, error) {
 	}
 
 	// Remove the archive file itself
-	err = os.Remove(file)
+	rm := exec.Command("rm", file)
+	buf := strings.Builder{}
+	rm.Stderr = &buf
+	rm.Dir = dir
+	err = rm.Run()
 	if err != nil {
-		return nil, err
+		return nil, errors.New(buf.String())
 	}
 
 	// List the files in the directory after the unpack.
