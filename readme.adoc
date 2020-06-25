@@ -172,16 +172,13 @@ The source/origin of the user dataset should be either `galaxy` or `direct-uploa
 direct-upload
 ----
 
-==== `+<<ds-user-email>>+`
+==== `+<<ds-user-id>>+`
 
-A generated "email address" consumed by the exporter script.  This is a
-generated string in the form of an email address containing the WDK user id of
-the requesting user.  This is only formatted as an email address for exporter
-compatibility reasons.
+WDK user ID of the user that uploaded the dataset.
 
 .Example
 ----
-handler.123456@veupathdb.org
+123456
 ----
 
 ==== `+<<input-files>>+`

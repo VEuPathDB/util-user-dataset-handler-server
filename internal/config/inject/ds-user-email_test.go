@@ -10,23 +10,23 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
 )
 
-func TestDsUserEmailInjector_Inject(t *testing.T) {
-	Convey("Dataset UserEmail Injector", t, func() {
-		expect := "handler.1234@veupathdb.org"
+func TestDsUserIdInjector_Inject(t *testing.T) {
+	Convey("Dataset User ID Injector", t, func() {
+		expect := "1234"
 		details := job.Metadata{
 			BaseInfo: dataset.BaseInfo{
 				Owner: 1234,
 			},
 		}
 		tests := [][2][]string{
-			{{"<<ds-user-email>>"}, {expect}},
-			{{`"<<ds-user-email>>"`}, {`"` + expect + `"`}},
-			{{"--foo=<<ds-user-email>>"}, {`--foo=` + expect}},
-			{{`--foo="<<ds-user-email>>"`}, {`--foo="` + expect + `"`}},
+			{{"<<ds-user-id>>"}, {expect}},
+			{{`"<<ds-user-id>>"`}, {`"` + expect + `"`}},
+			{{"--foo=<<ds-user-id>>"}, {`--foo=` + expect}},
+			{{`--foo="<<ds-user-id>>"`}, {`--foo="` + expect + `"`}},
 		}
 
 		for _, test := range tests {
-			inj := inject.NewDsUserEmailInjector(nil, &details)
+			inj := inject.NewDsUserIdInjector(nil, &details)
 			a, b := inj.Inject(test[0])
 			So(b, ShouldBeNil)
 			So(a, ShouldResemble, test[1])

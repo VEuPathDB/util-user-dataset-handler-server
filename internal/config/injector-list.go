@@ -18,7 +18,7 @@ func InjectorList() []InjectorProvider {
 		inject.NewDsDescriptionInjector,
 		inject.NewDsNameInjector,
 		inject.NewDsSummaryInjector,
-		inject.NewDsUserEmailInjector,
+		inject.NewDsUserIdInjector,
 		inject.NewDsOriginInjector,
 		inject.NewInputFileInjector,
 		inject.NewTimeInjector,
