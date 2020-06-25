@@ -20,5 +20,9 @@ func (m *Metadata) Validate() (out svc.ValidationResult) {
 		out.AddError("projects", "at least one project is required")
 	}
 
+	if len(m.Origin) == 0 {
+		out.AddError("origin", "origin is required")
+	}
+
 	return
 }
