@@ -17,6 +17,6 @@ type dsDescriptionInjector struct {
 }
 
 func (d *dsDescriptionInjector) Inject(target []string) ([]string, error) {
-	return simpleReplace(target, dsDescriptionInjectorTarget,
+	return forceQuotesReplace(target, dsDescriptionInjectorTarget,
 		d.state.Description), nil
 }

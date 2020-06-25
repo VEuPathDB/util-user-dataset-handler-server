@@ -17,6 +17,6 @@ type dsSummaryInjector struct {
 }
 
 func (d *dsSummaryInjector) Inject(target []string) ([]string, error) {
-	return simpleReplace(target, dsSummaryInjectorTarget,
+	return forceQuotesReplace(target, dsSummaryInjectorTarget,
 		d.state.Summary), nil
 }

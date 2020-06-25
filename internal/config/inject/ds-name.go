@@ -17,6 +17,6 @@ type dsNameInjector struct {
 }
 
 func (d *dsNameInjector) Inject(target []string) ([]string, error) {
-	return simpleReplace(target, dsNameInjectorTarget,
+	return forceQuotesReplace(target, dsNameInjectorTarget,
 		d.state.Name), nil
 }

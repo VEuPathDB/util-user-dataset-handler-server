@@ -9,4 +9,5 @@ type Metadata struct {
 	Summary     string `json:"summary"`
 	Description string `json:"description"`
 	Token       string `json:"jobId"`
+	Origin      string `json:"origin"`
 }

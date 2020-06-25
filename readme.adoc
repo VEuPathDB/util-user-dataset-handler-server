@@ -163,6 +163,15 @@ The user provided summary of the current dataset upload.
 Some summary text for my dataset upload
 ----
 
+==== `+<<ds-origin>>+`
+
+The source/origin of the user dataset should be either `galaxy` or `direct-upload`.
+
+.Example
+----
+direct-upload
+----
+
 ==== `+<<ds-user-email>>+`
 
 A generated "email address" consumed by the exporter script.  This is a
