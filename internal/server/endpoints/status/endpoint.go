@@ -43,7 +43,7 @@ func (s *statusEndpoint) Handle(req midl.Request) midl.Response {
 
 	// Is the job in progress
 	if det, ok := cache.GetDetails(jobID); ok {
-		midl.MakeResponse(http.StatusOK, det)
+		return midl.MakeResponse(http.StatusOK, det)
 	}
 
 	// Is the job waiting to start
