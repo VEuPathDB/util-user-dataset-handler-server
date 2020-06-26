@@ -43,7 +43,14 @@ func MetricAgg(next http.Handler) http.HandlerFunc {
 func recordTime(start time.Time, req midl.Request, code int) {
 	dur := time.Since(start)
 	met := req.RawRequest().Method
-	url, _ := mux.CurrentRoute(req.RawRequest()).GetPathTemplate()
+	route := mux.CurrentRoute(req.RawRequest())
+
+	var url string
+	if route != nil {
+		url, _ = route.GetPathTemplate()
+	} else {
+		url = req.RawRequest().URL.Path
+	}
 
 	logger.ByRequest(req).
 		WithField("duration", dur.String()).
