@@ -4,7 +4,7 @@ type Details struct {
 	StorableDetails
 
 	// InputFile is the uploaded tar file name.
-	InputFile string `json:"tarName"`
+	InputFile string `json:"uploadName"`
 
 	// UnpackedFiles is the list of unpacked files uploaded for
 	// processing.
