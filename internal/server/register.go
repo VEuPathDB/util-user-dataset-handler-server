@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/VEuPathDB/util-exporter-server/internal/server/endpoints/debug"
 	// Std Lib
 	"net/http"
 
@@ -71,4 +72,5 @@ func (s *server) RegisterEndpoints() {
 	job.NewJobCreateEndpoint().Register(s.router)
 	job.NewUploadEndpoint(s.fileOptions).Register(s.router)
 	status.NewStatusEndpoint(s.fileOptions).Register(s.router)
+	debug.NewDebugEndpoint().Register(s.router)
 }

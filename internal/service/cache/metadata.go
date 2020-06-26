@@ -35,3 +35,7 @@ func PutMetadata(jobID string, meta job.Metadata) {
 func DeleteMetadata(jobID string) {
 	metaCache.Delete(jobID)
 }
+
+func AllMetadata() map[string]cache.Item {
+	return metaCache.Items()
+}

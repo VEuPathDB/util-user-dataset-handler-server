@@ -30,3 +30,7 @@ func PutDetails(jobID string, details job.Details) {
 func DeleteDetails(jobID string) {
 	progressCache.Delete(jobID)
 }
+
+func AllDetails() map[string]cache.Item {
+	return progressCache.Items()
+}

@@ -26,3 +26,7 @@ func GetHistoricalDetails(jobID string) (job.StorableDetails, bool) {
 func PutHistoricalDetails(jobID string, details job.StorableDetails) {
 	historyCache.SetDefault(jobID, details)
 }
+
+func AllHistoricalDetails() map[string]cache.Item {
+	return historyCache.Items()
+}
