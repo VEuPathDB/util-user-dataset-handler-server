@@ -1,7 +1,9 @@
 package config
 
 import (
+	"bytes"
 	"gopkg.in/yaml.v3"
+	"io"
 	"os"
 )
 
@@ -25,8 +27,17 @@ func ParseFileOptions(path string) (FileOptions, error) {
 	}
 	defer file.Close()
 
+	buf := new(bytes.Buffer)
+	if _, err := io.Copy(file, buf); err != nil {
+		return nil, err
+	}
+
+	return ParseOptionsReader(buf)
+}
+
+func ParseOptionsReader(reader io.Reader) (FileOptions, error) {
 	out := new(fileOptions)
-	dec := yaml.NewDecoder(file)
+	dec := yaml.NewDecoder(reader)
 	if err := dec.Decode(out); err != nil {
 		return nil, err
 	}

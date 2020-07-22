@@ -1,9 +1,13 @@
 package config_test
 
 import (
+	"github.com/VEuPathDB/util-exporter-server/internal/dataset"
+	"github.com/VEuPathDB/util-exporter-server/internal/job"
+	"github.com/VEuPathDB/util-exporter-server/internal/wdk/site"
 	"go/build"
 	"os"
 	"testing"
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 
@@ -40,5 +44,64 @@ func TestInjectorList(t *testing.T) {
 		}
 
 		So(len(config.InjectorList()), ShouldEqual, len(files))
+	})
+}
+
+func TestFullInjectionBiom(t *testing.T) {
+	now := time.Now()
+
+	testDetails := job.Details{
+		StorableDetails: job.StorableDetails{
+			Started:  &now,
+			UserID:   1234,
+			Token:    "abcdabcdabcd",
+			Status:   job.StatusProcessing,
+			Projects: []site.WdkSite{site.MicrobiomeDB},
+		},
+		InputFile:     "fruit.tar",
+		UnpackedFiles: []string{"apple", "banana", "orange"},
+		WorkingDir:    "/workspace/potatoes",
+	}
+
+	testMeta := job.Metadata{
+		BaseInfo: dataset.BaseInfo{
+			Projects: []site.WdkSite{site.MicrobiomeDB},
+			Owner:    1234,
+		},
+		Name:        "strawberry pancakes",
+		Summary:     "blueberry pancakes",
+		Description: "blackberry pancakes",
+		Token:       "abcdabcdabcd",
+		Origin:      "mars",
+	}
+
+	configParams := []string{
+		"<<ds-name>>",
+		"<<ds-summary>>",
+		"<<ds-description>>",
+		`"<<ds-user-id>>"`,
+		"html.html",
+		`"<<ds-origin>>"`,
+		"<<input-files[0]>>",
+	}
+
+	Convey("Full config test", t, func() {
+		var err error
+		out := configParams
+		for _, fn := range config.InjectorList() {
+			tmp := fn(&testDetails, &testMeta)
+			out, err = tmp.Inject(out)
+		}
+
+		So(err, ShouldBeNil)
+		So(out, ShouldResemble, []string{
+			`"` + testMeta.Name + `"`,
+			`"` + testMeta.Summary + `"`,
+			`"` + testMeta.Description + `"`,
+			`"1234"`,
+			"html.html",
+			`"mars"`,
+			"apple",
+		})
 	})
 }
