@@ -11,7 +11,7 @@ import (
 
 func TestInputFileInjector_Inject(t *testing.T) {
 	Convey("InputFile Injector", t, func() {
-		Convey("Valid Template Variables", func() {
+		Convey("Expands valid template variables", func() {
 			input1 := "foo.txt"
 			input2 := "bar.txt"
 
@@ -34,7 +34,7 @@ func TestInputFileInjector_Inject(t *testing.T) {
 				So(a, ShouldResemble, test[1])
 			}
 		})
-		Convey("Invalid Template Variables", func() {
+		Convey("Errors on invalid template variables", func() {
 			input1 := "foo.txt"
 			input2 := "bar.txt"
 
