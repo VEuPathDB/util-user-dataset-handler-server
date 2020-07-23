@@ -3,6 +3,7 @@ package config_test
 import (
 	"bytes"
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
+	"github.com/VEuPathDB/util-exporter-server/internal/log"
 	"github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -34,6 +35,7 @@ command:
     - <<input-files[0]>>
 file-types:
   - .biom`))
+	log.SetLogger(log.ConfigureLogger())
 
 	convey.Convey("ParseOptionsReader", t, func() {
 		conf, err := config.ParseOptionsReader(data)
