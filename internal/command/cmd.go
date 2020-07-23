@@ -3,12 +3,13 @@ package command
 import (
 	"encoding/json"
 	"errors"
-	"github.com/VEuPathDB/util-exporter-server/internal/metrics"
-	"github.com/vulpine-io/split-pipe/v1/pkg/spipe"
 	"os"
 	"strings"
 
+	"github.com/vulpine-io/split-pipe/v1/pkg/spipe"
+
 	"github.com/VEuPathDB/util-exporter-server/internal/config"
+	"github.com/VEuPathDB/util-exporter-server/internal/metrics"
 	"github.com/VEuPathDB/util-exporter-server/internal/util"
 )
 
@@ -19,6 +20,8 @@ type response struct {
 
 // Configure and run the given command.
 func (r *runner) handleCommand(cmd config.Command) (err error) {
+	r.log.Trace("command.runner.handleCommand")
+
 	args, err := r.parseArgs(cmd.Args)
 	if err != nil {
 		return err
@@ -32,12 +35,12 @@ func (r *runner) handleCommand(cmd config.Command) (err error) {
 	X.Dir = r.details.WorkingDir
 	X.Env = env
 
+	r.log.Debug("running command:", X)
+
 	time, err := util.TimeCmd(X)
 	metrics.RecordCommandTime(cmd.Executable, time)
 
 	if err != nil {
-		r.log.Debug(X)
-
 		raw := strings.TrimSpace(buffer.String())
 		obj := strings.IndexByte(raw, '{')
 
@@ -69,8 +72,10 @@ func (r *runner) handleCommand(cmd config.Command) (err error) {
 // Parse the arguments configured in the command config and inject any template
 // variables encountered.
 func (r *runner) parseArgs(args []string) (out []string, err error) {
+	r.log.Trace("command.runner.parseArgs")
+
 	for _, fn := range config.InjectorList() {
-		args, err = fn(&r.details, &r.meta).Inject(args)
+		args, err = fn(&r.details, &r.meta, r.log).Inject(args)
 		if err != nil {
 			return
 		}

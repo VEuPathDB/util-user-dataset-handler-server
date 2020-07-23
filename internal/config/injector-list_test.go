@@ -4,6 +4,7 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/dataset"
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
 	"github.com/VEuPathDB/util-exporter-server/internal/wdk/site"
+	"github.com/sirupsen/logrus"
 	"go/build"
 	"os"
 	"testing"
@@ -88,8 +89,9 @@ func TestFullInjectionBiom(t *testing.T) {
 	Convey("Full config test", t, func() {
 		var err error
 		out := configParams
+		log := logrus.WithField("test", true)
 		for _, fn := range config.InjectorList() {
-			tmp := fn(&testDetails, &testMeta)
+			tmp := fn(&testDetails, &testMeta, log)
 			out, err = tmp.Inject(out)
 		}
 

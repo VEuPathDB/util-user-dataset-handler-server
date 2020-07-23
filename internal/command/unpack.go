@@ -13,6 +13,8 @@ const (
 )
 
 // Unpack the uploaded archive file into the working directory.
+//
+// This method handles zip files, tar files, and raw biom files.
 func (r *runner) unpack(d *job.Details) error {
 	if archive.HasZipExtension(d.InputFile) {
 		files, err := archive.UnZip(d.WorkingDir, d.InputFile, r.log)

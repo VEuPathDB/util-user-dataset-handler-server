@@ -6,6 +6,7 @@ import (
 
 // Returns the list of files in the working directory.
 func (r *runner) getWorkspaceFiles() ([]string, error) {
+	r.log.Trace("command.runner.getWorkspaceFiles")
 	files, err := r.wkspc.Files(func(string) bool { return true })
 
 	if err != nil {

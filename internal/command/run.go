@@ -52,6 +52,8 @@ type runner struct {
 }
 
 func (r *runner) Run() RunResult {
+	r.log.Trace("command.runner.Run")
+
 	var err error
 
 	r.getDetails()
@@ -88,23 +90,28 @@ func (r *runner) Run() RunResult {
 }
 
 func (r *runner) getDetails() {
+	r.log.Trace("command.runner.getDetails")
 	r.details, _ = cache.GetDetails(r.token)
 }
 
 func (r *runner) storeDetails() {
+	r.log.Trace("command.runner.storeDetails")
 	cache.PutDetails(r.token, r.details)
 }
 
 func (r *runner) getMeta() {
+	r.log.Trace("command.runner.getMeta")
 	r.meta, _ = cache.GetMetadata(r.token)
 }
 
 func (r *runner) updateStatus(status job.Status) {
+	r.log.Trace("command.runner.updateStatus")
 	r.details.Status = status
 	r.storeDetails()
 }
 
 func (r *runner) findTar() (string, error) {
+	r.log.Trace("command.runner.findTar")
 	prefix := fmt.Sprintf("dataset_u%d", r.meta.Owner)
 
 	matches, err := r.wkspc.Files(func(f string) bool {

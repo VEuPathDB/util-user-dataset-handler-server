@@ -3,11 +3,16 @@ package config
 import (
 	"github.com/VEuPathDB/util-exporter-server/internal/config/inject"
 	"github.com/VEuPathDB/util-exporter-server/internal/job"
+	"github.com/sirupsen/logrus"
 )
 
 // InjectorProvider defines a function that is used to construct and populate a
 // VariableInjector instance with job context data.
-type InjectorProvider func(*job.Details, *job.Metadata) inject.VariableInjector
+type InjectorProvider func(
+	*job.Details,
+	*job.Metadata,
+	*logrus.Entry,
+) inject.VariableInjector
 
 // InjectorList returns a slice of providers for all VariableInjectors.
 func InjectorList() []InjectorProvider {
