@@ -2,6 +2,7 @@ package inject_test
 
 import (
 	"github.com/VEuPathDB/util-exporter-server/internal/dataset"
+	"github.com/sirupsen/logrus"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -24,7 +25,7 @@ func TestDsUserIdInjector_Inject(t *testing.T) {
 			}
 
 			for _, test := range tests {
-				inj := inject.NewDsUserIdInjector(nil, &details)
+				inj := inject.NewDsUserIdInjector(nil, &details, logrus.WithField("test", true))
 				a, b := inj.Inject(test[0])
 				So(b, ShouldBeNil)
 				So(a, ShouldResemble, test[1])

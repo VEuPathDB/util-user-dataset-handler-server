@@ -1,6 +1,7 @@
 package inject_test
 
 import (
+	"github.com/sirupsen/logrus"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -28,7 +29,7 @@ func TestInputFileInjector_Inject(t *testing.T) {
 			}
 
 			for _, test := range tests {
-				inj := inject.NewInputFileInjector(&details, nil)
+				inj := inject.NewInputFileInjector(&details, nil, logrus.WithField("test", true))
 				a, b := inj.Inject(test[0])
 				So(b, ShouldBeNil)
 				So(a, ShouldResemble, test[1])
@@ -48,7 +49,7 @@ func TestInputFileInjector_Inject(t *testing.T) {
 			}
 
 			for _, test := range tests {
-				inj := inject.NewInputFileInjector(&details, nil)
+				inj := inject.NewInputFileInjector(&details, nil, logrus.WithField("test", true))
 				a, b := inj.Inject(test)
 				So(b, ShouldNotBeNil)
 				So(a, ShouldBeNil)

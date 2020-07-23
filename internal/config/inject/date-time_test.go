@@ -1,6 +1,7 @@
 package inject_test
 
 import (
+	"github.com/sirupsen/logrus"
 	"testing"
 	"time"
 
@@ -28,7 +29,7 @@ func TestDateTimeInjector_Inject(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			inj := inject.NewDateTimeInjector(&details, nil)
+			inj := inject.NewDateTimeInjector(&details, nil, logrus.WithField("test", true))
 			a, b := inj.Inject(test[0])
 			So(b, ShouldBeNil)
 			So(a, ShouldResemble, test[1])

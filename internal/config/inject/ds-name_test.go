@@ -1,6 +1,7 @@
 package inject_test
 
 import (
+	"github.com/sirupsen/logrus"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -22,7 +23,7 @@ func TestDsNameInjector_Inject(t *testing.T) {
 		}
 
 		for _, test := range tests {
-			inj := inject.NewDsNameInjector(nil, &details)
+			inj := inject.NewDsNameInjector(nil, &details, logrus.WithField("test", true))
 			a, b := inj.Inject(test[0])
 			So(b, ShouldBeNil)
 			So(a, ShouldResemble, test[1])
