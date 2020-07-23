@@ -2,7 +2,7 @@ package config
 
 import (
 	"bytes"
-	"github.com/sirupsen/logrus"
+	"github.com/VEuPathDB/util-exporter-server/internal/log"
 	"gopkg.in/yaml.v3"
 	"io"
 	"os"
@@ -22,17 +22,17 @@ type FileOptions interface {
 }
 
 func ParseFileOptions(path string) (FileOptions, error) {
-	logrus.Trace("config.ParseFileOptions")
+	log.Logger().Trace("config.ParseFileOptions")
 	file, err := os.Open(path)
 	if err != nil {
-		logrus.Debug("failed to open config file")
+		log.Logger().Debug("failed to open config file")
 		return nil, err
 	}
 	defer file.Close()
 
 	buf := new(bytes.Buffer)
 	if _, err := io.Copy(file, buf); err != nil {
-		logrus.Debug("failed to read config file")
+		log.Logger().Debug("failed to read config file")
 		return nil, err
 	}
 
@@ -40,12 +40,12 @@ func ParseFileOptions(path string) (FileOptions, error) {
 }
 
 func ParseOptionsReader(reader io.Reader) (FileOptions, error) {
-	logrus.Trace("config.ParseOptionsReader")
+	log.Logger().Trace("config.ParseOptionsReader")
 
 	out := new(fileOptions)
 	dec := yaml.NewDecoder(reader)
 	if err := dec.Decode(out); err != nil {
-		logrus.Debug("failed to decode byte buffer")
+		log.Logger().Debug("failed to decode byte buffer")
 		return nil, err
 	}
 
@@ -55,7 +55,7 @@ func ParseOptionsReader(reader io.Reader) (FileOptions, error) {
 }
 
 func appendDefaultFileTypes(types []string) []string {
-	logrus.Trace("config.appendDefaultFileTypes")
+	log.Logger().Trace("config.appendDefaultFileTypes")
 	return append(types, globalAllowedTypes...)
 }
 

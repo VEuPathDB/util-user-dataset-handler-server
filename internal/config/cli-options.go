@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/VEuPathDB/util-exporter-server/internal/log"
 	"os"
 	"strconv"
 
@@ -52,6 +53,7 @@ type CLIOptions interface {
 }
 
 func ParseCLIOptions() (CLIOptions, error) {
+	log.Logger().Trace("config.ParseCLIOptions")
 	out := new(cliOpts)
 
 	_, err := cli.NewCommand().
