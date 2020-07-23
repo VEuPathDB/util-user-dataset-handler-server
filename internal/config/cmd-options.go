@@ -31,9 +31,11 @@ func ParseFileOptions(path string) (FileOptions, error) {
 	defer file.Close()
 
 	buf := new(bytes.Buffer)
-	if _, err := io.Copy(file, buf); err != nil {
+	if b, err := io.Copy(buf, file); err != nil {
 		log.Logger().Debug("failed to read config file")
 		return nil, err
+	} else {
+		log.Logger().Debug("copied", b, "bytes into buffer")
 	}
 
 	return ParseOptionsReader(buf)
