@@ -80,6 +80,10 @@ be used as long as it can be executed via a cli call.
 The script expectations are based on the Galaxy tooling.  This means scripts are
 expected to output a `.tgz` file suitable for being directly loaded into iRODS.
 
+The pattern for the tar file output name must match the iRODS trigger's expected
+format of `dataset_u\{user-id}_t\{timestamp-int64}_p\{process-id}.tgz`.  For
+example: `dataset_u12345_t1647364816_p132.tgz`.
+
 This means the tar file must contain a `meta.json`, `dataset.json`, and a
 directory named `datafiles` containing the actual dataset file(s).
 
