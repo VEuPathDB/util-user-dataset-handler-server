@@ -2,10 +2,11 @@ package config
 
 import (
 	"bytes"
-	"github.com/VEuPathDB/util-exporter-server/internal/log"
-	"gopkg.in/yaml.v3"
 	"io"
 	"os"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/log"
+	"gopkg.in/yaml.v3"
 )
 
 var globalAllowedTypes = []string{
@@ -15,9 +16,19 @@ var globalAllowedTypes = []string{
 	".zip",
 }
 
+// FileOptions represents the options set in the yaml file.
+//
+// TODO: this type is badly named, it should be command config or something.
 type FileOptions interface {
+
+	// Commands returns the command configured in the config.yml file.
 	Commands() Command
+
+	// FileTypes returns the configured allowed file types for the handler
+	// command.
 	FileTypes() []string
+
+	// ServiceName returns the name of the configured service.
 	ServiceName() string
 }
 

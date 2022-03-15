@@ -2,10 +2,11 @@ package workspace
 
 import (
 	"fmt"
-	"github.com/VEuPathDB/util-exporter-server/internal/util/fs"
 	"io"
 	"os"
 	"path"
+
+	"github.com/VEuPathDB/util-exporter-server/internal/util/fs"
 
 	"github.com/sirupsen/logrus"
 
@@ -27,13 +28,28 @@ const (
 type FilePredicate func(string) bool
 
 type Workspace interface {
+	// GetPath returns the path to the workspace directory.
 	GetPath() string
+
+	// FileFromUpload copies the contents of the given input stream into a new
+	// file with the given name in the workspace directory.
 	FileFromUpload(name string, in io.Reader) (*os.File, error)
+
+	// Files returns a list of file names matching the given predicate
+	// representing files in the workspace.
 	Files(FilePredicate) ([]string, error)
+
+	// Open the workspace file with the given name.
 	Open(name string) (*os.File, error)
+
+	// Delete the workspace file with the given name.
 	Delete(name string) error
+
+	// Stat returns the file info for the workspace file with the given name.
+	Stat(name string) (os.FileInfo, error)
 }
 
+// Create returns a new Workspace instance rooted in the given directory path.
 func Create(dir string, log *logrus.Entry) (Workspace, error) {
 	log.Trace("Workspace#Create")
 
@@ -118,8 +134,4 @@ func (w *workspace) Delete(name string) error {
 	}
 
 	return nil
-}
-
-func autoExclude(i os.FileInfo) bool {
-	return i.Name() == "." || i.Name() == ".."
 }

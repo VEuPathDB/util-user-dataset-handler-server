@@ -1,9 +1,10 @@
 package job
 
 import (
-	"github.com/vulpine-io/bites/v1/pkg/bites"
 	"net/http"
 	"os"
+
+	"github.com/vulpine-io/bites/v1/pkg/bites"
 
 	"github.com/Foxcapades/go-midl/v2/pkg/midl"
 	"github.com/gorilla/mux"
@@ -70,21 +71,30 @@ func (u *uploadEndpoint) Handle(req midl.Request) midl.Response {
 
 	log.Trace("uploadEndpoint#handle")
 
+	// Get the job ID out of the request URL
 	token := mux.Vars(req.RawRequest())[tokenKey]
+
+	// Load the cached metadata for this job.
 	meta := u.getMeta(token)
+
+	// Cache details about the job such as start time, job status, etc...
 	dets := u.createDetails(&meta)
 
+	// Create a new workspace directory for this job.
 	wkspc, err := workspace.Create(token, log)
 	if err != nil {
 		log.WithField("status", http.StatusInternalServerError).Error(err)
 		return svc.ServerError(err.Error())
 	}
 
+	// Handle the file upload to the workspace.
 	if res := u.HandleUpload(req, dets, wkspc); res != nil {
 		return res
 	}
 
+	// Configure and execute the job command.
 	result := command.NewCommandRunner(token, u.file, wkspc, log).Run()
+
 	if result.Error != nil {
 		switch result.Error.(type) {
 		case *command.UserError:
@@ -106,20 +116,24 @@ func (u *uploadEndpoint) HandleUpload(
 ) midl.Response {
 	u.log.Trace("uploadEndpoint#HandleUpload")
 
+	// Get the file stream from the POST request input file.
 	fileName, stream, res := GetFileHandle(request.RawRequest(), u.log)
 	if res != nil {
 		return u.FailJob(res, details)
 	}
 	defer stream.Close()
 
+	// Validate that the file suffix is one that can be handled.
 	suff, errRes := u.ValidateFileSuffix(fileName, u.log)
 	if errRes != nil {
 		return u.FailJob(errRes, details)
 	}
 
+	// Store the working directory for this job in the cache.
 	details.WorkingDir = wkspc.GetPath()
 	u.storeDetails(details)
 
+	// Copy the upload stream to a new file in the job workspace.
 	file, err := wkspc.FileFromUpload(fileName, stream)
 	if err != nil {
 		u.log.WithField("status", http.StatusInternalServerError).Error(err)
@@ -127,16 +141,18 @@ func (u *uploadEndpoint) HandleUpload(
 	}
 	defer file.Close()
 
+	// Stat the file for its size to record upload metrics.
 	info, err := file.Stat()
-
 	if err != nil {
 		u.log.WithField("status", http.StatusInternalServerError).Error(err)
 		return svc.ServerError(except.NewServerError(err.Error()).Error())
 	}
 
+	// Record the file size metrics.
 	promRequestPayloadSize.WithLabelValues(suff).
 		Observe(float64(info.Size()) / float64(bites.SizeMebibyte))
 
+	// Store the upload file as part of the job details in the cache.
 	details.InputFile = fileName
 	u.storeDetails(details)
 

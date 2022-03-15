@@ -13,8 +13,10 @@ import (
 	"github.com/VEuPathDB/util-exporter-server/internal/util"
 )
 
-type response struct {
-	Error   string `json:"error"`
+type errorOutput struct {
+	// Error type.
+	Error string `json:"error"`
+	// Error message.
 	Message string `json:"message"`
 }
 
@@ -37,27 +39,45 @@ func (r *runner) handleCommand(cmd config.Command) (err error) {
 
 	r.log.Debug("running command:", X)
 
+	// Execute the command wrapped in a timer to record execution metrics.
 	time, err := util.TimeCmd(X)
 	metrics.RecordCommandTime(cmd.Executable, time)
 
+	// If the command exited with a non-zero code (err is not nil)
 	if err != nil {
+		// Get the raw stderr buffer and trim off any extra whitespace characters.
 		raw := strings.TrimSpace(buffer.String())
+
+		// Check to see if the output appears to contain a json object, record the
+		// position of the opening bracket.
 		obj := strings.IndexByte(raw, '{')
 
+		// If an opening curly bracket was not found, exit here with just the raw
+		// text as an error message.
 		if obj == -1 {
 			return errors.New(strings.TrimSpace(raw))
 		}
 
-		tmp := response{}
+		// Since the output appears to contain a json object, attempt to parse it.
+		tmp := errorOutput{}
+		// If there was an error while parsing, then it was not a valid json object,
+		// or contained extra trailing characters.  Spit out the raw stderr text as
+		// an error.
 		if err := json.Unmarshal([]byte(raw[obj:]), &tmp); err != nil {
 			return errors.New(strings.TrimSpace(raw))
 		}
 
+		// If we're here, then there was a json object at the end of the stderr
+		// output.
 		msg := tmp.Message
+		// If there was extra text before the json object, prepend it to the error
+		// message from the json object.
 		if obj > 0 {
 			msg += "\n" + raw[0:obj]
 		}
 
+		// If the error was a "user" error, return that error type, else consider
+		// it a handler error and return _that_ type.
 		switch tmp.Error {
 		case "user":
 			return NewUserError(msg)
@@ -66,6 +86,7 @@ func (r *runner) handleCommand(cmd config.Command) (err error) {
 		}
 	}
 
+	// If we're here, then the command executed successfully.
 	return nil
 }
 
