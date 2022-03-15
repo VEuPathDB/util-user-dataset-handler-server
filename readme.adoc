@@ -39,7 +39,7 @@ endif::[]
 
 ==== Standard Use
 
-https://github.com/VEuPathDB/dataset-handlers/tree/master/biom[Sample project using this server]
+https://github.com/VEuPathDB/dataset-handler-biom[Working example project]
 
 
 ==== Custom Use
@@ -69,6 +69,85 @@ information about the configuration file.
 ----
 $ ./service --config=config.yml check-config
 ----
+
+== Script Expectations
+
+This server is language agnostic when it comes to calling scripts.  Anything may
+be used as long as it can be executed via a cli call.
+
+=== Output
+
+The script expectations are based on the Galaxy tooling.  This means scripts are
+expected to output a `.tgz` file suitable for being directly loaded into iRODS.
+
+This means the tar file must contain a `meta.json`, `dataset.json`, and a
+directory named `datafiles` containing the actual dataset file(s).
+
+This server will automatically pick up that file and return it to the udis
+service to be loaded into iRODS.
+
+=== Error handling
+
+A script can indicate a fatal error by exiting with a non-zero status code.  An
+error message will be generated using the text printed to `stderr` by the
+script.
+
+Errors may be plaintext, a json object, or plaintext followed by a json object.
+
+To indicate an error is a user error and not a script failure, a json object
+error must be returned.
+
+.Valid `stderr` output examples
+[source, shell script]
+----
+# A plaintext error
+Some error message that will be recorded as a script/server error.
+
+# Error output followed by a final fatal error.
+Some error text followed by a {"error": "json", "message": "object"}
+
+# A structured error
+{"error": "user", "message": "some user error"}
+----
+
+When returning both plaintext and a json object, the plaintext will be prepended
+to the error message in the json output.
+
+For example:
+
+.Raw `stderr` output
+----
+Some error messages
+Logged while executing the script
+{"error": "fatal", "message": "failed to open input file"}
+----
+
+.Recorded error
+[source, json]
+----
+{
+  "error": "fatal",
+  "message": "Some error messages\nLogged while executing the script\nfailed to open input file"
+}
+----
+
+
+==== Json Object Error Format
+
+[source,json]
+----
+{
+  "error": "user", <1>
+  "message": "some error text" <2>
+}
+----
+<1> The `"error"` field is used to define the type of error.  A value of
+    `"user"` indicates that the error was a user error and the user import
+    service will record the error as such.  Any other value will be recorded as
+    a script error.
+<2> The `"message"` field defines the error message to record.
+
+CAUTION: Both fields are required.
 
 == Config File
 
