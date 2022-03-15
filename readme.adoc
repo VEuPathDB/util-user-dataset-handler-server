@@ -1,8 +1,7 @@
 = Exporter Script Server
 // General Doc Settings
 :toc: left
-:source-highlighter: pygments
-:pygments-style: monokai
+:source-highlighter: highlightjs
 :icons: font
 // Github specifics
 ifdef::env-github[]
