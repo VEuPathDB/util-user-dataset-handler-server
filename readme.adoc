@@ -89,6 +89,9 @@ directory named `datafiles` containing the actual dataset file(s).
 This server will automatically pick up that file and return it to the udis
 service to be loaded into iRODS.
 
+The reason for this is the HTTP server which unpacks and starts the command does
+not know what belongs or doesn't belong in the iRODS tar.
+
 === Error handling
 
 A script can indicate a fatal error by exiting with a non-zero status code.  An
