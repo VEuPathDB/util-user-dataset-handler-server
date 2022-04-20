@@ -44,7 +44,21 @@ func TestHandlerParamInjector_Inject(t *testing.T) {
 			}
 
 			for _, test := range tests {
-				inj := inject.NewInputFileInjector(nil, &metadata, logrus.WithField("test", true))
+				inj := inject.NewHandlerParamInjector(nil, &metadata, logrus.WithField("test", true))
+				a, b := inj.Inject(test)
+				So(a, ShouldBeNil)
+				So(b, ShouldNotBeNil)
+			}
+		})
+		Convey("Errors when params missing from job metadata", func() {
+			metadata := job.Metadata{}
+
+			tests := [][]string{
+				{"--foo=<<handler-params.p1>>"},
+			}
+
+			for _, test := range tests {
+				inj := inject.NewHandlerParamInjector(nil, &metadata, logrus.WithField("test", true))
 				a, b := inj.Inject(test)
 				So(a, ShouldBeNil)
 				So(b, ShouldNotBeNil)

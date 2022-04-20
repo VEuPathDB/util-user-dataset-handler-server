@@ -41,7 +41,9 @@ func (t *handlerParamInjector) Inject(target []string) ([]string, error) {
 		}
 
 		for _, match := range matches {
-			t.log.Trace("Matched.")
+			if t.metadata.HandlerParams == nil {
+				return nil, errors.New("invalid state: HandlerParams are not set on job metadata.")
+			}
 			handler_param_name := tgt[match[2]:match[3]]
 			handler_param_value, is_present := t.metadata.HandlerParams[handler_param_name]
 			if !is_present {
