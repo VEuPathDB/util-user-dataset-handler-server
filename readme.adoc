@@ -325,3 +325,35 @@ The current unix timestamp in seconds.
 ----
 783647299
 ----
+
+==== `+<<handler-params.p1>>+`
+
+Access of handler-specific parameter values from the request body of the import request.
+
+===== Examples
+.Request Body
+[source, json]
+----
+{
+    "datasetName": "foo",
+    "projects": [
+        "PlasmoDB"
+    ],
+    "datasetType": "gene-list",
+    "origin": "direct-upload",
+    "formatParams": {
+        "genome": "test-genome-1",
+        "otherParam": "other-param-value"
+    }
+}
+----
+
+.+<<handler_params.genome>>+
+----
+test-genome-1
+----
+
+.+<<handler_params.otherParam>>+
+----
+other-param-value
+----

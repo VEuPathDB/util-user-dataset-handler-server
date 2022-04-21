@@ -288,6 +288,18 @@ types:
         description: Optional dataset summary.
         type: string
         required: false
+      origin:
+        description: Optional (until service is called from Galaxy) dataset origin (galaxy or direct-upload)
+        type: DatasetOrigin
+        required: false
+      handlerParams:
+        description: Optional handler-specific parameters that can be injected in Handler CLI call
+        type: object
+        required: false
+
+  DatasetOrigin:
+    type: string
+    enum: ['galaxy','direct-upload']
 
   ProjectEnum:
     type: string
