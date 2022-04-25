@@ -17,5 +17,6 @@ require (
 	github.com/vulpine-io/bites v1.0.0
 	github.com/vulpine-io/split-pipe v1.0.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
+	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200504163728-5308cda29e3d
 )

@@ -28,5 +28,6 @@ func InjectorList() []InjectorProvider {
 		inject.NewInputFileInjector,
 		inject.NewTimeInjector,
 		inject.NewTimestampInjector,
+		inject.NewHandlerParamInjector,
 	}
 }
