@@ -29,5 +29,6 @@ func InjectorList() []InjectorProvider {
 		inject.NewTimeInjector,
 		inject.NewTimestampInjector,
 		inject.NewHandlerParamInjector,
+		inject.NewProjectsInjector,
 	}
 }
