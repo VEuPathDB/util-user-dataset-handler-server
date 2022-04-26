@@ -326,6 +326,15 @@ The current unix timestamp in seconds.
 783647299
 ----
 
+==== `<<projects>>`
+
+A comma-separated list of project identifiers.
+
+.Example
+----
+VectorBase,PlasmoDB
+----
+
 ==== `+<<handler-params.p1>>+`
 
 Access of handler-specific parameter values from the request body of the import request.
