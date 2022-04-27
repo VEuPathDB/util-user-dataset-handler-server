@@ -25,7 +25,7 @@ build-all: bin/server bin/static-content/index.html bin/gen-config bin/check-con
 
 # Build all release packages
 .PHONY: gh-release
-travis: bin/server-${GH_TAG}.tar.gz bin/check-config-${GH_TAG}.tar.gz bin/gen-config-${GH_TAG}.tar.gz
+gh-release: bin/server-${GH_TAG}.tar.gz bin/check-config-${GH_TAG}.tar.gz bin/gen-config-${GH_TAG}.tar.gz
 
 # Pre-push code testing
 .PHONY: git-push
