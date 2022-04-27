@@ -24,8 +24,8 @@ build: bin/server bin/static-content/index.html
 build-all: bin/server bin/static-content/index.html bin/gen-config bin/check-config
 
 # Build all release packages
-.PHONY: travis
-travis: bin/server-${TRAVIS_TAG}.tar.gz bin/check-config-${TRAVIS_TAG}.tar.gz bin/gen-config-${TRAVIS_TAG}.tar.gz
+.PHONY: gh-release
+gh-release: bin/server-${GH_TAG}.tar.gz bin/check-config-${GH_TAG}.tar.gz bin/gen-config-${GH_TAG}.tar.gz
 
 # Pre-push code testing
 .PHONY: git-push
@@ -46,14 +46,14 @@ bin/check-config: $(FILES)
 bin/gen-config: $(FILES)
 	$(call go_build,gen-config)
 
-bin/server-${TRAVIS_TAG}.tar.gz: bin/server bin/static-content/index.html
-	@cd bin && tar -czf server-${TRAVIS_TAG}.tar.gz server static-content && cd ..
+bin/server-${GH_TAG}.tar.gz: bin/server bin/static-content/index.html
+	@cd bin && tar -czf server-${GH_TAG}.tar.gz server static-content && rm server && rm -rf static-content && cd ..
 
-bin/gen-config-${TRAVIS_TAG}.tar.gz: bin/gen-config
-	@cd bin && tar -czf gen-config-${TRAVIS_TAG}.tar.gz gen-config && cd ..
+bin/gen-config-${GH_TAG}.tar.gz: bin/gen-config
+	@cd bin && tar -czf gen-config-${GH_TAG}.tar.gz gen-config && rm gen-config && cd ..
 
-bin/check-config-${TRAVIS_TAG}.tar.gz: bin/check-config
-	@cd bin && tar -czf check-config-${TRAVIS_TAG}.tar.gz check-config && cd ..
+bin/check-config-${GH_TAG}.tar.gz: bin/check-config
+	@cd bin && tar -czf check-config-${GH_TAG}.tar.gz check-config && rm check-config && cd ..
 
 bin/static-content/index.html: docs/api.html
 	@mkdir -p bin/static-content
