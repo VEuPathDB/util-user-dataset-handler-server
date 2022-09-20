@@ -18,7 +18,7 @@ const (
 	SchistoDB       WdkSite = "SchistoDB"
 	ToxoDB          WdkSite = "ToxoDB"
 	TrichDB         WdkSite = "TrichDB"
-	TritrypDB       WdkSite = "TritrypDB"
+	TriTrypDB       WdkSite = "TriTrypDB"
 	VectorBase      WdkSite = "VectorBase"
 	VEuPathDB       WdkSite = "VEuPathDB"
 )
@@ -38,7 +38,7 @@ var validSites = map[WdkSite]bool{
 	SchistoDB:       true,
 	ToxoDB:          true,
 	TrichDB:         true,
-	TritrypDB:       true,
+	TriTrypDB:       true,
 	VectorBase:      true,
 	VEuPathDB:       true,
 }
